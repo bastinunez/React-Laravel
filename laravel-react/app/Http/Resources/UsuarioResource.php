@@ -16,9 +16,9 @@ class UsuarioResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'nombres' => $this->name,
-            'nombres' => $this->name,
-            'email' => $this->email,
+            'nombres' => $this->nombres,
+            'apellidos' => $this->apellidos,
+            'rut' => $this->rut,
             'roles' => RoleResource::collection($this->whenLoaded('roles')),
             'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),
         ];
