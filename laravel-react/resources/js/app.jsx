@@ -3,6 +3,7 @@ import '../css/app.css';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
+import '@react-pdf-viewer/core/lib/styles/index.css';
 // import 'primeflex/primeflex.css';
 
 import { createRoot } from 'react-dom/client';
@@ -10,6 +11,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import {NextUIProvider} from "@nextui-org/react";
 import { StrictMode } from 'react';
+import { PDFViewer } from '@react-pdf/renderer';
 
 import { PrimeReactProvider } from 'primereact/api';
 
@@ -25,7 +27,7 @@ createInertiaApp({
             <StrictMode>
                 <PrimeReactProvider >
                     <NextUIProvider>
-
+                    
                     <App {...props} /> 
                     </NextUIProvider>
                 </PrimeReactProvider>

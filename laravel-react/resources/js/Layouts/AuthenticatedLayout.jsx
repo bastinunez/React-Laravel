@@ -8,25 +8,50 @@ import { Sidebar } from '@/Components/Sidebar';
 import { Button as BtnPrime } from 'primereact/button';
 import {Button as BtnNext} from "@nextui-org/react";
 import { usePermission } from '@/Composables/Permission';
+import NavbarComponent from '@/Components/Navbar';
+import { useSidebarStore } from '@/Store/useStore';
 
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [visible, setVisible] = useState(true);
-    console.log(user)
+    const { sidebar,changeState} = useSidebarStore();
+    
     return (
         <div className=" flex h-screen">
             {/* SIDEBAR */}
             <div>
-                <Sidebar user={user} visible={visible} onHide={() => setVisible(!visible)}>
+                <Sidebar user={user} visible={sidebar}>
                     
                 </Sidebar>
                
             </div>
             {/* NAVBAR Y MAIN */}
-            <div className={`flex-grow ${visible ? '' : ''}`}>
-    
-                    <nav className="bg-white border-b border-gray-300">
+            <div className={`flex-grow ${sidebar ? 'ml-72' : 'ml-20'}`}>
+                <NavbarComponent></NavbarComponent>
+                
+                <main>
+                    <div className="align-center justify-center full-width h-full flex-col min-h-screen bg-slate-200">
+                        <div className="d-flex w-100 justify-center pt-4 container mx-auto">
+                            <div>
+                             {children}
+                            </div>
+                            {/* <slot >
+                                <div >
+                                    Bienvenido {{ $page.props.auth.user.nombres }} {{ $page.props.auth.user.apellidos }}
+                                </div>
+                            </slot> */}
+                        </div>
+                        
+                    </div>
+                </main>
+            </div>
+
+            
+        </div>
+    );
+}
+{/* <nav className="bg-white border-b border-gray-300">
                     <div className="mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between h-16">
                             <div className='align-middle'>
@@ -136,7 +161,7 @@ export default function Authenticated({ user, header, children }) {
                             </div>
                         </div>
                     </div>
-                </nav> 
+                </nav>  */}
 
                 {/* {header && (
                     <header className="bg-white shadow">
@@ -150,24 +175,3 @@ export default function Authenticated({ user, header, children }) {
                     </Button>
                 
                 </main> */}
-                <main>
-                    <div className="align-center justify-center full-width h-full flex-col min-h-screen bg-slate-200">
-                        <div className="d-flex w-100 justify-center">
-                            <div>
-                             {children}
-                            </div>
-                            {/* <slot >
-                                <div >
-                                    Bienvenido {{ $page.props.auth.user.nombres }} {{ $page.props.auth.user.apellidos }}
-                                </div>
-                            </slot> */}
-                        </div>
-                        
-                    </div>
-                </main>
-            </div>
-
-            
-        </div>
-    );
-}

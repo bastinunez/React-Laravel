@@ -1,78 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
-import { InputSwitch } from 'primereact/inputswitch';
+import React, { useState, useEffect} from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import TitleTemplate from '@/Components/TitleTemplate';
 import FilterTemplate from '@/Components/FilterTemplate';
 import ContentTemplate from '@/Components/ContentTemplate';
-import { Tag } from 'primereact/tag';
+import AppTable from '@/Components/Table';
+import { usePage ,Link} from '@inertiajs/react';
+import NavLink from '@/Components/NavLink';
+import {Button} from "@nextui-org/react";
+
 
 const ShowDocuments = ({auth}) => {
-  //const [products, setProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState(null);
-  const [rowClick, setRowClick] = useState(true);
-
-  const paginatorLeft = <Button type="button" icon="pi pi-refresh" text />;
-  const paginatorRight = <Button type="button" icon="pi pi-download" text />;
-
-  const columns = [
-    {field: 'code', header: 'Code'},
-    {field: 'name', header: 'Name'},
-    {field: 'category', header: 'Category'},
-    {field: 'quantity', header: 'Quantity'}
-  ];
-
-  const products = [
-    {
-      code:'1',id:'1',name:'1',category:'1',quantity:1
-    },{
-      code:'2',id:'2',name:'2',category:'2',quantity:2
-    },{
-      code:'3',id:'3',name:'3',category:'3',quantity:3
-    }
-  ];
-
-  const statusOrderBodyTemplate = (rowData) => {
-    return <Tag value={rowData.quantity} severity={getOrderSeverity(rowData)}></Tag>;
-  };
   
-  const getOrderSeverity = (order) => {
-    switch (order.status) {
-        case 1:
-            return 'success';
+  const { documentos } = usePage().props;
 
-        case 2:
-            return 'danger';
-
-        case 3:
-            return 'warning';
-        default:
-            return null;
-    }
-};
-
-const getProductSeverity = (product) => {
-  switch (product.quantity) {
-      case 1:
-          return 'success';
-
-      case 2:
-          return 'warning';
-
-      case 3:
-          return 'danger';
-
-      default:
-          return null;
-  }
-};
-
-  const statusBodyTemplate = (rowData) => {
-    return <Tag value={rowData.quantity} severity={getProductSeverity(rowData)}></Tag>;
-  };
-
+  const columnas = [
+    {name: "ID", uid: "id", sortable: true},
+    {name: "Numero", uid: "numero", sortable: true},
+    {name: "Autor", uid: "autor", sortable: true},
+    {name: "Fecha", uid: "fecha", sortable: true},
+    {name: "Tipo", uid: "tipo"},
+    {name: "Materia", uid: "materia"},
+    {name: "Rut", uid: "rut"},
+    {name: "Dirección", uid: "direccion", sortable: true},
+    {name: "Archivo", uid: "name_file", sortable: true},
+    {name: "Acciones", uid: "actions"},
+  ];
+  
+  const estadosOpciones = [
+    {name: "Habilitado", uid: "habilitado"},
+    {name: "Anulado", uid: "anulado"},
+  ];
+  const columnasVisibles = ["Numero", "Autor", "Fecha", "Tipo","Rut","Dirección","Acciones"];
+  
   return (
     <AuthenticatedLayout 
       user={auth.user}
@@ -81,23 +40,64 @@ const getProductSeverity = (product) => {
         <TitleTemplate>Documentos</TitleTemplate>
         <FilterTemplate>Aqui iran los filtros</FilterTemplate>
         <ContentTemplate>
-          <h1>Resultados</h1>
-    
-          <DataTable value={products} paginator rows={5} rowsPerPageOptions={[5, 10, 25, 50]}  tableStyle={{ minWidth: '50rem' }}
-          paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-          currentPageReportTemplate="{first} to {last} of {totalRecords}" paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}>
-            <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
-            {/* <Column field="id" header="Id" sortable></Column> */}
-            <Column field="code" header="Code" sortable></Column>
-            <Column field="name" header="Name" sortable></Column>
-            <Column field="category" header="Category" sortable></Column>
-            <Column field="quantity" header="Quantity" body={statusBodyTemplate} sortable></Column>
-            <Column headerStyle={{ width: '4rem' }} ></Column>
-            {/* {columns.map((col, i) => (
-                    <Column key={col.field} field={col.field} header={col.header} sortable/>
-                ))} */}
-          </DataTable>
+          <div className='flex justify-between'>
+            <div>
+              <h1>Resultados</h1>
+            </div>
+            <div>
+            <Link href={route('documento.create')}>
+              <Button color="success" variant="bordered" >
+                <i className="pi pi-plus" style={{ color: 'green' }}></i>
+                 Agregar documento
+              </Button>
+            </Link>
+            
+            </div>
+
+          </div>
+          <div className='w-full'>
+            <table className='w-full'>
+              <thead>
+                <tr >
+                  {columnas.map((columna)=>(
+                    <th className='text-start' key={columna.uid}>{columna.name}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  documentos.map((documento)=>(
+                    <tr key={documento.id} className='text-start'>
+                      <td>{documento.id}</td>
+                      <td>{documento.numero}</td>
+                      <td>{documento.autor}</td>
+                      <td>{documento.fecha}</td>
+                      <td>{documento.tipo}</td>
+                      <td className='overflow-hidden'>{documento.materia}</td>
+                      <td>{documento.rut}</td>
+                      <td>{documento.direccion}</td>
+                      <td>{documento.name_file}</td>
+                      <td><>
+                        <Link className="py-4" href={route('documento.visualizar',documento.id)} > 
+                        {/* active={route().current('documento.visualizar')} */}
+                        <span className="text-lg">Visualizar</span>
+                        </Link>
+                      </></td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+          
+          {/* <div className='p-2'>
+            <AppTable datos={documentos} estados={estadosOpciones} columnas={columnas} visibles={columnasVisibles}></AppTable>
+          </div> */}
+          
         </ContentTemplate>
+      </div>
+      <div>
+              
       </div>
     </AuthenticatedLayout>
     
@@ -105,3 +105,15 @@ const getProductSeverity = (product) => {
 }
 
 export default ShowDocuments
+  {/* <DataTable lazy value={products} paginator rows={5} rowsPerPageOptions={[5, 10, 25, 50]}  tableStyle={{ minWidth: '50rem' }}
+          paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+          currentPageReportTemplate="{first} to {last} of {totalRecords}" paginatorLeft={paginatorLeft} paginatorRight={paginatorRight} filters={lazyState.filters}>
+            <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
+           
+            <Column field="code" header="Code" sortable filter filterPlaceholder="Search"></Column>
+            <Column field="name" header="Name" sortable></Column>
+            <Column field="category" header="Category" sortable></Column>
+            <Column field="quantity" header="Quantity" body={statusBodyTemplate} sortable></Column>
+            <Column headerStyle={{ width: '4rem' }} ></Column>
+            
+          </DataTable> */}

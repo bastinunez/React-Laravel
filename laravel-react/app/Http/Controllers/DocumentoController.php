@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\DireccionResource;
 use App\Http\Resources\DocumentoResource;
+use App\Models\Direccion;
 use App\Models\Documento;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,6 +20,7 @@ class DocumentoController extends Controller
      */
     public function index()
     {
+        //dd(DocumentoResource::collection(Documento::all()));
         return Inertia::render('Documentos/ShowDocuments',[
             'documentos'=>DocumentoResource::collection(Documento::all())
         ]);
@@ -28,7 +31,7 @@ class DocumentoController extends Controller
     }
 
     public function visualizar(String $id){
-
+        //dd($id);
         $documento=(Documento::find((int)$id));
         //dd($documento);
         return Inertia::render('Documentos/VisualizadorDocumento',[
@@ -41,7 +44,9 @@ class DocumentoController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Documentos/AgregarDocumento');
+        return Inertia::render('Documentos/AgregarDocumento',[
+            'direcciones'=>Direccion::all()
+        ]);
     }
     public function anular()
     {
@@ -104,7 +109,7 @@ class DocumentoController extends Controller
         $base64 = base64_encode($doc);
         $mime = $request->file('archivo')->getClientMimeType();
 
-        $nombre_file=($input['numero_documento']).'-'.($year);
+        $nombre_file=($input['numero_documento']).'-'.($year).'-'.($input['autor_documento']).'-'.($input['tipo_documento']);
         //dd($nombre_file.'.'.$ext);
         try {
 
