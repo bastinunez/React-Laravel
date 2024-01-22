@@ -6,11 +6,15 @@ import ContentTemplate from '@/Components/ContentTemplate';
 import AppTable from '@/Components/Table';
 import { usePage ,Link} from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
-import {Button} from "@nextui-org/react";
+import { usePermission } from '@/Composables/Permission';
+import {Button, link} from "@nextui-org/react";
+import Icon from '@mdi/react';
+import { mdiFileEyeOutline, mdiFileDownloadOutline } from '@mdi/js';
 
 
 const ShowDocuments = ({auth}) => {
   
+  const {hasRoles,hasPermission} = usePermission()
   const { documentos } = usePage().props;
 
   const columnas = [
@@ -78,10 +82,28 @@ const ShowDocuments = ({auth}) => {
                       <td>{documento.direccion}</td>
                       <td>{documento.name_file}</td>
                       <td><>
-                        <Link className="py-4" href={route('documento.visualizar',documento.id)} > 
-                        {/* active={route().current('documento.visualizar')} */}
-                        <span className="text-lg">Visualizar</span>
-                        </Link>
+                        {
+                          hasPermission('Visualizar documento')?
+                          <>
+                            <Button className="me-1" as={Link} size='sm' href={route('documento.visualizar',documento.id)} color='secondary'> 
+                              {/* active={route().current('documento.visualizar')} */}
+                              <Icon path={mdiFileEyeOutline} size={1} />
+                              
+                            </Button>
+                          </>:
+                          <></>
+                        }{
+                          hasPermission('Descargar documento')?
+                          <>
+                            <Button className="me-1" size='sm' href={route('documento.descargar',documento.id)} color='primary'> 
+                              {/* active={route().current('documento.visualizar')} */}
+                              <Icon path={mdiFileDownloadOutline} size={1} />
+                              
+                            </Button>
+                          </>:
+                          <></>
+                        }
+                        
                       </></td>
                     </tr>
                   ))

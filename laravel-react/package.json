@@ -20,6 +20,8 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
+        "@mdi/js": "^7.4.47",
+        "@mdi/react": "^1.6.1",
         "@nextui-org/react": "^2.2.9",
         "@radix-ui/react-popover": "1.0.7",
         "@react-pdf-viewer/core": "^3.12.0",

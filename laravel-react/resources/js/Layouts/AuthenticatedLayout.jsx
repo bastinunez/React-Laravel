@@ -27,12 +27,12 @@ export default function Authenticated({ user, header, children }) {
                
             </div>
             {/* NAVBAR Y MAIN */}
-            <div className={`flex-grow ${sidebar ? 'ml-72' : 'ml-20'}`}>
+            <div className={`flex-grow ${sidebar ? 'ml-72' : 'ml-16'}`}>
                 <NavbarComponent></NavbarComponent>
                 
                 <main>
                     <div className="align-center justify-center full-width h-full flex-col min-h-screen bg-slate-200">
-                        <div className="d-flex w-100 justify-center pt-4 container mx-auto">
+                        <div className="d-flex w-100 justify-center pt-6 container mx-auto">
                             <div>
                              {children}
                             </div>

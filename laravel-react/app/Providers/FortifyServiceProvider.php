@@ -49,8 +49,7 @@ class FortifyServiceProvider extends ServiceProvider
             $user = User::where('rut', $request->rut)->first();
             //dd($user);
             //dd('pasa por aqui');
-            if ($user &&
-                Hash::check($request->password, $user->password)) {
+            if ($user && Hash::check($request->password, $user->password)) {
                     
                 return $user;
             }

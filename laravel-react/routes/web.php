@@ -50,25 +50,27 @@ Route::middleware(['auth:sanctum'])->group(function () {
     })->name('dashboard');
 
 
-     //DOCUMENTOS
-     Route::resource('documento', DocumentoController::class)->names('documento');
-     Route::get('/documento/visualizar/{mensaje}', [DocumentoController::class, 'visualizar'])->name('documento.visualizar');
-     Route::post('documento-anular', [DocumentoController::class, 'anular'])->name('documento.anular');
-     Route::post('documento-habilitar', [DocumentoController::class, 'habilitar'])->name('documento.habilitar');
-     Route::post('documento-descargar', [DocumentoController::class, 'descargar'])->name('documento.descargar');
+    //DOCUMENTOS
+    Route::resource('documento', DocumentoController::class)->names('documento');
+    Route::get('/documento/visualizar/{mensaje}', [DocumentoController::class, 'visualizar'])->name('documento.visualizar');
+    Route::post('/documento/gestion', [DocumentoController::class, 'gestion_index'])->name('documento.gestion_index');
+    Route::post('documento-anular', [DocumentoController::class, 'anular'])->name('documento.anular');
+    Route::post('documento-habilitar', [DocumentoController::class, 'habilitar'])->name('documento.habilitar');
+    Route::post('documento-descargar', [DocumentoController::class, 'descargar'])->name('documento.descargar');
+    
+
+    //USUARIOS
+    Route::get('/usuarios/gestion', [UsuarioController::class, 'gestion_index'])->name('usuario.gestion.index');
+    Route::post('/usuarios/editar', [UsuarioController::class, 'update_pwd'])->name('usuario.update_pwd');
  
- 
-     Route::resource('historial-documentos', HistorialDocumentosController::class)->names('historialdocumentos');
-     Route::resource('historial-documentos-anexos', HistorialDocumentosAnexosController::class)->names('historialdocumentosanexos');
-     Route::resource('historial-accion-usuario', HistorialAccionUsuarioController::class)->names('historialaccionusuario');
-     Route::resource('historial-accion-formulario', HistorialAccionFormularioController::class)->names('historialaccionformulario');
-     Route::resource('usuario', UsuarioController::class);
+    Route::resource('historial-documentos', HistorialDocumentosController::class)->names('historialdocumentos');
+    Route::resource('historial-documentos-anexos', HistorialDocumentosAnexosController::class)->names('historialdocumentosanexos');
+    Route::resource('historial-accion-usuario', HistorialAccionUsuarioController::class)->names('historialaccionusuario');
+    Route::resource('historial-accion-formulario', HistorialAccionFormularioController::class)->names('historialaccionformulario');
+    Route::resource('usuario', UsuarioController::class);
   
 
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 //require __DIR__.'/auth.php';

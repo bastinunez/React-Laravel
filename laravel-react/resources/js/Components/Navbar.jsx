@@ -4,6 +4,8 @@ import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button} from "@nex
 import { Button as BtnPrime } from 'primereact/button';
 import { useSidebarStore } from '@/Store/useStore';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
+import Icon from '@mdi/react';
+import { mdiLogout } from '@mdi/js';
 
 export default function NavbarComponent() {
     const menuItems = [
@@ -20,10 +22,10 @@ export default function NavbarComponent() {
       ];
     const { sidebar,changeState} = useSidebarStore();
     return (
-        <Navbar maxWidth="full">
+        <Navbar maxWidth="full" position="sticky">
             <NavbarBrand>
                     <BtnPrime onClick={() => changeState()} className='align-middle'>
-                        <i className="pi pi-bars" style={{ color: 'slateblue' }}></i>
+                        <i className="pi pi-bars" ></i>
                     </BtnPrime>
             </NavbarBrand>
             {/* <NavbarContent className="hidden sm:flex gap-4" justify="center">
@@ -46,7 +48,8 @@ export default function NavbarComponent() {
             <NavbarContent justify="end">
                 <NavbarItem>
                     <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                        Log Out
+                        <Icon path={mdiLogout} size={1} className="me-2" />
+                        Salir
                     </ResponsiveNavLink>
                 </NavbarItem>
             </NavbarContent>

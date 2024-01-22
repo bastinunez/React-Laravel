@@ -6,6 +6,8 @@ use App\Http\Resources\DireccionResource;
 use App\Http\Resources\DocumentoResource;
 use App\Models\Direccion;
 use App\Models\Documento;
+use App\Models\Funcionario;
+use App\Models\TipoDocumento;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +29,9 @@ class DocumentoController extends Controller
     }
 
     public function gestion_index(){
-        return Inertia::render('Documentos/ShowDocuments');
+        return Inertia::render('Documentos/ShowDocuments',[
+            'documentos'=>DocumentoResource::collection(Documento::all())
+        ]);
     }
 
     public function visualizar(String $id){
@@ -38,6 +42,7 @@ class DocumentoController extends Controller
             "documento"=>$documento
         ]);
     }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -45,7 +50,9 @@ class DocumentoController extends Controller
     public function create()
     {
         return Inertia::render('Documentos/AgregarDocumento',[
-            'direcciones'=>Direccion::all()
+            'direcciones'=>Direccion::all(),
+            'autores'=>Funcionario::all(),
+            'tipos'=>TipoDocumento::all()
         ]);
     }
     public function anular()
@@ -70,6 +77,7 @@ class DocumentoController extends Controller
 
         $input['fecha_documento'] = new DateTime($input['fecha_documento']);
         $input['fecha_documento'] = $input['fecha_documento']->format('Y-m-d');
+        //dd($input['archivo']);
 
         // $archivo = $request->file('archivo');
         // $mime_type = $archivo->getClientMimeType();
@@ -83,13 +91,13 @@ class DocumentoController extends Controller
             'fecha_documento'=>['required','date'],
             'direccion_documento'=> ['numeric'],
             'rut_documento'=>['regex:/[0-9\.-]+/'],
-            'materia_documento'=> ['string'],
             'archivo' => ['file', 'mimes:png,jpg,pdf', 'max:2048']
         ],[
             'tipo_documento.required'=>'Debe ingresar el tipo de documento',
             'numero_documento.required'=>'Debe ingresar el número de documento',
             'numero_documento.numeric'=>'Debe ingresar un número',
             'autor_documento.required'=>'Debe ingresar un autor',
+            'direccion_documento.required'=>'Debe ingresar un autor',
             'direccion_documento.numeric'=>'Debe ingresar un número',
             'rut_documento.regex'=>'Debe ingresar un formato rut',
             'fecha_documento.required'=>'Debe ingresar la fecha',
@@ -129,11 +137,10 @@ class DocumentoController extends Controller
                 'mime_file'=> $mime
             ]);
 
-
-            return back()->with("success","Documento registrado correctamente");
+            return redirect()->back()->with("success","Documento registrado correctamente");
         }catch (\Throwable $th){
-            dd("Error: " . $th->getMessage());
-            return back()->with('error', '¡Hubo un error al guardar el registro!');
+            //dd("Error: " . $th->getMessage());
+            return redirect()->back()->with('error', '¡Hubo un error al guardar el registro!');
         }
         
     }

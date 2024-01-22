@@ -78,5 +78,10 @@ class RolSeeder extends Seeder
 
         //GESTION FORMULARIO DOCUMENTO
         Permission::create(['name'=>'Gestion-Editar formulario'])->syncRoles([$roleAdministrador]);
+
+        //GESTION FUNCIONARIO
+        Permission::create(['name'=>'Gestion-Funcionarios'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Crear funcionario'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Editar funcionario'])->syncRoles([$roleAdministrador]);
     }
 }
