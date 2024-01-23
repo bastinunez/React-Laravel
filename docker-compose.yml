@@ -1,0 +1,30 @@
+version: '3.5'
+
+services:
+  laravel:
+    restart: always
+    container_name: laravel
+    build:
+      context: ./laravel-react
+      dockerfile: Dockerfile
+      # dockerfile: Dockerfile.laravel #este solo sirve para no usar nginx, si no que php artisan serve, pero NGINX/APACHE es mejor opcion
+    networks:
+      - my_network
+  webserver:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./laravel-react/:/var/www/html
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge
