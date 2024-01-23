@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\DireccionResource;
 use App\Http\Resources\DocumentoResource;
 use App\Models\Direccion;
+use App\Models\DocumentoAnexo;
 use App\Models\Documento;
 use App\Models\Funcionario;
 use App\Models\TipoDocumento;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Arr;
 use DateTime;
 
 
@@ -121,7 +123,7 @@ class DocumentoController extends Controller
         //dd($nombre_file.'.'.$ext);
         try {
 
-            DB::table("documento")->insert([
+            $id_doc=DB::table("documento")->insertGetId([
                 "tipo" => $input['tipo_documento'],
                 "numero" => $input['numero_documento'],
                 "autor" => $input['autor_documento'],
@@ -131,18 +133,82 @@ class DocumentoController extends Controller
                 "materia" => $input['materia_documento'],
                 "estado" => 1,
                 "direccion" => $input['direccion_documento'],
-                "autor" => $input['autor_documento'],
                 'name_file'=> $nombre_file.'.'.$ext,
                 'file' => $base64,
                 'mime_file'=> $mime
             ]);
-
-            return redirect()->back()->with("success","Documento registrado correctamente");
+            return redirect()->back()->with(["FormDocumento"=>"Success","IdDoc"=>$id_doc]);
         }catch (\Throwable $th){
-            //dd("Error: " . $th->getMessage());
-            return redirect()->back()->with('error', '¡Hubo un error al guardar el registro!');
+            dd("Error: " . $th->getMessage());
+            return redirect()->back()->with('FormDocumento', 'Error');
         }
         
+    }
+    public function store_anexo(Request $request){
+        $input = $request->all();
+        $input['fecha_documento'] = new DateTime($input['fecha_documento']);
+        $input['fecha_documento'] = $input['fecha_documento']->format('Y-m-d');
+        Validator::make($input,[
+            'tipo_documento'=> ['required','numeric'],
+            'numero_documento'=> ['required','numeric'],
+            'autor_documento'=> ['required','numeric'],
+            'fecha_documento'=>['required','date'],
+            'id_doc'=>['required','numeric']
+        ],[
+            'tipo_documento.required'=>'Debe ingresar el tipo de documento',
+            'numero_documento.required'=>'Debe ingresar el número de documento',
+            'numero_documento.numeric'=>'Debe ingresar un número',
+            'autor_documento.required'=>'Debe ingresar un autor',
+            'fecha_documento.required'=>'Debe ingresar la fecha',
+            'fecha_documento.date'=>'Debe ingresar una fecha',
+        ])->validate();
+        $year = new DateTime($input['fecha_documento']);
+        $year = $year->format('Y');
+        $nombre_file=($input['numero_documento']).'-'.($year).'-'.($input['autor_documento']).'-'.($input['tipo_documento']);
+        try {
+
+            $id_documento=DB::table("documento")->insertGetId([
+                "tipo" => $input['tipo_documento'],
+                "numero" => $input['numero_documento'],
+                "autor" => $input['autor_documento'],
+                "fecha" => $input['fecha_documento'],
+                'direccion' => 1,
+                "anno" => $year,
+                "estado" => 1,
+            ]);
+            DB::table("documento_anexo")->insert([
+                "documento_id"=>$input['id_doc'],
+                "documento_id_anexo"=>$id_documento
+            ]);   
+
+            return redirect()->back()->with("FormDocMini","Success");
+        }catch (\Throwable $th){
+            dd("Error: " . $th->getMessage());
+            return redirect()->back()->with('FormDocMini', 'Error');
+        }
+    }
+
+    public function get_doc_anexos($id){
+        $documento = Documento::find($id);  
+        if (!$documento) {
+            return response()->json(['error' => 'Documento no encontrado'], 404);
+        }
+        $array=[];
+        $filas = DocumentoAnexo::where('documento_id',$id)->get();
+        foreach($filas as $fila){
+            $doc = Documento::find($fila->documento_id_anexo);
+            $array[]=[
+                'id' => $doc->id,
+                'numero' => $doc->numero,
+                'tipo' => $doc->tipoRelacion->nombre,
+                'fecha' => $doc->fecha,
+                'anno' => $doc->anno,
+                'autor_nombre' => $doc->autorRelacion->nombres,
+                'autor_apellido' => $doc->autorRelacion->apellidos,
+            ];
+        }
+
+        return response()->json(["datos"=>$array]);
     }
 
     /**

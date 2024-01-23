@@ -52,6 +52,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //DOCUMENTOS
     Route::resource('documento', DocumentoController::class)->names('documento');
+    Route::post('documento-anexo', [DocumentoController::class, 'store_anexo'])->name('documento.store_anexo');
+    Route::get('/api/documentos-anexos/{id}', [DocumentoController::class, 'get_doc_anexos']);
     Route::get('/documento/visualizar/{mensaje}', [DocumentoController::class, 'visualizar'])->name('documento.visualizar');
     Route::post('/documento/gestion', [DocumentoController::class, 'gestion_index'])->name('documento.gestion_index');
     Route::post('documento-anular', [DocumentoController::class, 'anular'])->name('documento.anular');
@@ -61,6 +63,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //USUARIOS
     Route::get('/usuarios/gestion', [UsuarioController::class, 'gestion_index'])->name('usuario.gestion.index');
+    Route::post('/usuarios/editar-datos', [UsuarioController::class, 'edit_data'])->name('usuario.edit_data');
     Route::post('/usuarios/editar', [UsuarioController::class, 'update_pwd'])->name('usuario.update_pwd');
  
     Route::resource('historial-documentos', HistorialDocumentosController::class)->names('historialdocumentos');

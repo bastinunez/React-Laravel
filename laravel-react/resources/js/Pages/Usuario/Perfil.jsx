@@ -6,7 +6,7 @@ import { usePage,useForm } from '@inertiajs/react'
 import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError'
 import TextInput from '@/Components/TextInput'
-import { Dropdown, DropdownMenu, DropdownTrigger, DropdownItem, Button} from '@nextui-org/react'
+import { Dropdown, DropdownMenu, DropdownTrigger, DropdownItem, Button, Tooltip} from '@nextui-org/react'
 
 const Perfil = ({auth}) => {
     const [isDisabled,setIsDisabled] = useState(true);
@@ -30,9 +30,11 @@ const Perfil = ({auth}) => {
     console.log(flash)
     const editarDatos = (e) => {
         e.preventDefault()
-        postEdit(route('usuario.edit'),{
-            onSuccess: setIsDisabled(!isDisabled)
+        postEdit(route('usuario.edit_data'),{
+            onSuccess: setIsDisabled(!isDisabled),
+            onError: resetEdit('nombres','apellidos')
         })
+        
     }
     const changePwd = (e) => {
         e.preventDefault()
@@ -80,13 +82,13 @@ const Perfil = ({auth}) => {
                                 </div>
                                 <div className='w-full mx-8'>
                                     <InputLabel value={"Permisos"}></InputLabel>
-                                    <Dropdown aria-label="Static Actions" type='listbox'> 
+                                    <Dropdown  type='listbox'> 
                                         <DropdownTrigger>
                                             <Button variant="bordered">
                                                 Ver Permisos
                                             </Button>
                                         </DropdownTrigger>
-                                        <DropdownMenu className='h-64 overflow-auto' onScroll={true}>
+                                        <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions" onScroll={true}>
                                             {
                                                 dataEdit.permisos.map((permiso,index) => (
                                                     <DropdownItem key={index}>{permiso}</DropdownItem>
@@ -105,11 +107,17 @@ const Perfil = ({auth}) => {
                                 </>
                                 :
                                 <>
-                                    <Button variant='ghost' color='warning' className='w-full mx-8' onClick={(e) => {resetEdit('nombres','apellidos','rut');setIsDisabled(!isDisabled)}}>Cancelar</Button>
-                                    <Button variant='ghost' color='success' className='w-full mx-8' type='submit'>Guardar cambios</Button>
+                                    <Button variant='ghost' color='warning' className='w-full mx-8' onClick={(e) => {resetEdit('nombres','apellidos');setIsDisabled(!isDisabled)}}>Cancelar</Button>
+                                    <Button variant='ghost' color='success' disabled={processingEdit} className='w-full mx-8' type='submit'>Guardar cambios</Button>
                                 </>
                             }
                         </div>
+                        {
+                                flash.success_form_edit?
+                                <>
+                                    <div>Se actualizo la contraseña</div>
+                                </>:<></>
+                            }
                     </form>
                 </div>
                 
@@ -133,13 +141,18 @@ const Perfil = ({auth}) => {
                                     </div>
                                 </div>
                                 <div className='flex w-full '>
-                                    <Button variant='ghost' color='warning' className='w-full mx-8' onClick={(e) => {setCambiarPwd(!cambiarPwd)}}>Cancelar</Button>
+                                    <Tooltip content="Borrarás los cambios" color={"warning"}>
+                                        <Button variant='ghost' color='warning' className='w-full mx-8' onClick={(e) => {setCambiarPwd(!cambiarPwd)}}>Cancelar</Button>
+                                    </Tooltip>
                                     <Button variant='ghost' color='success' className='w-full mx-8' type='submit'>Guardar cambios</Button>
                                 </div>
                             </>:
                             <>
                                  <div className='flex w-full px-8'>
-                                    <Button variant='ghost' onClick={() => setCambiarPwd(!cambiarPwd)} color='primary' className='w-full px-8'>Cambiar contraseña</Button>
+                                    <Tooltip content="Presiona para ingresar la contraseña actual y luego la nueva" color={"primary"}>
+                                        <Button variant='ghost' onClick={() => setCambiarPwd(!cambiarPwd)} color='primary' className='w-full px-8'>Cambiar contraseña</Button>
+                                    </Tooltip>
+                                    
                                 </div>
                             </>
                         }{

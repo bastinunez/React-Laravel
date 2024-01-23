@@ -18,11 +18,11 @@ return new class extends Migration
             $table->string('rut', 30)->nullable();
             $table->string('materia', 255)->nullable();
             $table->foreignId('estado')->constrained('estado')->onUpdate('cascade');
-            $table->foreignId('direccion')->constrained('direccion')->onUpdate('cascade')->nullable();
+            $table->foreignId('direccion')->nullable()->constrained('direccion')->onUpdate('cascade');
             $table->foreignId('autor')->constrained('funcionario')->onUpdate('cascade');
 
-            $table->string('name_file');
-            $table->string('mime_file');
+            $table->string('name_file')->nullable();
+            $table->string('mime_file')->nullable();
 
             $table->unique(['numero', 'tipo', 'anno', 'autor']);
         });
