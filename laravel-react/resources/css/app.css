@@ -14,6 +14,18 @@
   @tailwind utilities;
 }
 
+.input-next,.input-next:active,.input-next:focus{
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+
+
+/* quede aqui falta editar que ciertos componentes no tengan borde del input */
+
+
+
+
 /* Ajusta estos valores según sea necesario */
 .w-16 .text-medium {
     white-space: nowrap;

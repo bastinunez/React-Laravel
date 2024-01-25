@@ -2,45 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\DireccionResource;
-use App\Http\Resources\DocumentoResource;
-use App\Models\Direccion;
-use App\Models\DocumentoAnexo;
-use App\Models\Documento;
-use App\Models\Funcionario;
-use App\Models\TipoDocumento;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Http\Resources\DocumentoResource;
+use App\Models\Direccion;
+use App\Models\Documento;
+use App\Models\DocumentoAnexo;
+use App\Models\Estado;
+use App\Models\Funcionario;
+use App\Models\TipoDocumento;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Arr;
 use DateTime;
 
-
-class DocumentoController extends Controller
+class GestionDocumentoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //dd(DocumentoResource::collection(Documento::all()));
-        return Inertia::render('Documentos/ShowDocuments',[
-            'documentos'=>DocumentoResource::collection(Documento::all())
-        ]);
-    }
-
-
-    public function visualizar(String $id){
-        $documento=(Documento::find((int)$id)); 
-        return Inertia::render('Documentos/VisualizadorDocumento',[
-            "documento"=>$documento,
+        return Inertia::render('Documentos/GestionDocumentos',[
+            'documentos'=>DocumentoResource::collection(Documento::all()),
             'direcciones'=>Direccion::all(),
             'autores'=>Funcionario::all(),
-            'tipos'=>TipoDocumento::all()
+            'tipos'=>TipoDocumento::all(),
+            'estados'=>Estado::all(),
         ]);
     }
-    
 
     /**
      * Show the form for creating a new resource.
@@ -52,18 +42,6 @@ class DocumentoController extends Controller
             'autores'=>Funcionario::all(),
             'tipos'=>TipoDocumento::all()
         ]);
-    }
-    public function anular()
-    {
-        return Inertia::render('Documentos/AgregarDocumento');
-    }
-    public function habilitar()
-    {
-        return Inertia::render('Documentos/AgregarDocumento');
-    }
-    public function descargar()
-    {
-        return Inertia::render('Documentos/AgregarDocumento');
     }
 
     /**
@@ -140,6 +118,7 @@ class DocumentoController extends Controller
         }
         
     }
+
     public function store_anexo(Request $request){
         $input = $request->all();
         $input['fecha_documento'] = new DateTime($input['fecha_documento']);
@@ -168,6 +147,7 @@ class DocumentoController extends Controller
                 "numero" => $input['numero_documento'],
                 "autor" => $input['autor_documento'],
                 "fecha" => $input['fecha_documento'],
+                'name_file'=> $nombre_file.'.pdf',
                 'direccion' => 1,
                 "anno" => $year,
                 "estado" => 1,
@@ -212,9 +192,7 @@ class DocumentoController extends Controller
      */
     public function show(string $id)
     {
-        return Inertia::render('Documentos/GestionDocumentos',[
-            'documentos'=>DocumentoResource::collection(Documento::all())
-        ]);
+        //
     }
 
     /**

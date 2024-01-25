@@ -6,22 +6,20 @@ import { usePermission } from '@/Composables/Permission';
 import { useSidebarStore } from '@/Store/useStore';
 import {User} from "@nextui-org/react";
 import Icon from '@mdi/react';
-import { mdiFileMultiple, mdiFileDocument,mdiHistory} from '@mdi/js';
+import { mdiFileMultiple, mdiFileDocument,mdiHistory,mdiAccountGroup} from '@mdi/js';
 
 
-export const Sidebar = ({user, visible, onHide }) => {
+export const Sidebar = ({user}) => {
     //console.log(visible)
     const { sidebar,changeState} = useSidebarStore();
-    const {hasRoles,hasPermission} = usePermission()
-    const btnRef2 = useRef(null);
-
-
+    const {hasRoles,hasPermission} = usePermission();
 
     return(
         <>
             <div className={`bg-slate-100 text-white fixed h-full transition-all p-3 duration-250 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
                 <div className="text-black">
-                    <User name={ <span className="text-medium ps-3">{user.nombres}</span>} 
+                    <User name={  <span className=" ps-3">{user.nombres}</span>} 
+                        classNames={{name:`${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}
                         description={(
                             <span className="text-medium ps-3">{user.roles[0]}</span>
                         )}
@@ -44,8 +42,8 @@ export const Sidebar = ({user, visible, onHide }) => {
                     }{
                         hasPermission('Gestion-Ver documentos')? 
                         <>
-                        <NavLink href={route('documento.gestion_index')}
-                        active={route().current('documento.gestion_index')} className="py-2 px-2 mb-3" >
+                        <NavLink href={route('gestion-documento.index')}
+                        active={route().current('gestion-documento.index')} className="py-2 px-2 mb-3" >
                              <div className="me-3">
                                 <Icon path={mdiFileMultiple} size={1} />
                             </div>
@@ -59,7 +57,7 @@ export const Sidebar = ({user, visible, onHide }) => {
                         <NavLink href={route('usuario.gestion.index')}
                         active={route().current('usuario.gestion.index')} className="py-2 px-2 mb-3" >
                              <div className="me-3">
-                                <Icon path={mdiFileMultiple} size={1} />
+                                <Icon path={mdiAccountGroup} size={1} />
                             </div>
                             <span className="text-medium">Gestion de usuarios</span>
                         </NavLink>
