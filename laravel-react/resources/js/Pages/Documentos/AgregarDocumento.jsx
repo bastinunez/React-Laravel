@@ -85,7 +85,7 @@ const AgregarDocumento = ({auth}) => {
   }
   useEffect(()=>{
     if (id_document!==0){
-      console.log("actualmente id_doc:",id_document)
+      //console.log("actualmente id_doc:",id_document)
       data_mini.id_doc=id_document;
       getDocuments(id_document)
     }
@@ -106,7 +106,7 @@ const AgregarDocumento = ({auth}) => {
       onSuccess: () => {getDocuments(id_document);reset_mini('numero_documento','autor_documento','tipo_documento','fecha_documento')}
     })
   }
-  console.log(data_mini)
+  //console.log(data_mini)
 
   //Tabla
   const [page, setPage] = React.useState(1);

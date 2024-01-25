@@ -19,7 +19,6 @@ const ShowDocuments = ({auth}) => {
   const { documentos } = usePage().props;
 
   const columnas = [
-    {name: "ID", uid: "id", sortable: true},
     {name: "Numero", uid: "numero", sortable: true},
     {name: "Autor", uid: "autor", sortable: true},
     {name: "Fecha", uid: "fecha", sortable: true},
@@ -65,21 +64,11 @@ const ShowDocuments = ({auth}) => {
             <div>
               <h1>Resultados</h1>
             </div>
-            <div>
-            <Link href={route('documento.create')}>
-              <Button color="success" variant="bordered" >
-                <i className="pi pi-plus" style={{ color: 'green' }}></i>
-                 Agregar documento
-              </Button>
-            </Link>
-            
-            </div>
-
           </div>
           <div className='w-full'>
             <Table aria-label="Tabla documentos anexos" bottomContent={
                       <div className="flex w-full justify-center">
-                        <Pagination sCompact showControls showShadow color="secondary" page={page}
+                        <Pagination isCompact showControls showShadow color="secondary" page={page}
                           total={pages} onChange={(page) => setPage(page)} />
                       </div>
                     }
@@ -93,7 +82,6 @@ const ShowDocuments = ({auth}) => {
                 {
                   documentos.map((documento)=>(
                     <TableRow key={documento.id} className='text-start'>
-                      <TableCell>{documento.id}</TableCell>
                       <TableCell>{documento.numero}</TableCell>
                       <TableCell>{documento.autor}</TableCell>
                       <TableCell>{documento.fecha}</TableCell>
@@ -117,11 +105,13 @@ const ShowDocuments = ({auth}) => {
                         }{
                           hasPermission('Descargar documento')?
                           <>
-                            <Button className="me-1" size='sm' onClick={() => download(documento)} color='primary'> 
-                              {/* active={route().current('documento.visualizar')} */}
-                              <Icon path={mdiFileDownloadOutline} size={1} />
-                              
-                            </Button>
+                            <a download={documento.name_file+".pdf"} href={`data:${documento.mime_file};base64,${documento.file}`}>
+                              <Button className="me-1" size='sm' color='primary'> 
+                                {/* active={route().current('documento.visualizar')} */}
+                                <Icon path={mdiFileDownloadOutline} size={1} />
+                                
+                              </Button>
+                            </a>
                           </>:
                           <></>
                         }
