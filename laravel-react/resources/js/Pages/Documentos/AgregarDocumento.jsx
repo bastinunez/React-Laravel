@@ -35,7 +35,7 @@ const AgregarDocumento = ({auth}) => {
   const [docAnexos,setDocAnexos] = useState([])
 
   //formularios
-  const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset } = useForm({
+  const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset} = useForm({
     rut_documento: '',
     numero_documento: '',
     materia_documento: '',
@@ -102,7 +102,7 @@ const AgregarDocumento = ({auth}) => {
   const submitMiniForm = (e) => {
     e.preventDefault()
     //console.log(data_mini)
-    post_mini(route('documento.store_anexo'),{
+    post_mini(route('documento-anexo.store'),{
       onSuccess: () => {getDocuments(id_document);reset_mini('numero_documento','autor_documento','tipo_documento','fecha_documento')}
     })
   }

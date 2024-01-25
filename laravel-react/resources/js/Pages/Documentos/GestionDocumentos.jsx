@@ -8,7 +8,8 @@ import { usePage ,Link} from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 import { usePermission } from '@/Composables/Permission';
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
-  RadioGroup, Radio,Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip}  from "@nextui-org/react";
+  RadioGroup, Radio,Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
+  Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip,}  from "@nextui-org/react";
 import Icon from '@mdi/react';
 import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline} from '@mdi/js';
 import { Calendar } from 'primereact/calendar';
@@ -18,8 +19,14 @@ import { saveAs } from "save-as";
 // import { saveAs } from 'file-saver';
 
 const GestionDocumentos = ({auth}) => {
+  //PERMISOS
   const {hasRoles,hasPermission} = usePermission()
+  //VARIABLES QUE ENTREGA EL CONTROLADOR
   const { documentos,direcciones, tipos,autores,estados } = usePage().props;
+  //MODAL
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const [modalPlacement, setModalPlacement] = useState("auto");
+  const [sinArchivos,setSinArchivos] = useState([])
 
   //TABLA Y FILTROS
   //Filtros
@@ -163,13 +170,14 @@ const GestionDocumentos = ({auth}) => {
 
   const columnas = [
     {name: "ID", uid: "id", sortable: true},
-    {name: "Numero", uid: "numero", sortable: true},
+    {name: "#", uid: "numero", sortable: true},
     {name: "Autor", uid: "autor", sortable: true},
     {name: "Fecha", uid: "fecha", sortable: true},
     {name: "Tipo", uid: "tipo"},
     {name: "Materia", uid: "materia"},
     {name: "Rut", uid: "rut"},
     {name: "Dirección", uid: "direccion", sortable: true},
+    {name: "Anexos", uid: "anexos"},
     {name: "Estado", uid: "estado", sortable: true},
     {name: "Archivo", uid: "name_file", sortable: true},
     {name: "Acciones", uid: "actions"},
@@ -182,12 +190,6 @@ const GestionDocumentos = ({auth}) => {
     
     //QUEDE AQUI FALTA VER COMO DESCARGAR DOCUMENTO CON EL BOTON 
   }
-
-  useEffect(()=>{
-    //asi puedo ver el valor
-   
-    
-  },[seleccion])
 
   const base64toBlob = (data) => {
     // Cut the prefix `data:application/pdf;base64` from the raw base 64
@@ -214,30 +216,52 @@ const GestionDocumentos = ({auth}) => {
 
       datos = arraySeleccion.map( doc_id => {
         const match = documentos.find( item => item.id == Number(doc_id));
-        return {mime_file:match.mime_file,file:match.file,name_file:match.name_file,numero:match.numero}
+        return {mime_file:match.mime_file,file:match.file,name_file:match.name_file,numero:match.numero,
+          fecha:match.fecha,tipo:match.tipo}
       })
-      console.log(datos)
     }
     
 
     // QUEDE AQUI FALTA ESTO DE DESCARGAR MASIVAMENTE ARCHIVOS
-    
+    let arraySinArchivos=[]
     for (let i = 0; i < datos.length; i++) {
       // Zip file with the file name.
       if (datos[i].file){
         const blob = base64toBlob(datos[i].file);
         const url = URL.createObjectURL(blob);
-        zip.file(datos[i].name_file, url);
+        zip.file(datos[i].name_file, blob);
       }else{
         console.log("No tenia archivo el documento n° ",datos[i].numero)
+        arraySinArchivos.push(datos[i])
+        setSinArchivos(arraySinArchivos)
       }
     } 
     zip.generateAsync({type: "blob",mimeType:"application/zip"}).then(content => {
-      saveAs(content, "example.zip");
+      saveAs(content, "documentos.zip");
     });
+    onOpen()
   }
   
-  
+  const anularSeleccionados = () => {
+    console.log("Falta anular seleccionados, se debe comprobar los que si realmente estan habilitador")
+    let datos=[]
+    if (seleccion=="all"){
+      datos = documentos;
+    }else{
+      const arraySeleccion = Array.from(seleccion)
+    }
+  }
+  //no se si esto se necesario
+  const habilitarSeleccionados = () => {
+    console.log("Falta habilitar seleccionados")
+    let datos=[]
+    if (seleccion=="all"){
+      datos = documentos;
+    }else{
+      const arraySeleccion = Array.from(seleccion)
+    }
+  }
+
   return (
     <AuthenticatedLayout 
       user={auth.user}
@@ -376,7 +400,8 @@ const GestionDocumentos = ({auth}) => {
               }{
                 hasPermission('Gestion-Habilitar documento')?
                 <>
-                  <Button color="secondary" variant="solid" endContent={<Icon path={mdiCheckUnderline} size={1} />}>
+                  <Button color="secondary" variant="solid" onPress={anularSeleccionados}
+                  endContent={<Icon path={mdiCheckUnderline} size={1} />}>
                     Habilitar seleccionados
                   </Button>
                 </>:<></>
@@ -393,7 +418,7 @@ const GestionDocumentos = ({auth}) => {
             </div>
           </div>
           <div className='w-full'>
-            <Table aria-label="Tabla documentos anexos" color={"primary"} selectionMode="multiple"  
+            <Table aria-label="Tabla documentos" color={"primary"} selectionMode="multiple"  
             selectedKeys={seleccion} onSelectionChange={setSeleccion}  
             bottomContent={ <div className="flex w-full justify-center">
                               <Pagination isCompact showControls showShadow color="secondary" page={page}
@@ -409,14 +434,37 @@ const GestionDocumentos = ({auth}) => {
                 {
                   sortedItems.map((documento)=>(
                     <TableRow key={documento.id} className='text-start'>
-                      <TableCell>{documento.id}</TableCell>
-                      <TableCell className='overflow-auto'>{documento.numero}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.id}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.numero}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.autor}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.fecha}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.tipo}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.materia}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.rut}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.direccion}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
+                        {
+                          documento.anexos.length!==0?
+                          <>
+                            <Dropdown  type='listbox'> 
+                              <DropdownTrigger>
+                                  <Button variant="bordered" size='sm'>
+                                      Ver Anexos
+                                  </Button>
+                              </DropdownTrigger>
+                              <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions" onScroll={true} emptyContent={'No posee'}>
+                                  {
+                                      documento.anexos.map((doc_anexo) => (
+                                          <DropdownItem key={doc_anexo.documento_id_anexo}>Número: {doc_anexo.datos_anexo.id}</DropdownItem>
+                                      ))
+                                  }
+                              </DropdownMenu>
+                          </Dropdown>
+                          </>:
+                          <><p className=''>No posee</p></>
+                        }
+                        
+                      </TableCell>
                       <TableCell>
                       {
                         documento.estado === "Habilitado"?
@@ -436,37 +484,45 @@ const GestionDocumentos = ({auth}) => {
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                         <>
                         {
-                          hasPermission('Visualizar documento')?
+                          hasPermission('Visualizar documento') && documento.file?
                           <>
-                            <Link href={route('documento.visualizar',documento.id)} >
-                              <Button className="me-1" size='sm'  color='secondary' variant='flat'> 
-                                {/* active={route().current('documento.visualizar')} */}
-                                <Icon path={mdiFileEyeOutline} size={1} />
-                              </Button>
-                            </Link>
+                            <Tooltip content={"Visualizar"} color='secondary'>
+                              <Link href={route('documento.visualizar',documento.id)} >
+                                <Button className="me-1" size='sm'  color='secondary' variant='flat'> 
+                                  {/* active={route().current('documento.visualizar')} */}
+                                  <Icon path={mdiFileEyeOutline} size={1} />
+                                </Button>
+                              </Link>
+                            </Tooltip>
+                            
                           </>:
                           <></>
                         }{
-                          hasPermission('Descargar documento')?
+                          hasPermission('Descargar documento') && documento.file?
                           <>
-                            <a download={documento.name_file+".pdf"} href={`data:${documento.mime_file};base64,${documento.file}`}>
-                              <Button className="me-1" size='sm' color='primary' variant='flat'> 
-                                {/* active={route().current('documento.visualizar')} */}
-                                <Icon path={mdiFileDownloadOutline} size={1} />
-                                
-                              </Button>
-                            </a>
-                            
+                            <Tooltip content={"Descargar"} color='primary'>
+                              <a download={documento.name_file+".pdf"} href={`data:${documento.mime_file};base64,${documento.file}`}>
+                                  <Button className="me-1" size='sm' color='primary' variant='flat'> 
+                                    {/* active={route().current('documento.visualizar')} */}
+                                    <Icon path={mdiFileDownloadOutline} size={1} />
+                                    
+                                  </Button>
+                                </a>
+                            </Tooltip>
                           </>:
                           <></>
                         }{
                           hasPermission('Gestion-Editar documento')?
                           <>
-                            <Button className="me-1" size='sm' color='warning' variant='flat'> 
-                              {/* active={route().current('documento.visualizar')} */}
-                              <Icon path={mdiPencilBoxOutline} size={1}/>
-                              
-                            </Button>
+                            <Tooltip content={"Editar"} color='warning'>
+                              <Link href={route('gestion-documento.edit',String(documento.id))} >
+                                <Button className="me-1" size='sm' color='warning' variant='flat'> 
+                                  {/* active={route().current('documento.visualizar')} */}
+                                <Icon path={mdiPencilBoxOutline} size={1}/>
+                                  
+                                </Button>
+                              </Link>
+                            </Tooltip>
                           </>:
                           <></>
                         }
@@ -481,6 +537,53 @@ const GestionDocumentos = ({auth}) => {
           
           
         </ContentTemplate>
+        {/* MODAL DESCARGA */}
+        <div>
+          <Modal isOpen={isOpen} placement={modalPlacement} onOpenChange={onOpenChange} size="xl" >
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>
+                  <ModalBody>
+                    <div>
+                      <p>Los siguientes documentos no poseen archivos</p>
+                    </div>
+                    <div>
+                      <Table aria-label="Tabla documentos anexos" color={"primary"}
+                      bottomContent={ <div className="flex w-full justify-center">
+                                        <Pagination isCompact showControls showShadow color="secondary" page={page}
+                                          total={pages} onChange={(page) => setPage(page)} />
+                                      </div> }>
+                        <TableHeader>
+                            <TableColumn>Numero de documento</TableColumn>
+                            <TableColumn>Tipo de documento</TableColumn>
+                            <TableColumn>Nombre archivo</TableColumn>
+                        </TableHeader>
+                        <TableBody emptyContent={"No existen documentos"}>
+                          {
+                            sinArchivos.map((documento)=>(
+                              <TableRow key={documento.numero} className='text-start'>
+                                <TableCell>{documento.numero}</TableCell>
+                                <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.tipo}</TableCell>
+                                <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.file}</TableCell>
+                                
+                              </TableRow>
+                            ))
+                          }
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color="danger" variant="light" onPress={onClose}>
+                      Cerrar
+                    </Button>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
+        </div>
       </div>
       <div>
               

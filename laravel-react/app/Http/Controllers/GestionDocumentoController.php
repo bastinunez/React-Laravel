@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Arr;
 use DateTime;
+use Illuminate\Support\Number;
+use Ramsey\Uuid\Type\Integer;
 
 class GestionDocumentoController extends Controller
 {
@@ -53,12 +55,6 @@ class GestionDocumentoController extends Controller
 
         $input['fecha_documento'] = new DateTime($input['fecha_documento']);
         $input['fecha_documento'] = $input['fecha_documento']->format('Y-m-d');
-        //dd($input['archivo']);
-
-        // $archivo = $request->file('archivo');
-        // $mime_type = $archivo->getClientMimeType();
-        // dd($mime_type);
-        // dd($request->file('archivo'));
 
         Validator::make($input,[
             'tipo_documento'=> ['required','numeric'],
@@ -94,7 +90,7 @@ class GestionDocumentoController extends Controller
         $mime = $request->file('archivo')->getClientMimeType();
 
         $nombre_file=($input['numero_documento']).'-'.($year).'-'.($input['autor_documento']).'-'.($input['tipo_documento']);
-        //dd($nombre_file.'.'.$ext);
+        
         try {
 
             $id_doc=DB::table("documento")->insertGetId([
@@ -200,7 +196,13 @@ class GestionDocumentoController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $documento = Documento::find((int)$id);
+        return Inertia::render('Documentos/EditarDocumento',[
+            'documento'=> new DocumentoResource($documento),
+            'direcciones'=>Direccion::all(),
+            'autores'=>Funcionario::all(),
+            'tipos'=>TipoDocumento::all()
+        ]);
     }
 
     /**

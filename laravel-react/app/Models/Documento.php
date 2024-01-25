@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Documento extends Model
 {
@@ -41,5 +42,9 @@ class Documento extends Model
     public function autorRelacion()
     {
         return $this->belongsTo(Funcionario::class, 'autor');
+    }
+    public function docAnexos(): HasMany
+    {
+        return $this->hasMany(DocumentoAnexo::class,'documento_id');
     }
 }

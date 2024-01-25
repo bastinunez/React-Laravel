@@ -16,12 +16,12 @@ export const Sidebar = ({user}) => {
 
     return(
         <>
-            <div className={`bg-slate-100 text-white fixed h-full transition-all p-3 duration-250 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
+            <div className={`bg-slate-100 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
                 <div className="text-black">
                     <User name={  <span className=" ps-3">{user.nombres}</span>} 
-                        classNames={{name:`${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}
+                        classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis ${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}
                         description={(
-                            <span className="text-medium ps-3">{user.roles[0]}</span>
+                            <span className="text-medium overflow-hidden whitespace-nowrap text-ellipsis ps-3">{user.roles[0]}</span>
                         )}
                         avatarProps={null}
                     />
@@ -31,12 +31,12 @@ export const Sidebar = ({user}) => {
                     {
                         hasPermission('Ver todos documentos')? 
                         <>
-                        <NavLink className="py-2 px-2 mb-3" href={route('documento.index')}
+                        <NavLink className="py-2 px-2 mb-3" href={route('documento.index')} 
                         active={route().current('documento.index')}>
                             <div className="me-3">
                                 <Icon path={mdiFileDocument} size={1} />
                             </div>
-                            <span className="text-medium">Documentos</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Documentos</span>
                         </NavLink>
                         </>:<></>
                     }{
@@ -47,7 +47,7 @@ export const Sidebar = ({user}) => {
                              <div className="me-3">
                                 <Icon path={mdiFileMultiple} size={1} />
                             </div>
-                            <span className="text-medium">Gestion de documentos</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Gestion de documentos</span>
                         </NavLink>
                         </>:<></>
                     }
@@ -59,7 +59,7 @@ export const Sidebar = ({user}) => {
                              <div className="me-3">
                                 <Icon path={mdiAccountGroup} size={1} />
                             </div>
-                            <span className="text-medium">Gestion de usuarios</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Gestion de usuarios</span>
                         </NavLink>
                         </>:<></>
                     }{
@@ -70,7 +70,7 @@ export const Sidebar = ({user}) => {
                              <div className="me-3">
                                 <Icon path={mdiFileMultiple} size={1} />
                             </div>
-                            <span className="text-medium">Perfil</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Perfil</span>
                         </NavLink>
                         </>:<></>
                     }
@@ -110,17 +110,17 @@ export const Sidebar = ({user}) => {
                             },
                             },
                         }}>
-                        <AccordionItem key="1" aria-label="Accordion 1" title="Historial" className="text-gray-500" 
+                        <AccordionItem key="1" aria-label="Accordion 1" title="Historial" className="text-gray-500"
                         startContent={<Icon path={mdiHistory} size={1} />} style={{ overflow: 'hidden', transition: 'width 0.3s'}}>
                             {
                                 hasPermission('Ver historial documento')? 
                                 <>
                                 <NavLink href={route('documento.index')}
-                                active={route().current('documento.index')} className=" px-2 mb-3">
+                                active={route().current('documento.index')} className="py-2 px-2 mb-3">
                                     <div className="me-2">
                                     <Icon path={mdiHistory} size={1} />
                                     </div>
-                                    <span className="text-medium">Historial de documentos</span>
+                                    <span className="text-medium">Documentos</span>
                                 </NavLink>
                                 </>:<></>
                             }{
@@ -131,7 +131,7 @@ export const Sidebar = ({user}) => {
                                     <div className="me-2">
                                     <Icon path={mdiHistory} size={1} />
                                     </div>
-                                    <span className="text-medium">Historial de documentos anexos</span>
+                                    <span className="text-medium">Documentos anexos</span>
                                 </NavLink>
                                 </>:<></>
                             }{
@@ -142,7 +142,7 @@ export const Sidebar = ({user}) => {
                                     <div className="me-2">
                                     <Icon path={mdiHistory} size={1} />
                                     </div>
-                                    <span className="text-medium">Historial de accion usuario</span>
+                                    <span className="text-medium">Acción usuario</span>
                                 </NavLink>
                                 </>:<></>
                             }
@@ -154,7 +154,7 @@ export const Sidebar = ({user}) => {
                                     <div className="me-2">
                                     <Icon path={mdiFileDocument} size={1} />
                                     </div>
-                                    <span className="text-medium">Historial acción formulario</span>
+                                    <span className="text-medium">Acción formulario</span>
                                 </NavLink>
                                 </>:<></>
                             } 

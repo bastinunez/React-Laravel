@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DocumentoAnexoController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\GestionDocumentoController;
 use App\Http\Controllers\HistorialAccionFormularioController;
@@ -50,17 +51,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-
     //DOCUMENTOS
-    Route::resource('documento', DocumentoController::class)->names('documento');
     Route::post('documento-anexo', [DocumentoController::class, 'store_anexo'])->name('documento.store_anexo');
+    Route::resource('documento', DocumentoController::class)->names('documento');
     Route::get('/api/documentos-anexos/{id}', [DocumentoController::class, 'get_doc_anexos']);
     Route::get('/documento/visualizar/{mensaje}', [DocumentoController::class, 'visualizar'])->name('documento.visualizar');
     Route::post('documento-anular', [DocumentoController::class, 'anular'])->name('documento.anular');
     Route::post('documento-habilitar', [DocumentoController::class, 'habilitar'])->name('documento.habilitar');
     Route::post('documento-descargar', [DocumentoController::class, 'descargar'])->name('documento.descargar');
 
+
     Route::resource('gestion-documento', GestionDocumentoController::class)->names('gestion-documento');
+    Route::resource('/documento-anexo', DocumentoAnexoController::class);
+    
     
 
     //USUARIOS
