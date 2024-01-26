@@ -28,6 +28,17 @@ class DocumentoResource extends JsonResource
             'autor_abreviacion' => $this->autorRelacion->abreviacion,
             'name_file'=>$this->name_file,
             'file' => $this->file,
+            'anexos' =>  $this->obtenerDatosAnexos($this->docAnexos)
         ];
+    }
+    protected function obtenerDatosAnexos($anexos)
+    {
+        return $anexos->map(function ($anexo) {
+            return [
+                'documento_id' => $anexo->documento_id,
+                'documento_id_anexo' => $anexo->documento_id_anexo,
+                'datos_anexo' => (new DocumentoResource($anexo->documentoAnexoIdRelacion))
+            ];
+        });
     }
 }

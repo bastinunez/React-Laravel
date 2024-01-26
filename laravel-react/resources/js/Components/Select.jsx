@@ -1,21 +1,25 @@
-import React,{useState} from 'react'
+import React,{useState,useEffect} from 'react'
 
-const Select = ({opciones,onChange}) => {
+const Select = ({opciones,onChange,value, required}) => {
     const [selectedValue, setSelectedValue] = useState('');
     //  console.log(opciones)
-
-    const handleSelectChange = (event) => {
-        const value = event.target.value;
+    //console.log("valor:",value)
+    useEffect(() => {
         setSelectedValue(value);
-        // Llama a la función de devolución de llamada proporcionada desde el componente padre
+    }, [value]);
+    
+    const handleSelectChange = (event) => {
+        const newValue = event.target.value;
+        setSelectedValue(newValue);
+
         if (onChange) {
-            onChange(value);
+            onChange(newValue);
         }
     };
 
     return (
         <div>
-        <select onChange={handleSelectChange}  defaultValue={'DEFAULT'}
+        <select onChange={handleSelectChange} value={selectedValue!==""? selectedValue:"DEFAULT"}
             className="border-gray-300 bg-white text-gray-500 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
                 <option className="text-gray-500" value={"DEFAULT"} disabled>Selecciona una opcion</option>
                 {

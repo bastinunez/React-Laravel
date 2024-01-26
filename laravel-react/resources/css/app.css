@@ -14,12 +14,20 @@
   @tailwind utilities;
 }
 
-/* Ajusta estos valores según sea necesario */
-.w-16 .text-medium {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.input-next,.input-next:active,.input-next:focus{
+  border: 0 !important;
+  box-shadow: none !important;
 }
+
+
+
+/* quede aqui falta editar que ciertos componentes no tengan borde del input */
+
+
+
+
+/* Ajusta estos valores según sea necesario */
+
 
 /* Para mostrar solo el icono cuando el sidebar está colapsado */
 .w-16.collapsed .text-medium {

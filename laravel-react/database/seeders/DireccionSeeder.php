@@ -14,6 +14,7 @@ class DireccionSeeder extends Seeder
     public function run(): void
     {
         DB::table('direccion')->insert([
+            ['nombre' => 'Sin Direccion'],
             ['nombre' => 'Finanzas'],
             ['nombre' => 'Rentas'],
         ]);

@@ -2,58 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\DireccionResource;
-use App\Http\Resources\DocumentoResource;
-use App\Models\Direccion;
-use App\Models\DocumentoAnexo;
-use App\Models\Documento;
-use App\Models\Funcionario;
-use App\Models\TipoDocumento;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Http\Resources\DocumentoResource;
+use App\Models\Direccion;
+use App\Models\Documento;
+use App\Models\DocumentoAnexo;
+use App\Models\Estado;
+use App\Models\Funcionario;
+use App\Models\TipoDocumento;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Arr;
 use DateTime;
+use Illuminate\Support\Number;
+use Ramsey\Uuid\Type\Integer;
 
-
-class DocumentoController extends Controller
+class GestionDocumentoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //dd(DocumentoResource::collection(Documento::all()));
-        return Inertia::render('Documentos/ShowDocuments',[
-            'documentos'=>DocumentoResource::collection(Documento::all())
-        ]);
-    }
-
-
-    public function visualizar(String $id){
-        $documento=(Documento::find((int)$id)); 
-        return Inertia::render('Documentos/VisualizadorDocumento',[
-            "documento"=>$documento,
+        return Inertia::render('Documentos/GestionDocumentos',[
+            'documentos'=>DocumentoResource::collection(Documento::all()),
             'direcciones'=>Direccion::all(),
             'autores'=>Funcionario::all(),
-            'tipos'=>TipoDocumento::all()
+            'tipos'=>TipoDocumento::all(),
+            'estados'=>Estado::all(),
         ]);
-    }
-    
-    public function get_all($id){
-        // Obtener los IDs de los documentos anexos relacionados con el documento dado
-        $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
-        ->pluck('documento_id_anexo')
-        ->toArray();
-        $documentosAnexosIds[] = $id;
-
-        // Obtener todos los documentos que NO están en la lista de IDs obtenidos
-        $documentosFiltrados = Documento::whereNotIn('id', $documentosAnexosIds)
-            ->get();
-
-        $documentosTransformados = DocumentoResource::collection($documentosFiltrados);
-        return response()->json(["documentos"=>$documentosTransformados]);
     }
 
     /**
@@ -67,18 +45,6 @@ class DocumentoController extends Controller
             'tipos'=>TipoDocumento::all()
         ]);
     }
-    public function anular()
-    {
-        return Inertia::render('Documentos/AgregarDocumento');
-    }
-    public function habilitar()
-    {
-        return Inertia::render('Documentos/AgregarDocumento');
-    }
-    public function descargar()
-    {
-        return Inertia::render('Documentos/AgregarDocumento');
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -89,12 +55,6 @@ class DocumentoController extends Controller
 
         $input['fecha_documento'] = new DateTime($input['fecha_documento']);
         $input['fecha_documento'] = $input['fecha_documento']->format('Y-m-d');
-        //dd($input['archivo']);
-
-        // $archivo = $request->file('archivo');
-        // $mime_type = $archivo->getClientMimeType();
-        // dd($mime_type);
-        // dd($request->file('archivo'));
 
         Validator::make($input,[
             'tipo_documento'=> ['required','numeric'],
@@ -130,7 +90,7 @@ class DocumentoController extends Controller
         $mime = $request->file('archivo')->getClientMimeType();
 
         $nombre_file=($input['numero_documento']).'-'.($year).'-'.($input['autor_documento']).'-'.($input['tipo_documento']);
-        //dd($nombre_file.'.'.$ext);
+        
         try {
 
             $id_doc=DB::table("documento")->insertGetId([
@@ -154,6 +114,7 @@ class DocumentoController extends Controller
         }
         
     }
+
     public function store_anexo(Request $request){
         $input = $request->all();
         $input['fecha_documento'] = new DateTime($input['fecha_documento']);
@@ -182,6 +143,7 @@ class DocumentoController extends Controller
                 "numero" => $input['numero_documento'],
                 "autor" => $input['autor_documento'],
                 "fecha" => $input['fecha_documento'],
+                'name_file'=> $nombre_file.'.pdf',
                 'direccion' => 1,
                 "anno" => $year,
                 "estado" => 1,
@@ -226,9 +188,7 @@ class DocumentoController extends Controller
      */
     public function show(string $id)
     {
-        return Inertia::render('Documentos/GestionDocumentos',[
-            'documentos'=>DocumentoResource::collection(Documento::all())
-        ]);
+        //
     }
 
     /**
@@ -236,7 +196,26 @@ class DocumentoController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $documento = Documento::find((int)$id);
+
+        // Obtener los IDs de los documentos anexos relacionados con el documento dado
+        $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
+        ->pluck('documento_id_anexo')
+        ->toArray();
+        $documentosAnexosIds[] = $id;
+
+        // Obtener todos los documentos que NO están en la lista de IDs obtenidos
+        $documentosFiltrados = Documento::whereNotIn('id', $documentosAnexosIds)
+            ->get();
+
+        $documentosTransformados = DocumentoResource::collection($documentosFiltrados);
+        return Inertia::render('Documentos/EditarDocumento',[
+            'documento'=> new DocumentoResource($documento),
+            'all_docs'=> $documentosTransformados,
+            'direcciones'=>Direccion::all(),
+            'autores'=>Funcionario::all(),
+            'tipos'=>TipoDocumento::all()
+        ]);
     }
 
     /**

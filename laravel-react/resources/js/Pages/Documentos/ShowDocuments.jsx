@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, createElement} from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import TitleTemplate from '@/Components/TitleTemplate';
 import FilterTemplate from '@/Components/FilterTemplate';
@@ -7,9 +7,10 @@ import AppTable from '@/Components/Table';
 import { usePage ,Link} from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 import { usePermission } from '@/Composables/Permission';
-import {Button, link} from "@nextui-org/react";
+import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell}  from "@nextui-org/react";
 import Icon from '@mdi/react';
 import { mdiFileEyeOutline, mdiFileDownloadOutline } from '@mdi/js';
+import { document } from 'postcss';
 
 
 const ShowDocuments = ({auth}) => {
@@ -18,7 +19,6 @@ const ShowDocuments = ({auth}) => {
   const { documentos } = usePage().props;
 
   const columnas = [
-    {name: "ID", uid: "id", sortable: true},
     {name: "Numero", uid: "numero", sortable: true},
     {name: "Autor", uid: "autor", sortable: true},
     {name: "Fecha", uid: "fecha", sortable: true},
@@ -30,11 +30,27 @@ const ShowDocuments = ({auth}) => {
     {name: "Acciones", uid: "actions"},
   ];
   
-  const estadosOpciones = [
-    {name: "Habilitado", uid: "habilitado"},
-    {name: "Anulado", uid: "anulado"},
-  ];
-  const columnasVisibles = ["Numero", "Autor", "Fecha", "Tipo","Rut","Dirección","Acciones"];
+  const download = (documento) => {
+    const link=`data:${documento.mime_file};base64,${documento.file}`
+    const filename = documento.name_file+".pdf"
+    const downloadlink = createElement("a",{href:link,download:filename,clik:true})
+
+    //QUEDE AQUI FALTA VER COMO DESCARGAR DOCUMENTO CON EL BOTON 
+
+  }
+
+  //Tabla
+  const [page, setPage] = React.useState(1);
+  const rowsPerPage = 4;
+
+  const pages = Math.ceil(documentos.length / rowsPerPage);
+
+  const items = React.useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return documentos.slice(start, end);
+  }, [page, documentos]);
   
   return (
     <AuthenticatedLayout 
@@ -48,40 +64,34 @@ const ShowDocuments = ({auth}) => {
             <div>
               <h1>Resultados</h1>
             </div>
-            <div>
-            <Link href={route('documento.create')}>
-              <Button color="success" variant="bordered" >
-                <i className="pi pi-plus" style={{ color: 'green' }}></i>
-                 Agregar documento
-              </Button>
-            </Link>
-            
-            </div>
-
           </div>
           <div className='w-full'>
-            <table className='w-full'>
-              <thead>
-                <tr >
+            <Table aria-label="Tabla documentos anexos" bottomContent={
+                      <div className="flex w-full justify-center">
+                        <Pagination isCompact showControls showShadow color="secondary" page={page}
+                          total={pages} onChange={(page) => setPage(page)} />
+                      </div>
+                    }
+                    classNames={{  wrapper: "min-h-[222px]", }}>
+              <TableHeader>
                   {columnas.map((columna)=>(
-                    <th className='text-start' key={columna.uid}>{columna.name}</th>
+                    <TableColumn className='text-start' key={columna.uid}>{columna.name}</TableColumn>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
+              </TableHeader>
+              <TableBody emptyContent={"Aún no hay documentos"}>
                 {
                   documentos.map((documento)=>(
-                    <tr key={documento.id} className='text-start'>
-                      <td>{documento.id}</td>
-                      <td>{documento.numero}</td>
-                      <td>{documento.autor}</td>
-                      <td>{documento.fecha}</td>
-                      <td>{documento.tipo}</td>
-                      <td className='overflow-hidden'>{documento.materia}</td>
-                      <td>{documento.rut}</td>
-                      <td>{documento.direccion}</td>
-                      <td>{documento.name_file}</td>
-                      <td><>
+                    <TableRow key={documento.id} className='text-start'>
+                      <TableCell>{documento.numero}</TableCell>
+                      <TableCell>{documento.autor}</TableCell>
+                      <TableCell>{documento.fecha}</TableCell>
+                      <TableCell>{documento.tipo}</TableCell>
+                      <TableCell className='overflow-hidden'>{documento.materia}</TableCell>
+                      <TableCell>{documento.rut}</TableCell>
+                      <TableCell>{documento.direccion}</TableCell>
+                      <TableCell>{documento.name_file}</TableCell>
+                      <TableCell>
+                        <>
                         {
                           hasPermission('Visualizar documento')?
                           <>
@@ -95,21 +105,23 @@ const ShowDocuments = ({auth}) => {
                         }{
                           hasPermission('Descargar documento')?
                           <>
-                            <Button className="me-1" size='sm' href={route('documento.descargar',documento.id)} color='primary'> 
-                              {/* active={route().current('documento.visualizar')} */}
-                              <Icon path={mdiFileDownloadOutline} size={1} />
-                              
-                            </Button>
+                            <a download={documento.name_file+".pdf"} href={`data:${documento.mime_file};base64,${documento.file}`}>
+                              <Button className="me-1" size='sm' color='primary'> 
+                                {/* active={route().current('documento.visualizar')} */}
+                                <Icon path={mdiFileDownloadOutline} size={1} />
+                                
+                              </Button>
+                            </a>
                           </>:
                           <></>
                         }
                         
-                      </></td>
-                    </tr>
+                      </></TableCell>
+                    </TableRow>
                   ))
                 }
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
           
           {/* <div className='p-2'>

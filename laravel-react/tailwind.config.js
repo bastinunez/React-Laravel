@@ -12,9 +12,12 @@ export default {
         './resources/js/**/*.jsx',
         "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
     ],
-
+    
     theme: {
         extend: {
+            boxShadow: {
+                none: 'none', // Elimina completamente las sombras
+              },
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },

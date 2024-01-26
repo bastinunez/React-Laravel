@@ -57,6 +57,7 @@ class RolSeeder extends Seeder
         Permission::create(['name'=>'Gestion-Habilitar documento'])->syncRoles([$roleDigitador,$roleAdministrador]);
         Permission::create(['name'=>'Gestion-Descargar documento'])->syncRoles([$roleDigitador,$roleAdministrador]);
         Permission::create(['name'=>'Gestion-Añadir documento anexo'])->syncRoles([$roleDigitador,$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Eliminar documento anexo'])->syncRoles([$roleDigitador,$roleAdministrador]);
         Permission::create(['name'=>'Gestion-Mostrar documentos anexos'])->syncRoles([$roleDigitador,$roleAdministrador]);
 
         
