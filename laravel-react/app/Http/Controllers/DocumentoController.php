@@ -41,6 +41,20 @@ class DocumentoController extends Controller
         ]);
     }
     
+    public function get_all($id){
+        // Obtener los IDs de los documentos anexos relacionados con el documento dado
+        $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
+        ->pluck('documento_id_anexo')
+        ->toArray();
+        $documentosAnexosIds[] = $id;
+
+        // Obtener todos los documentos que NO están en la lista de IDs obtenidos
+        $documentosFiltrados = Documento::whereNotIn('id', $documentosAnexosIds)
+            ->get();
+
+        $documentosTransformados = DocumentoResource::collection($documentosFiltrados);
+        return response()->json(["documentos"=>$documentosTransformados]);
+    }
 
     /**
      * Show the form for creating a new resource.

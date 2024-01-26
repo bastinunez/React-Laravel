@@ -197,8 +197,21 @@ class GestionDocumentoController extends Controller
     public function edit(string $id)
     {
         $documento = Documento::find((int)$id);
+
+        // Obtener los IDs de los documentos anexos relacionados con el documento dado
+        $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
+        ->pluck('documento_id_anexo')
+        ->toArray();
+        $documentosAnexosIds[] = $id;
+
+        // Obtener todos los documentos que NO están en la lista de IDs obtenidos
+        $documentosFiltrados = Documento::whereNotIn('id', $documentosAnexosIds)
+            ->get();
+
+        $documentosTransformados = DocumentoResource::collection($documentosFiltrados);
         return Inertia::render('Documentos/EditarDocumento',[
             'documento'=> new DocumentoResource($documento),
+            'all_docs'=> $documentosTransformados,
             'direcciones'=>Direccion::all(),
             'autores'=>Funcionario::all(),
             'tipos'=>TipoDocumento::all()

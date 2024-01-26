@@ -54,14 +54,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //DOCUMENTOS
     Route::post('documento-anexo', [DocumentoController::class, 'store_anexo'])->name('documento.store_anexo');
     Route::resource('documento', DocumentoController::class)->names('documento');
+    Route::get('/api/all-documents/{id}', [DocumentoController::class, 'get_all']);
     Route::get('/api/documentos-anexos/{id}', [DocumentoController::class, 'get_doc_anexos']);
     Route::get('/documento/visualizar/{mensaje}', [DocumentoController::class, 'visualizar'])->name('documento.visualizar');
     Route::post('documento-anular', [DocumentoController::class, 'anular'])->name('documento.anular');
     Route::post('documento-habilitar', [DocumentoController::class, 'habilitar'])->name('documento.habilitar');
     Route::post('documento-descargar', [DocumentoController::class, 'descargar'])->name('documento.descargar');
 
-
+    
     Route::resource('gestion-documento', GestionDocumentoController::class)->names('gestion-documento');
+    Route::post('/documento-anexo/agregar-existente', [DocumentoAnexoController::class, 'store_existent'])->name('documento-anexo.agregar-existente');
     Route::resource('/documento-anexo', DocumentoAnexoController::class);
     
     

@@ -1,4 +1,4 @@
-import React,{useEffect, useState} from 'react'
+import React,{useEffect, useState,useRef} from 'react'
 import Authenticated from '@/Layouts/AuthenticatedLayout'
 import TitleTemplate from '@/Components/TitleTemplate'
 import ContentTemplate from '@/Components/ContentTemplate'
@@ -9,6 +9,7 @@ import Select from '@/Components/Select'
 import {Button, Divider, Input, Tooltip, Pagination,
     Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@nextui-org/react";
 import { Calendar } from 'primereact/calendar';
+import { Toast } from 'primereact/toast';        
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { useFormDocumentStore,useIdDocumentStore,useFormMiniDocumentStore } from '@/Store/useStore'
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
@@ -91,6 +92,15 @@ const AgregarDocumento = ({auth}) => {
     }
   },[id_document])
 
+  //mensaje formulario
+  const toast = useRef(null);
+  const showSuccessMiniForm = () => {
+      toast.current.show({severity:'success', summary: 'Éxito', detail:'Documento anexo agregado correctamente', life: 3000});
+  }
+  const showErrorMiniForm = (msg) => {
+      toast.current.show({severity:'error', summary: 'Error', detail:msg, life: 3000});
+  }
+
   //post
   const submit = async (e) => {
     e.preventDefault();
@@ -103,7 +113,15 @@ const AgregarDocumento = ({auth}) => {
     e.preventDefault()
     //console.log(data_mini)
     post_mini(route('documento-anexo.store'),{
-      onSuccess: () => {getDocuments(id_document);reset_mini('numero_documento','autor_documento','tipo_documento','fecha_documento')}
+      onSuccess: () => {
+        getDocuments(id_document);
+        reset_mini('numero_documento','autor_documento','tipo_documento','fecha_documento')
+        showSuccessMiniForm()
+      },
+      onError: (errors) => {
+        console.log(errors.create)
+        showErrorMiniForm(errors.create)
+    }
     })
   }
   //console.log(data_mini)

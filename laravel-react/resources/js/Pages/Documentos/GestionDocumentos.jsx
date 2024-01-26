@@ -16,6 +16,7 @@ import { Calendar } from 'primereact/calendar';
 import Select from '@/Components/Select';
 import JSZip from "jszip";
 import { saveAs } from "save-as";
+import { DescargarDocumento } from '@/Composables/DownloadPDF';
 // import { saveAs } from 'file-saver';
 
 const GestionDocumentos = ({auth}) => {
@@ -207,39 +208,11 @@ const GestionDocumentos = ({auth}) => {
   };
 
   const descargarSeleccionados = () => {
-    const zip = new JSZip();
-    let datos=[]
-    if (seleccion=="all"){
-      datos = documentos;
-    }else{
-      const arraySeleccion = Array.from(seleccion)
-
-      datos = arraySeleccion.map( doc_id => {
-        const match = documentos.find( item => item.id == Number(doc_id));
-        return {mime_file:match.mime_file,file:match.file,name_file:match.name_file,numero:match.numero,
-          fecha:match.fecha,tipo:match.tipo}
-      })
+    const respSinArchivos = DescargarDocumento(seleccion,documentos);
+    if (respSinArchivos.length!==0){
+      setSinArchivos(respSinArchivos)
+      onOpen()
     }
-    
-
-    // QUEDE AQUI FALTA ESTO DE DESCARGAR MASIVAMENTE ARCHIVOS
-    let arraySinArchivos=[]
-    for (let i = 0; i < datos.length; i++) {
-      // Zip file with the file name.
-      if (datos[i].file){
-        const blob = base64toBlob(datos[i].file);
-        const url = URL.createObjectURL(blob);
-        zip.file(datos[i].name_file, blob);
-      }else{
-        console.log("No tenia archivo el documento n° ",datos[i].numero)
-        arraySinArchivos.push(datos[i])
-        setSinArchivos(arraySinArchivos)
-      }
-    } 
-    zip.generateAsync({type: "blob",mimeType:"application/zip"}).then(content => {
-      saveAs(content, "documentos.zip");
-    });
-    onOpen()
   }
   
   const anularSeleccionados = () => {
@@ -420,10 +393,12 @@ const GestionDocumentos = ({auth}) => {
           <div className='w-full'>
             <Table aria-label="Tabla documentos" color={"primary"} selectionMode="multiple"  
             selectedKeys={seleccion} onSelectionChange={setSeleccion}  
-            bottomContent={ <div className="flex w-full justify-center">
-                              <Pagination isCompact showControls showShadow color="secondary" page={page}
-                                total={pages} onChange={(page) => setPage(page)} />
-                            </div> }
+            bottomContent={ 
+              <div className="flex w-full justify-center">
+                <Pagination isCompact showControls showShadow color="secondary" page={page}
+                  total={pages} onChange={(page) => setPage(page)} />
+              </div>
+            }
             classNames={{  wrapper: "min-h-[222px]", }}>
               <TableHeader>
                   {columnas.map((columna)=>(
@@ -543,7 +518,7 @@ const GestionDocumentos = ({auth}) => {
             <ModalContent>
               {(onClose) => (
                 <>
-                  <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>
+                  <ModalHeader className="flex flex-col gap-1">Documentos sin archivo</ModalHeader>
                   <ModalBody>
                     <div>
                       <p>Los siguientes documentos no poseen archivos</p>

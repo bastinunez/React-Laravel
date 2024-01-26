@@ -21,9 +21,40 @@ class DocumentoAnexoController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $documento_id=$request->documento_id;
+        $docs=$request->docs;
+        try {
+            foreach  ($docs as $doc_id){
+                DB::table("documento_anexo")->insert([
+                    "documento_id"=>$documento_id,
+                    "documento_id_anexo"=>$doc_id
+                ]);   
+            }
+            return redirect()->back()->with(['anexar'=>'Se pudo anexar el documento']);
+        }catch (\Throwable $th){
+            //dd("Error: " . $th->getMessage());
+            return redirect()->back()->withErrors(['anexar'=>'No se pudo anexar el documento']);
+        }
+    }
+
+    public function store_existent(Request $request)
+    {
+        $documento_id=$request->documento_id;
+        $docs=$request->anexos;
+        try {
+            foreach  ($docs as $doc_id){
+                DB::table("documento_anexo")->insert([
+                    "documento_id"=>$documento_id,
+                    "documento_id_anexo"=>$doc_id
+                ]);   
+            }
+            return redirect()->back()->with(['add_anexo'=>'Se pudo anexar el documento']);
+        }catch (\Throwable $th){
+            //dd("Error: " . $th->getMessage());
+            return redirect()->back()->withErrors(['add_anexo'=>'No se pudo anexar el documento']);
+        }
     }
 
     /**
@@ -68,10 +99,10 @@ class DocumentoAnexoController extends Controller
                 "documento_id_anexo"=>$id_documento
             ]);   
 
-            return redirect()->back()->with("FormDocMini","Success");
+            return redirect()->back()->with(['create'=>'Se pudo crear el documento anexo']);
         }catch (\Throwable $th){
-            dd("Error: " . $th->getMessage());
-            return redirect()->back()->with('FormDocMini', 'Error');
+            //dd("Error: " . $th->getMessage());
+            return redirect()->back()->withErrors(['create'=>'No se pudo crear el documento anexo']);
         }
     }
 
@@ -112,8 +143,9 @@ class DocumentoAnexoController extends Controller
                 'documento_id_anexo' => $anexo_id
             ])->delete();
             if (!$eliminar){
-                dd("No se pudo eliminar: ".$anexo_id);
+                return redirect()->back()->with(['destroy'=>'Se pudo eliminar el documento '.$anexo_id]);
             }
         }
+        return redirect()->back()->with(['destroy'=>'Se pudieron eliminar todos']);
     }
 }
