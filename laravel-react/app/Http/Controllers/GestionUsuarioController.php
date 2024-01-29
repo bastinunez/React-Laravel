@@ -1,16 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Documento;
 use App\Http\Resources\DocumentoResource;
+use App\Http\Resources\PermissionResource;
 use App\Http\Resources\RoleResource;
 use App\Http\Resources\UserSharedResource;
 use App\Http\Resources\UsuarioResource;
 use App\Models\User;
 use App\Models\Estado;
+use App\Models\Permission;
 use App\Models\Rol;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -19,27 +20,17 @@ use Illuminate\Support\Facades\DB;
 use Throwable;
 use Illuminate\Support\Facades\Hash;
 
-class UsuarioController extends Controller
+class GestionUsuarioController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('Usuarios/Perfil');
-    }
-
-    public function gestion_index()
-    {
-        //$usuarios = User::with('roles', 'permissions')->get();
-        //dd(UsuarioResource::collection($usuarios));
         $usuarios = User::all();
-        // $prueba=new UserSharedResource($usuarios);
-        // dd($prueba->permissions);
-        // Obtener roles y permisos usando las relaciones definidas en tu modelo User
-        //dd($usuarios->load('roles.permissions'));
+        // $usuario_solo = User::find(2);
+        // dd($usuarios,$usuario_solo);
         $usuarios->load('roles.permissions');
-        //dd(UsuarioResource::collection($usuarios));
         return Inertia::render('Usuarios/ShowUsers',[
             'usuarios'=>UsuarioResource::collection($usuarios),
             'estados'=>Estado::all(),
@@ -132,8 +123,6 @@ class UsuarioController extends Controller
             return redirect()->back()->withErrors(["FormPostUser"=>"Error"]);
         }
     }
-        
-    
 
     public function validarRutChileno($rut) {
         $rut = preg_replace('/[^k0-9]/i', '', $rut);
@@ -162,6 +151,7 @@ class UsuarioController extends Controller
         else
             return false;
     }
+
     /**
      * Display the specified resource.
      */
@@ -170,40 +160,24 @@ class UsuarioController extends Controller
         //
     }
 
-    public function edit($id){
-    }
-
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit_data(Request $request)
+    public function edit(string $id)
     {
-        $input=$request->all();
-        Validator::make($input, [
-            'nombres' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+)+$/'],
-            'apellidos' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+)+$/'],
-        ],[
-            'nombres.regex'=>'Ingresa los nombres correctamente: Nombre Nombre',
-            'nombres.string'=>'Ingresa cadena de carácteres',
-            'nombres.max'=>'Superaste la cantidad de carácteres',
-            'apellidos.regex'=>'Ingresa los apellidos correctamente: Apellido Apellido',
-            'apellidos.string'=>'Ingresa cadena de carácteres',
-            'apellidos.max'=>'Superaste la cantidad de carácteres',
-        ])->validate();
-        try{
-            $user =Auth::user();
-            $usuario = User::find($user->id);
-            $usuario->update([
-                'nombres' => $input['nombres'],
-                'apellidos' => $input['apellidos']
-            ]);
-            
-            return redirect()->back()->with("success_form_edit","Se guardó correctamente los cambios");
-            
-        }catch (\Throwable $th){
-            return redirect()->back()->with("error","No se pudo guardar");
-        }
-       
+        return Inertia::render("Usuarios/EditarUsuario",[
+            "usuario"=> new UserSharedResource(User::find((int)$id)),
+            'roles'=>RoleResource::collection(Rol::all()),
+            'permisos'=>PermissionResource::collection(Permission::all())
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
     }
 
     public function updateCollection(Request $request, string $id)
@@ -228,25 +202,24 @@ class UsuarioController extends Controller
         return redirect()->back()->with(['actualizar'=>'Se pudo cambiar los estados de los seleccionados','usuarios'=>$usuarios]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update_pwd(Request $request)
-    {
-        $input=$request->all();
-        Validator::make($input, [
-            'current_password' => ['required', 'string', 'current_password:web'],
-            'nueva_pwd' => ['required','string','regex:/[a-zA-Z@0-9]/'],
-        ],[
-            'current_password.current_password' => 'Las contraseñas no coinciden.',
-            'nueva_pwd.regex'=>'La contraseña admite letras, números y @.',
-        ])->validate();
-        $user=User::find(Auth::user()->id);
-        $user->forceFill([
-            'password' => Hash::make($input['nueva_pwd']),
-        ])->save();
-        return back()->with("success_form_pwd","Se guardó correctamente la contraseña");
+    public function updatePermission(Request $request,string $id){
+        $opcion=$request->opcion;
+        $permisos=$request->permisos;
+        $user=User::find($id);
+        if ($opcion==0){
+            foreach($permisos as $permiso){
+                $user->revokePermissionTo($permiso);
+            }
+        }else{
+            foreach($permisos as $permiso){
+                $user->givePermissionTo($permiso);
+            }
+        }
+        $user->save();
+        $usuario= new UserSharedResource(User::find((int)$id));
+        return redirect()->back()->with(['actualizar'=>'Se pudo cambiar los permisos seleccionados','usuario'=>$usuario]);
     }
+
 
     /**
      * Remove the specified resource from storage.

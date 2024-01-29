@@ -5,10 +5,10 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UsuarioResource extends JsonResource
+class UserSharedResource extends JsonResource
 {
     /**
-     * Transform the resource into an array.    
+     * Transform the resource into an array.
      *
      * @return array<string, mixed>
      */
@@ -19,11 +19,11 @@ class UsuarioResource extends JsonResource
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
             'correo' => $this->correo,
+            'correo' => $this->correo,
             'rut' => $this->rut,
             'estado' => $this->estadoRelacion->nombre,
-            'roles' => RoleResource::collection($this->whenLoaded('roles')),
-            'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),
+            'roles' => $this->getRoleNames(),
+            'permissions' => $this->getPermissionsViaRoles()->pluck('name')
         ];
-        //quede aqui falta ver porque no entrega los permisos
     }
 }

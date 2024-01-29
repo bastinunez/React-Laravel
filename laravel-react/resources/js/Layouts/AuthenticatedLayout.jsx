@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import Dropdown from '@/Components/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link } from '@inertiajs/react';
 import { Sidebar } from '@/Components/Sidebar';
-import { Button as BtnPrime } from 'primereact/button';
-import {Button as BtnNext} from "@nextui-org/react";
-import { usePermission } from '@/Composables/Permission';
 import NavbarComponent from '@/Components/Navbar';
 import { useSidebarStore } from '@/Store/useStore';
 
@@ -36,11 +28,6 @@ export default function Authenticated({ user, header, children }) {
                             <div>
                              {children}
                             </div>
-                            {/* <slot >
-                                <div >
-                                    Bienvenido {{ $page.props.auth.user.nombres }} {{ $page.props.auth.user.apellidos }}
-                                </div>
-                            </slot> */}
                         </div>
                         
                     </div>

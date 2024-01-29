@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('nombres', 40);
             $table->string('apellidos', 40);
             $table->string('iniciales', 4);
-            $table->string('correo', 40)->unique();
+            $table->string('correo', 50)->unique();
             $table->string('password', 60);
             $table->string('rut', 12)->unique();
             $table->foreignId('rol')->constrained('roles')->onUpdate('cascade');

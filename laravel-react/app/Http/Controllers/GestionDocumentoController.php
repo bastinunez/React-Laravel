@@ -26,7 +26,7 @@ class GestionDocumentoController extends Controller
     public function index()
     {
         return Inertia::render('Documentos/GestionDocumentos',[
-            'documentos'=>DocumentoResource::collection(Documento::all()),
+            'all_documents'=>DocumentoResource::collection(Documento::all()),
             'direcciones'=>Direccion::all(),
             'autores'=>Funcionario::all(),
             'tipos'=>TipoDocumento::all(),
@@ -224,6 +224,28 @@ class GestionDocumentoController extends Controller
     public function update(Request $request, string $id)
     {
         //
+    }
+
+    public function updateCollection(Request $request, string $id)
+    {
+        $opcion=$request->opcion;
+        $docs=$request->id_docs;
+        //AQUI SE HABILITA
+        if($opcion==1){
+            foreach($docs as $doc_id){
+                $documento = Documento::find($doc_id);
+                $documento->estado = $opcion;
+                $documento->save();
+            }
+        }elseif ($opcion==2){
+            foreach($docs as $doc_id){
+                $documento = Documento::find($doc_id);
+                $documento->estado = $opcion;
+                $documento->save();
+            }
+        }
+        $documentos = DocumentoResource::collection(Documento::all());
+        return redirect()->back()->with(['actualizar'=>'Se pudo cambiar los estados de los seleccionados','documentos'=>$documentos]);
     }
 
     /**

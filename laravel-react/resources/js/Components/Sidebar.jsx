@@ -54,8 +54,8 @@ export const Sidebar = ({user}) => {
                     {
                         hasPermission('Ver todos usuarios')? 
                         <>
-                        <NavLink href={route('usuario.gestion.index')}
-                        active={route().current('usuario.gestion.index')} className="py-2 px-2 mb-3" >
+                        <NavLink href={route('gestion-usuarios.index')}
+                        active={route().current('gestion-usuarios.index')} className="py-2 px-2 mb-3" >
                              <div className="me-3">
                                 <Icon path={mdiAccountGroup} size={1} />
                             </div>
@@ -63,6 +63,18 @@ export const Sidebar = ({user}) => {
                         </NavLink>
                         </>:<></>
                     }{
+                        hasPermission('Gestion-Funcionarios')? 
+                        <>
+                        <NavLink href={route('funcionario.index')}
+                        active={route().current('funcionario.index')} className="py-2 px-2 mb-3" >
+                             <div className="me-3">
+                                <Icon path={mdiAccountGroup} size={1} />
+                            </div>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Gestion de funcionarios</span>
+                        </NavLink>
+                        </>:<></>
+                    }
+                    {
                         hasPermission('Ver perfil')? 
                         <>
                         <NavLink href={route('usuario.index',user.id)}

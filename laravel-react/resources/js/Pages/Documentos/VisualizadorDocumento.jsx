@@ -3,6 +3,7 @@ import Authenticated from '@/Layouts/AuthenticatedLayout'
 import { usePage ,Link} from '@inertiajs/react';
 import { Viewer,Worker,CharacterMap,ProgressBar, ZoomEvent } from '@react-pdf-viewer/core';
 import { getFilePlugin } from '@react-pdf-viewer/get-file';
+import Head from '@inertiajs/react';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import TitleTemplate from '@/Components/TitleTemplate';
 import ContentTemplate from '@/Components/ContentTemplate';
@@ -67,6 +68,7 @@ const VisualizadorDocumento = ({auth}) => {
   return (
     <Authenticated user={auth.user}
     header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Visualizador</h2>}>
+      <Head title="Visualizar" />
       <TitleTemplate>
         <div className='w-full flex justify-between'>
           <div>

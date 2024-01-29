@@ -9,7 +9,8 @@ import Select from '@/Components/Select'
 import {Button, Divider, Input, Tooltip, Pagination,
     Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@nextui-org/react";
 import { Calendar } from 'primereact/calendar';
-import { Toast } from 'primereact/toast';        
+import { Toast } from 'primereact/toast'
+import { Head } from '@inertiajs/react';        
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { useFormDocumentStore,useIdDocumentStore,useFormMiniDocumentStore } from '@/Store/useStore'
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
@@ -124,8 +125,8 @@ const AgregarDocumento = ({auth}) => {
     }
     })
   }
-  //console.log(data_mini)
-
+  
+  
   //Tabla
   const [page, setPage] = React.useState(1);
   const rowsPerPage = 4;
@@ -141,7 +142,8 @@ const AgregarDocumento = ({auth}) => {
 
   return (
     <Authenticated  user={auth.user}
-    header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Agregar documento</h2>}> 
+    header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Agregar documento</h2>}>
+      <Head title="Agregar documento" />
       <TitleTemplate>
         Agregar documento
       </TitleTemplate>
@@ -279,6 +281,7 @@ const AgregarDocumento = ({auth}) => {
                         <></>
                       }
                       <div className='mt-3'>
+                        <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                         <Button type='submit' color='primary' variant='ghost'  className='w-full text-large' size='md'>Agregar documento anexo</Button>
                       </div>
                     </form>

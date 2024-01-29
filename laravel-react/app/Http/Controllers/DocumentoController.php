@@ -9,6 +9,7 @@ use App\Models\DocumentoAnexo;
 use App\Models\Documento;
 use App\Models\Funcionario;
 use App\Models\TipoDocumento;
+use App\Models\Estado;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -24,9 +25,12 @@ class DocumentoController extends Controller
      */
     public function index()
     {
-        //dd(DocumentoResource::collection(Documento::all()));
         return Inertia::render('Documentos/ShowDocuments',[
-            'documentos'=>DocumentoResource::collection(Documento::all())
+            'all_documents'=>DocumentoResource::collection(Documento::all()),
+            'direcciones'=>Direccion::all(),
+            'autores'=>Funcionario::all(),
+            'tipos'=>TipoDocumento::all(),
+            'estados'=>Estado::all(),
         ]);
     }
 
@@ -41,7 +45,13 @@ class DocumentoController extends Controller
         ]);
     }
     
-    public function get_all($id){
+    public function get_all(){
+        // Obtener los IDs de los documentos anexos relacionados con el documento dado
+        $documentos=DocumentoResource::collection(Documento::all());
+        return response()->json(["documentos"=>$documentos]);
+    }
+
+    public function get_all_less_one($id){
         // Obtener los IDs de los documentos anexos relacionados con el documento dado
         $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
         ->pluck('documento_id_anexo')

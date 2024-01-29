@@ -16,6 +16,7 @@ import Icon from '@mdi/react';
 import { mdiDownloadOutline, mdiTrashCanOutline } from '@mdi/js';
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
 import { all } from 'axios'
+import { Head } from '@inertiajs/react';
 import { DescargarDocumento } from '@/Composables/DownloadPDF'
 locale('en');
 addLocale('es', {
@@ -49,7 +50,6 @@ const EditarDocumento = ({auth}) => {
     const [btnAgregarNuevo,setBtnAgregarNuevo] = useState(true)
     const [btnAgregarExistente,setBtnAgregarExistente] = useState(false)
 
-    
 
     //Documentos anexos
     const datos=documento.anexos.map( anexo => anexo.datos_anexo )
@@ -225,7 +225,8 @@ const EditarDocumento = ({auth}) => {
 
     return (
         <Authenticated user={auth.user}
-        header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Gestion de Documentos</h2>}>
+        header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Editar Documentos</h2>}>
+            <Head title="Editar Documento" />
             <div>
                 <TitleTemplate>Editar Documento</TitleTemplate>
                 <Toast ref={toast_global} />
@@ -236,7 +237,7 @@ const EditarDocumento = ({auth}) => {
                                 <div className='w-full'>
                                     <Button color='secondary' className='w-full text-medium' variant={btnMetadato?'solid':'ghost'} 
                                     onClick={() => { if(!btnMetadato){setBtnAnexos(!btnAnexos);setBtnMetadato(!btnMetadato)}}} >
-                                        Editar metadatos de documento
+                                        Editar metadatos Documento
                                     </Button>
                                 </div>
                                 <div className='w-full'>
