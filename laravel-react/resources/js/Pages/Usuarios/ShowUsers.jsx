@@ -360,7 +360,7 @@ const ShowUsers = ({auth}) => {
                               <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions" onScroll={true} emptyContent={'No posee'}>
                                   {
                                       usuario.roles[0].permissions.map((permiso) => (
-                                          <DropdownItem key={permiso.id}>{permiso.name}</DropdownItem>
+                                          <DropdownItem key={permiso.id} textValue={`${permiso.name}`}>{permiso.name}</DropdownItem>
                                       ))
                                   }
                               </DropdownMenu>

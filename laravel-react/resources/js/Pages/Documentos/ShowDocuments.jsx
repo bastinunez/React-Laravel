@@ -391,7 +391,7 @@ const GestionDocumentos = ({auth}) => {
                               <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions" onScroll={true} emptyContent={'No posee'}>
                                   {
                                       documento.anexos.map((doc_anexo) => (
-                                          <DropdownItem key={doc_anexo.documento_id_anexo}>Número: {doc_anexo.datos_anexo.id}</DropdownItem>
+                                          <DropdownItem key={doc_anexo.documento_id_anexo} textValue={`Número: ${doc_anexo.datos_anexo.numero}`}>Número: {doc_anexo.datos_anexo.numero}</DropdownItem>
                                       ))
                                   }
                               </DropdownMenu>

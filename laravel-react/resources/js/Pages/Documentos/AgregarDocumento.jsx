@@ -6,8 +6,8 @@ import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import Select from '@/Components/Select'
-import {Button, Divider, Input, Tooltip, Pagination,
-    Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@nextui-org/react";
+import {Button, Divider, Input, Tooltip, Pagination,Select as NextSelect, SelectItem as NextSelectItem,
+    Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, } from "@nextui-org/react";
 import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast'
 import { Head } from '@inertiajs/react';        
@@ -30,10 +30,12 @@ addLocale('es', {
 
 
 const AgregarDocumento = ({auth}) => {
+  //toast
+  const toast_global = useRef(null);
+
   //variables que conservan su estado
   const {form_document_state,changeStateForm}=useFormDocumentStore()
   const { id_document, changeStateIdDoc } = useIdDocumentStore();
-  const {form_mini_document_state,changeStateMiniForm}=useFormMiniDocumentStore()
   const [docAnexos,setDocAnexos] = useState([])
 
   //formularios
@@ -54,13 +56,21 @@ const AgregarDocumento = ({auth}) => {
     tipo_documento: 'DEFAULT',
     id_doc:id_document
   });
+  const {data:dataAddAnexo, setData:setDataAddAnexoo, delete:deleteAddAnexo,post:postAddAnexo,reset:resetAddAnexo}=useForm({
+    documento_id:"",
+    anexos:[]
+  });
 
   //recibo los datos desde el controlador
-  const { direcciones, tipos,autores,flash } = usePage().props;
+  const { direcciones,all_docs, tipos,autores,flash } = usePage().props;
+  const [documentos,setDocumentos] = useState([])
 
   const selectTipoDocumento = (value) => {  setData('tipo_documento',value) };
   const selectAutorDocumento = (value) => {  setData('autor_documento',value) };
   const selectDireccionDocumento = (value) => { setData('direccion_documento',value) };
+
+  const [btnAgregarNuevo,setBtnAgregarNuevo] = useState(true)
+  const [btnAgregarExistente,setBtnAgregarExistente] = useState(false)
 
   useEffect(() => {
     if (flash.FormDocumento=="Success"){
@@ -72,6 +82,12 @@ const AgregarDocumento = ({auth}) => {
       changeStateIdDoc(flash.IdDoc)
     }
   }, [flash.IdDoc]);
+  useEffect(() => {
+    if (flash.documentos!=null){
+      setDocumentos(flash.documentos)
+    }
+  }, [flash.documentos]);
+
 
   const getDocuments = async (id) => {
     if (id_document!==0){
@@ -81,48 +97,79 @@ const AgregarDocumento = ({auth}) => {
         setDocAnexos(response.data.datos)
         // Aquí puedes actualizar tu estado o realizar otras acciones con los documentos obtenidos
       } catch (error) {
-        console.error('Error al obtener documentos:', error);
       }
     }
   }
   useEffect(()=>{
     if (id_document!==0){
-      //console.log("actualmente id_doc:",id_document)
       data_mini.id_doc=id_document;
       getDocuments(id_document)
     }
   },[id_document])
 
+  //seleccion agregar doocs
+  const [valuesAgregarAnexo, setValuesAgregarAnexo] = useState(new Set([]));
+  const handleSelectionChange = (e) => {
+      setValuesAgregarAnexo(new Set(e.target.value.split(",")));
+  };
+
   //mensaje formulario
-  const toast = useRef(null);
-  const showSuccessMiniForm = () => {
-      toast.current.show({severity:'success', summary: 'Éxito', detail:'Documento anexo agregado correctamente', life: 3000});
-  }
-  const showErrorMiniForm = (msg) => {
-      toast.current.show({severity:'error', summary: 'Error', detail:msg, life: 3000});
+  const severity = { success:'success',error:'error'}
+  const summary = { success:'Exito',error:'Error'}
+  const showMsg = (msg,sev,sum) => {
+      toast_global.current.show({severity:sev, summary:sum, detail:msg, life: 3000});
   }
 
   //post
   const submit = async (e) => {
     e.preventDefault();
     //console.log(data)
-    post(route('documento.store'),{
-      onSuccess: () => {data_mini.id_doc=id_document;getDocuments(id_document);reset('materia_documento')}
+    post(route('gestion-documento.store'),{
+      onSuccess: (msg) => { data_mini.id_doc=id_document;getDocuments(id_document);
+        reset('materia_documento'); showMsg(msg.success,severity.success,summary.success)},
+      onError: (errors) => {
+        console.log(errors.create)
+        showMsg(errors.create,severity.error,summary.error)
+      }
     });
   }
   const submitMiniForm = (e) => {
     e.preventDefault()
     //console.log(data_mini)
     post_mini(route('documento-anexo.store'),{
-      onSuccess: () => {
+      onSuccess: (msg) => {
         getDocuments(id_document);
         reset_mini('numero_documento','autor_documento','tipo_documento','fecha_documento')
-        showSuccessMiniForm()
+        showMsg(msg.create,severity.success,summary.success)
       },
       onError: (errors) => {
         console.log(errors.create)
-        showErrorMiniForm(errors.create)
+        showMsg(errors.create,severity.error,summary.error)
     }
+    })
+  }
+  const submitAgregarAnexo = (e) => {
+    e.preventDefault()
+    let datos=""
+    if (valuesAgregarAnexo=="all"){
+        datos = all_docs.map(doc => doc.id)
+    }else{
+        const arraySeleccion = Array.from(valuesAgregarAnexo)
+        datos = arraySeleccion.map(doc => doc)
+    }
+    dataAddAnexo.documento_id=id_document
+    dataAddAnexo.anexos=datos
+    setValuesAgregarAnexo(new Set([]))
+    postAddAnexo(route('documento-anexo.agregar-existente'),{
+        onSuccess: (msg) => {
+            showMsg(msg.add_anexo,severity.success,summary.success)
+            getDocuments(id_document);console.log("subido correctamente")
+            resetAddAnexo('anexos');
+            setValuesAgregarAnexo(new Set([]))
+        },
+        onError: (msg) => {
+            showMsg(msg.add_anexo,severity.error,summary.error)
+        }
     })
   }
   
@@ -144,6 +191,7 @@ const AgregarDocumento = ({auth}) => {
     <Authenticated  user={auth.user}
     header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Agregar documento</h2>}>
       <Head title="Agregar documento" />
+      <Toast ref={toast_global}></Toast>
       <TitleTemplate>
         Agregar documento
       </TitleTemplate>
@@ -199,30 +247,18 @@ const AgregarDocumento = ({auth}) => {
                 </div>
                 <div className="w-80">
                   <InputLabel value={"Agregar archivo"}></InputLabel>
-                  <input  onChange ={(e) => setData('archivo',e.target.files[0])} type='file' accept='.pdf' />
-                  {/* <TextInput value={data.archivo} type={'file'} accept={'.pdf'} onChange={handleFileChange} required></TextInput> */}
+                  <input value={data.archivo}  onChange ={(e) => setData('archivo',e.target.files[0])} type='file' accept='.pdf' />
                   <InputError message={errors.archivo} className="mt-2" />
                 </div>
               </div>
-              <div className='w-full mb-5'>
+              <div className='w-full mb-5 flex gap-8'>
+                <Link href={route("gestion-documento.index")} className='w-full'>
+                  <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                </Link>
                 <Tooltip content="Confirmar y agregar" color='success'>
                   <Button type='submit' color='success' variant='ghost' className='w-full text-large' size='md'>Agregar</Button>
                 </Tooltip>
               </div>
-              {
-                flash.FormDocumento?
-                <>
-                  {
-                    flash.FormDocumento=="Error"?
-                    <>
-                      <h1>Error con subir el formulario</h1>
-                    </>
-                    :
-                    <></>
-                  }
-                </>
-                :<></>
-              }
               
             </form>
             
@@ -230,61 +266,119 @@ const AgregarDocumento = ({auth}) => {
             <>
               <div>
                 <div className='w-full p-5'>
-                  <Button className='text-white rounded-md w-full p-2 text-center text-large' color='success' onClick={changeStateForm}>Se agregó correctamente el documento, presione para agregar otro</Button>
+                  <Button className='text-white rounded-md w-full p-2 text-center text-large' color='success' onPress={()=>changeStateForm()}>Se agregó correctamente el documento, presione para agregar otro</Button>
                 </div>
                 <div className='p-5'>
                   <Divider></Divider>
                 </div>
                 <div className='w-full p-5'>
-                  <h2>Puedes agregar documentos anexos a éste</h2>
-                  <div className='mt-3'>
-                    <form onSubmit={submitMiniForm}>
-                      <div className='flex w-full justify-between mb-5'>
-                        <div className="w-80">
-                          <InputLabel value={"Selecciona tipo de documento"}></InputLabel>
-                          <Select opciones={tipos} value={data_mini.tipo_documento} onChange={(value) => setData_mini('tipo_documento', value)} required>
-                          </Select>
-                          <InputError message={errors_mini.tipo_documento} className="mt-2" />
-                        </div>
-                        <div className="w-80">
-                          <InputLabel value={"Selecciona autor de documento"}></InputLabel>
-                          <Select opciones={autores} value={data_mini.autor_documento} onChange={(value) => setData_mini('autor_documento', value)}  required>
-                          </Select>
-                          <InputError message={errors_mini.autor_documento} className="mt-2" />
-                        </div>
-                        <div className="w-80">
-                          <InputLabel value={"Ingresa numero de documento"}></InputLabel>
-                          <TextInput className={"w-full"} type={'number'} value={data_mini.numero_documento} onChange={(e) => setData_mini('numero_documento',e.target.value)}required ></TextInput>
-                          <InputError message={errors_mini.numero_documento} className="mt-2" />
-                        </div>
-                        <div className="w-80">
-                          <InputLabel value={"Ingresa fecha"}></InputLabel>
-                          <div className="card flex justify-content-center">
-                            <Calendar value={data_mini.fecha_documento} locale="es" inputStyle={{"padding":"0.5rem "}} required onChange={(e) => setData_mini('fecha_documento',e.target.value)} readOnlyInput />
+                  <div className='mt-3 w-full'>
+                      <div className='flex w-full gap-4'>
+                          <div className='w-full'>
+                              <Button color='secondary' className='w-full text-medium' variant={btnAgregarNuevo?'solid':'ghost'} 
+                              onClick={() => { if(!btnAgregarNuevo){setBtnAgregarExistente(!btnAgregarExistente);setBtnAgregarNuevo(!btnAgregarNuevo)}}} >
+                                  Agregar nuevo documento
+                              </Button>
                           </div>
-                          <InputError message={errors_mini.fecha_documento} className="mt-2" />
+                          <div className='w-full'>
+                              <Button color='secondary' className='w-full text-medium'  variant={btnAgregarExistente?'solid':'ghost'} 
+                              onClick={() => {
+                                  if (!btnAgregarExistente){
+                                      setBtnAgregarExistente(!btnAgregarExistente);
+                                      setBtnAgregarNuevo(!btnAgregarNuevo)
+                                      // if(allDocuments.length==0){
+                                      //     getAllDocs()
+                                      // }
+                                  }
+                                  }} >
+                                  Agregar documento existente
+                              </Button>
+                          </div>
+                      </div>
+                  </div>
+                  <div className='mt-3'>
+                    {
+                      btnAgregarNuevo?
+                      <>
+                        <form onSubmit={submitMiniForm}>
+                        <div className='flex w-full justify-between mb-5'>
+                          <div className="w-80">
+                            <InputLabel value={"Selecciona tipo de documento"}></InputLabel>
+                            <Select opciones={tipos} value={data_mini.tipo_documento} onChange={(value) => setData_mini('tipo_documento', value)} required>
+                            </Select>
+                            <InputError message={errors_mini.tipo_documento} className="mt-2" />
+                          </div>
+                          <div className="w-80">
+                            <InputLabel value={"Selecciona autor de documento"}></InputLabel>
+                            <Select opciones={autores} value={data_mini.autor_documento} onChange={(value) => setData_mini('autor_documento', value)}  required>
+                            </Select>
+                            <InputError message={errors_mini.autor_documento} className="mt-2" />
+                          </div>
+                          <div className="w-80">
+                            <InputLabel value={"Ingresa numero de documento"}></InputLabel>
+                            <TextInput className={"w-full"} type={'number'} value={data_mini.numero_documento} onChange={(e) => setData_mini('numero_documento',e.target.value)}required ></TextInput>
+                            <InputError message={errors_mini.numero_documento} className="mt-2" />
+                          </div>
+                          <div className="w-80">
+                            <InputLabel value={"Ingresa fecha"}></InputLabel>
+                            <div className="card flex justify-content-center">
+                              <Calendar value={data_mini.fecha_documento} locale="es" inputStyle={{"padding":"0.5rem "}} required onChange={(e) => setData_mini('fecha_documento',e.target.value)} readOnlyInput />
+                            </div>
+                            <InputError message={errors_mini.fecha_documento} className="mt-2" />
+                          </div>
                         </div>
-                      </div>
-                      {
-                        flash.FormDocMini?
-                        <>
-                          {
-                            flash.FormDocMini=="Error"?
-                            <>
-                              <div className='bg-success-500 text-white rounded-md p-1 text-center text-medium'>Hubo un error al guardar </div>
-                            </>
-                            :<>
-                              <div className='bg-success-500 text-white rounded-md p-2 text-center text-medium'>Se guardo correctamente</div>
-                            </>
-                          }
-                        </>:
-                        <></>
-                      }
-                      <div className='mt-3'>
-                        <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
-                        <Button type='submit' color='primary' variant='ghost'  className='w-full text-large' size='md'>Agregar documento anexo</Button>
-                      </div>
-                    </form>
+                        {
+                          flash.FormDocMini?
+                          <>
+                            {
+                              flash.FormDocMini=="Error"?
+                              <>
+                                <div className='bg-success-500 text-white rounded-md p-1 text-center text-medium'>Hubo un error al guardar </div>
+                              </>
+                              :<>
+                                <div className='bg-success-500 text-white rounded-md p-2 text-center text-medium'>Se guardo correctamente</div>
+                              </>
+                            }
+                          </>:
+                          <></>
+                        }
+                        <div className='mt-3 w-full flex gap-8'>
+                          <Link href={route("gestion-documento.index")} className='w-full'>
+                            <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                          </Link>
+                          <Button type='submit' color='primary' variant='ghost'  className='w-full text-large' size='md'>Agregar documento anexo</Button>
+                        </div>
+                        </form>
+                      </>
+                      :
+                      <>
+                        <form onSubmit={submitAgregarAnexo} className='w-full gap-5 flex'>
+                            <div className='w-full'>
+                                <NextSelect label="Documentos para anexar: "
+                                selectionMode="multiple" placeholder="Seleccionar documentos..."
+                                selectedKeys={valuesAgregarAnexo} className="" onChange={handleSelectionChange} >
+                                {
+                                  documentos.map(
+                                      (doc) => (
+                                          <NextSelectItem key={doc.id} textValue={doc.numero +"/" +doc.anno}>
+                                              <div className="flex flex-col">
+                                                  <span className="text-small">{"Documento número: " +doc.numero +" | Año: " +doc.anno}</span>
+                                                  <span className="text-tiny">
+                                                      {"Autor: "+ doc.autor +" | Tipo: "+doc.tipo+" | Dirección: "+ doc.direccion + " | Fecha: "+doc.fecha}
+                                                  </span>
+                                              </div>
+                                          </NextSelectItem>
+                                      )
+                                  )
+                                }   
+                                </NextSelect>
+                            </div>
+                            <div className='flex items-center'>
+                                <Button type='text' size='lg' color='primary' variant='ghost'>Anexar documentos</Button>
+                            </div>
+                        </form>
+                      </>
+                    }
                   </div>
                 </div>
                 <div className='w-full p-5'>
@@ -315,7 +409,7 @@ const AgregarDocumento = ({auth}) => {
                         </TableHeader>
                         <TableBody emptyContent={"Aún no hay documentos anexos"}>
                           {
-                            docAnexos.map( (documento) => (
+                            items.map( (documento) => (
                               <TableRow key={documento.id}>
                                 <TableCell>{documento.numero}</TableCell>
                                 <TableCell>{documento.tipo}</TableCell>

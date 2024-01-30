@@ -104,7 +104,7 @@ const AgregarUsuario = ({auth}) => {
                             //se muestra formulario de agregar usuario
                             <>
                                 <form onSubmit={submit}>
-                                    <div className='w-full justify-between flex mb-7 gap-8'>
+                                    <div className='w-full justify-between flex mb-7 gap-10'>
                                         <div className="w-full">
                                             <InputLabel value={"Ingresa nombres"}></InputLabel>
                                             <TextInput type={'text'} className="w-full" value={data.nombres} onChange={(e) => setData('nombres',e.target.value)} required></TextInput>

@@ -2,20 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\DocumentoResource;
+use App\Models\Direccion;
 use App\Models\DocumentoAnexo;
+use App\Models\Documento;
+use App\Models\Estado;
+use App\Models\Funcionario;
+use App\Models\TipoDocumento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use DateTime;
+use Inertia\Inertia;
 
 class DocumentoAnexoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(string $id)
     {
-        //
+        // $documentos = Documento::all();
+        // $documentos = $documentos->reject(function ($documento) use ($id) {
+        //     return $documento->id === $id;
+        // });
+        
+        dd($id);
+        $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
+        ->pluck('documento_id_anexo')
+        ->toArray();
+        $documentosAnexosIds[] = $id;
+
+        // Obtener todos los documentos que NO están en la lista de IDs obtenidos
+        $documentosFiltrados = Documento::whereNotIn('id', $documentosAnexosIds)
+            ->get();
+
+        $documentosTransformados = DocumentoResource::collection($documentosFiltrados);
+        return Inertia::render("Documentos/AgregarDocumentoAnexo",[
+            "all_docs"=>$documentosTransformados,
+            "id_doc"=>$id
+        ]);
     }
 
     /**
@@ -111,7 +137,30 @@ class DocumentoAnexoController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // $documentos = Documento::all();
+        // $documentos = $documentos->reject(function ($documento) use ($id) {
+        //     return $documento->id === $id;
+        // });
+
+        $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
+        ->pluck('documento_id_anexo')
+        ->toArray();
+        $documentosAnexosIds[] = $id;
+
+        // Obtener todos los documentos que NO están en la lista de IDs obtenidos
+        $documentosFiltrados = Documento::whereNotIn('id', $documentosAnexosIds)
+            ->get();
+
+        $documentosTransformados = DocumentoResource::collection($documentosFiltrados);
+
+        return Inertia::render("Documentos/AgregarDocumentoAnexo",[
+            "all_docs"=>$documentosTransformados,
+            'direcciones'=>Direccion::all(),
+            'autores'=>Funcionario::all(),
+            'tipos'=>TipoDocumento::all(),
+            'estados'=>Estado::all(),
+            "id_doc"=>$id
+        ]);
     }
 
     /**

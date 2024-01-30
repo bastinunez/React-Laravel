@@ -172,12 +172,42 @@ class GestionUsuarioController extends Controller
         ]);
     }
 
+    public function edit_user_metadata(Request $request,string $id){
+        $input=$request->all();
+        Validator::make($input, [
+            'nombres' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+)+$/'],
+            'apellidos' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+)+$/'],
+        ],[
+            'nombres.regex'=>'Ingresa los nombres correctamente: Nombre Nombre',
+            'nombres.string'=>'Ingresa cadena de carácteres',
+            'nombres.max'=>'Superaste la cantidad de carácteres',
+            'apellidos.regex'=>'Ingresa los apellidos correctamente: Apellido Apellido',
+            'apellidos.string'=>'Ingresa cadena de carácteres',
+            'apellidos.max'=>'Superaste la cantidad de carácteres',
+        ])->validate();
+        try{
+            $usuario = User::find($id);
+            $usuario->update([
+                'nombres' => $input['nombres'],
+                'apellidos' => $input['apellidos']
+            ]);
+            return redirect()->back()->with("FormUpdateMetadataUser","Se guardó correctamente los cambios");
+            
+        }catch (\Throwable $th){
+            return redirect()->back()->withError("FormUpdateMetadataUser","No se pudo guardar");
+        }
+    }
+
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
-        //
+        $user=User::find($id);
+        $user->forceFill([
+            'password' => 12345678,
+        ])->save();
+        return redirect()->back()->with("Success","Se restauró correctamente");
     }
 
     public function updateCollection(Request $request, string $id)
@@ -206,17 +236,20 @@ class GestionUsuarioController extends Controller
         $opcion=$request->opcion;
         $permisos=$request->permisos;
         $user=User::find($id);
+        //dd(Permission::all());
         if ($opcion==0){
             foreach($permisos as $permiso){
                 $user->revokePermissionTo($permiso);
             }
         }else{
             foreach($permisos as $permiso){
-                $user->givePermissionTo($permiso);
+                $permision_name=Permission::find($permiso);
+                $user->givePermissionTo($permision_name);
             }
         }
         $user->save();
-        $usuario= new UserSharedResource(User::find((int)$id));
+        dd($user->getPermissionNames());
+        $usuario= new UserSharedResource($user);
         return redirect()->back()->with(['actualizar'=>'Se pudo cambiar los permisos seleccionados','usuario'=>$usuario]);
     }
 

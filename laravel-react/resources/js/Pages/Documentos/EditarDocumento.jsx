@@ -74,32 +74,19 @@ const EditarDocumento = ({auth}) => {
         setValuesAgregarAnexo(new Set(e.target.value.split(",")));
     };
 
-    //Todos documentos
-    const [allDocuments,setAllDocuments] = useState([])
-    const getAllDocs = async () => {
-        try {
-            const response = await axios.get(`/api/all-documents/${documento.id}`); // Cambia la ruta según tu configuración
-            //console.log('Documentos obtenidos:', response.data.documentos);
-            //setAllDocuments(response.data.documentos)
-            //setDocAnexos(response.data.datos)
-            // Aquí puedes actualizar tu estado o realizar otras acciones con los documentos obtenidos
-        } catch (error) {
-            console.error('Error al obtener documentos:', error);
-        }
-    }
 
     //formularios
     const matchAutor = autores.find(autor => documento.autor === (autor.nombres+" "+autor.apellidos))
     const matchDireccion = direcciones.find(direccion => documento.direccion === direccion.nombre)
     const matchTipo = tipos.find(tipo => documento.tipo === tipo.nombre) 
-    const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset } = useForm({
+    const { data:data, setData:setData, patch:patch, processing:processing, errors:errors, reset:reset } = useForm({
         rut_documento: documento.rut ? documento.rut:'',
         numero_documento: documento.numero,
         materia_documento: documento.materia?documento.materia:'',
         autor_documento: matchAutor.id,
         direccion_documento: documento.direccion?matchDireccion.id:'',
         archivo: documento.file? documento.file:'',
-        fecha_documento: documento.fecha,
+        fecha_documento: new Date(documento.fecha),
         tipo_documento: matchTipo.id,
     });
     const { data:data_mini, setData:setData_mini, post:post_mini, processing:processing_mini, errors:errors_mini, reset:reset_mini } = useForm({
@@ -148,9 +135,10 @@ const EditarDocumento = ({auth}) => {
     const submit = async (e) => {
         e.preventDefault();
         console.log(data)
-        // post(route('documento.store'),{
-        // onSuccess: () => {data_mini.id_doc=id_document;getDocuments(id_document);reset('materia_documento')}
-        // });
+        patch(route('gestion-documento.update',String(documento.id)),{
+            onSuccess: (msg) => {showMsg("Exito",severity.success,summary.success);console.log(msg)},
+            onError: (msg) => {showMsg("Falló",severity.error,summary.error);console.log(msg)}
+        });
     }
     const submitMiniForm = (e) => {
         e.preventDefault()
@@ -310,7 +298,10 @@ const EditarDocumento = ({auth}) => {
                                                 <InputError message={errors.archivo} className="mt-2" />
                                             </div>
                                         </div>
-                                        <div className='w-full mb-5'>
+                                        <div className='w-full flex mb-5 gap-5'>
+                                            <Link href={route("gestion-documento.index")} className='w-full'>
+                                                <Button className='w-full text-large' color='warning' size='md' variant='ghost' >Volver atrás</Button>
+                                            </Link>
                                             <Tooltip content="Confirmar cambios y agregar" color='success'>
                                                 <Button onPress={onOpen} color='success' variant='ghost' className='w-full text-large' size='md'>Guardar cambios</Button>
                                             </Tooltip>
@@ -337,21 +328,6 @@ const EditarDocumento = ({auth}) => {
                                                 </ModalContent>
                                             </Modal>
                                         </div>
-                                        {
-                                            flash.FormDocumento?
-                                            <>
-                                            {
-                                                flash.FormDocumento=="Error"?
-                                                <>
-                                                <h1>Error con subir el formulario</h1>
-                                                </>
-                                                :
-                                                <></>
-                                            }
-                                            </>
-                                            :<></>
-                                        }
-                                        
                                     </form>
                                 </>
                                 :
@@ -450,6 +426,9 @@ const EditarDocumento = ({auth}) => {
                                                         </NextSelect>
                                                     </div>
                                                     <div className='flex items-center'>
+                                                        <Link href={route("gestion-documento.index")} className='w-full'>
+                                                            <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                                                        </Link>
                                                         <Button type='text' size='lg' color='primary' variant='ghost'>Anexar documentos</Button>
                                                     </div>
                                                 </form>
@@ -522,50 +501,7 @@ const EditarDocumento = ({auth}) => {
                 </ContentTemplate>
                 {/* MODAL DESCARGA */}
                 <div>
-                <Modal isOpen={isOpen} placement={modalPlacement} onOpenChange={onOpenChange} size="xl" >
-                    <ModalContent>
-                    {(onClose) => (
-                        <>
-                        <ModalHeader className="flex flex-col gap-1">Documentos sin archivo</ModalHeader>
-                        <ModalBody>
-                            <div>
-                            <p>Los siguientes documentos no poseen archivos</p>
-                            </div>
-                            <div>
-                            <Table aria-label="Tabla documentos anexos" color={"primary"}
-                            bottomContent={ <div className="flex w-full justify-center">
-                                                <Pagination isCompact showControls showShadow color="secondary" page={page}
-                                                total={pages} onChange={(page) => setPage(page)} />
-                                            </div> }>
-                                <TableHeader>
-                                    <TableColumn>Numero de documento</TableColumn>
-                                    <TableColumn>Tipo de documento</TableColumn>
-                                    <TableColumn>Nombre archivo</TableColumn>
-                                </TableHeader>
-                                <TableBody emptyContent={"No existen documentos"}>
-                                {
-                                    sinArchivos.map((documento)=>(
-                                    <TableRow key={documento.numero} className='text-start'>
-                                        <TableCell>{documento.numero}</TableCell>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.tipo}</TableCell>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.file}</TableCell>
-                                        
-                                    </TableRow>
-                                    ))
-                                }
-                                </TableBody>
-                            </Table>
-                            </div>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button color="danger" variant="light" onPress={onClose}>
-                            Cerrar
-                            </Button>
-                        </ModalFooter>
-                        </>
-                    )}
-                    </ModalContent>
-                </Modal>
+                
                 </div>
             </div>
         </Authenticated>

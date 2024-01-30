@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DireccionController;
 use App\Http\Controllers\DocumentoAnexoController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\FuncionarioController;
@@ -65,20 +66,26 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('documento-habilitar', [DocumentoController::class, 'habilitar'])->name('documento.habilitar');
     Route::post('documento-descargar', [DocumentoController::class, 'descargar'])->name('documento.descargar');
 
+    
     Route::patch('/gestion-documento/update-collection/{mensaje}',[GestionDocumentoController::class,'updateCollection'])->name('gestion-documento.update-collection');
     Route::resource('gestion-documento', GestionDocumentoController::class)->names('gestion-documento');
     Route::post('/documento-anexo/agregar-existente', [DocumentoAnexoController::class, 'store_existent'])->name('documento-anexo.agregar-existente');
-    Route::resource('/documento-anexo', DocumentoAnexoController::class);
-    
+    Route::resource('/documento-anexo', DocumentoAnexoController::class)->names('documento-anexo');
+
 
     //FUNCIONARIOS
     Route::resource('/funcionario', FuncionarioController::class)->names('funcionario');
+
+
+    //DIRECCIONES
+    Route::resource('/direccion', DireccionController::class)->names('direccion');
 
 
     //USUARIOS
     Route::post('/usuarios/editar-datos', [UsuarioController::class, 'edit_data'])->name('usuario.edit_data');
     Route::post('/usuarios/editar', [UsuarioController::class, 'update_pwd'])->name('usuario.update_pwd');
 
+    Route::patch('/gestion-usuarios/update-metadata/{id}',[GestionUsuarioController::class,'edit_user_metadata'])->name('gestion-usuarios.update-metadata');
     Route::patch('/gestion-usuarios/update-collection/{mensaje}',[GestionUsuarioController::class,'updateCollection'])->name('gestion-usuarios.update-collection');
     Route::patch('/gestion-usuarios/update-permission/{mensaje}',[GestionUsuarioController::class,'updatePermission'])->name('gestion-usuarios.update-permission');
     Route::resource('/gestion-usuarios', GestionUsuarioController::class)->names('gestion-usuarios');

@@ -73,6 +73,17 @@ export const Sidebar = ({user}) => {
                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Gestion de funcionarios</span>
                         </NavLink>
                         </>:<></>
+                    }{
+                        hasPermission('Gestion-Editar formulario')? 
+                        <>
+                        <NavLink href={route('direccion.index')}
+                        active={route().current('direccion.index')} className="py-2 px-2 mb-3" >
+                             <div className="me-3">
+                                <Icon path={mdiAccountGroup} size={1} />
+                            </div>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Gestion de direcciones</span>
+                        </NavLink>
+                        </>:<></>
                     }
                     {
                         hasPermission('Ver perfil')? 

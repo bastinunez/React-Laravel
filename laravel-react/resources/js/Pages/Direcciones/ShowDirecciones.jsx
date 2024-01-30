@@ -15,19 +15,17 @@ import { mdiFileEyeOutline, mdiFileDownloadOutline,
     mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline} from '@mdi/js';
 
 
-const ShowFuncionarios = ({auth}) => {
+const ShowDirecciones = ({auth}) => {
     //PERMISOS
     const {hasRoles,hasPermission} = usePermission()
 
     //VARIABLES QUE ENTREGA EL CONTROLADOR
-    const { all_funcionarios } = usePage().props;
-    const [funcionarios,setFuncionarios] = useState(all_funcionarios)
+    const { all_direcciones } = usePage().props;
+    const [direcciones,setDirecciones] = useState(all_direcciones)
 
     const columnas = [
         {name: "ID", uid: "id", sortable: true},
-        {name: "Nombres", uid: "nombres", sortable: true},
-        {name: "Apellidos", uid: "apellidos", sortable: true},
-        {name: "Abreviacion", uid: "abreviacion", sortable: true},
+        {name: "Nombre", uid: "nombre", sortable: true},
         {name: "Acciones", uid: "accion"},
     ];
     
@@ -35,12 +33,12 @@ const ShowFuncionarios = ({auth}) => {
     const [seleccion, setSeleccion] = useState([]);
     const hasSearchFilterNombre = Boolean(filterNombre);
     const filteredItems = useMemo(() => {
-        let filteredFuncionarios = [...funcionarios];
+        let filtereddirecciones = [...direcciones];
         if (hasSearchFilterNombre) {
-            filteredFuncionarios = filteredFuncionarios.filter((funcionario) => funcionario.nombres.toLowerCase().includes(filterNombre.toLowerCase()));
+            filtereddirecciones = filtereddirecciones.filter((direccion) => direccion.nombre.toLowerCase().includes(filterNombre.toLowerCase()));
         }
-        return filteredFuncionarios;
-    }, [funcionarios,filterNombre]);
+        return filtereddirecciones;
+    }, [direcciones,filterNombre]);
 
     const onSearchChangeNombre = useCallback((value) => {
         if (value) {
@@ -81,9 +79,9 @@ const ShowFuncionarios = ({auth}) => {
 
     return (
         <Authenticated  user={auth.user}
-        header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Funcionarios</h2>}>
-            <Head title='Funcionarios' />
-            <TitleTemplate>Funcionarios</TitleTemplate>
+        header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Direcciones</h2>}>
+            <Head title='Direcciones' />
+            <TitleTemplate>Direcciones</TitleTemplate>
             <FilterTemplate>
                 <div className="flex flex-col gap-4">
                     <div className="flex justify-center gap-4 items-end">
@@ -93,7 +91,7 @@ const ShowFuncionarios = ({auth}) => {
                         onClear={() => onClearNombre()} onValueChange={onSearchChangeNombre} />
                         <div className="flex w-full">
                             <div className='w-full flex items-center'>
-                                <span className="text-default-400 text-small">Total {funcionarios.length} funcionarios</span>
+                                <span className="text-default-400 text-small">Total {direcciones.length} direcciones</span>
                             </div>
                             <div className='w-full'>
                                 <label className="flex items-center text-default-400 text-small">
@@ -117,9 +115,9 @@ const ShowFuncionarios = ({auth}) => {
                         {
                             hasPermission('Gestion-Crear funcionario')?
                             <>
-                            <Link href={route('funcionario.create')}>
+                            <Link href={route('direccion.create')}>
                                 <Button color="success" variant="solid" endContent={<Icon path={mdiPlus} size={1} />}>
-                                Agregar funcionario
+                                Agregar direccion
                                 </Button>
                             </Link>
                             </>:<></>
@@ -141,22 +139,19 @@ const ShowFuncionarios = ({auth}) => {
                                 <TableColumn className='text-start text-small' key={columna.uid}>{columna.name}</TableColumn>
                             ))}
                         </TableHeader>
-                        <TableBody emptyContent={"No existen funcionarios"}>
+                        <TableBody emptyContent={"No existen direcciones"}>
                             {
-                                sortedItems.map((funcionario)=>(
-                                    <TableRow key={funcionario.id} className='text-start'>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{funcionario.id}</TableCell>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{funcionario.nombres}</TableCell>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{funcionario.apellidos}</TableCell>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{funcionario.abreviacion}</TableCell>
+                                sortedItems.map((direccion)=>(
+                                    <TableRow key={direccion.id} className='text-start'>
+                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{direccion.id}</TableCell>
+                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{direccion.nombre}</TableCell>
                                         <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                                             {
-                                                hasPermission('Gestion-Editar funcionario')?
+                                                hasPermission('Gestion-Editar direccion')?
                                                 <>
                                                   <Tooltip content={"Editar"} color='warning'>
-                                                    <Link href={route('funcionario.edit',String(funcionario.id))} >
+                                                    <Link href={route('direccion.edit',String(direccion.id))} >
                                                       <Button className="me-1" size='sm' color='warning' variant='flat'> 
-                                                        {/* active={route().current('documento.visualizar')} */}
                                                       <Icon path={mdiPencilBoxOutline} size={1}/>
                                                         
                                                       </Button>
@@ -177,4 +172,4 @@ const ShowFuncionarios = ({auth}) => {
     )
 }
 
-export default ShowFuncionarios
+export default ShowDirecciones

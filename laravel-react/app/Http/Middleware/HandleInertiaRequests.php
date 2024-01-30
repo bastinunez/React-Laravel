@@ -38,6 +38,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'flash' => [
                 'IdDoc' => fn () => $request->session()->get('IdDoc'),
+                'documentos' => fn () => $request->session()->get('documentos'),
                 'FormDocumento' => fn () => $request->session()->get('FormDocumento'),
                 'FormDocMini' => fn () => $request->session()->get('FormDocMini'),
                 'success_form_edit' => fn () => $request->session()->get('success_form_edit'),

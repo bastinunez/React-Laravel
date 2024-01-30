@@ -9,7 +9,7 @@ import { Button } from '@nextui-org/react'
 import { Toast } from 'primereact/toast';        
 import React,{useRef} from 'react'
 
-const AgregarFuncionario = ({auth}) => {
+const AgregarDireccion = ({auth}) => {
     //toast
     const toast_global = useRef(null);
     
@@ -26,13 +26,12 @@ const AgregarFuncionario = ({auth}) => {
 
     //formularios
     const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset} = useForm({
-        nombres: '',
-        apellidos: '',
+        nombre: '',
     });
 
     const submit = (e) => {
         e.preventDefault()
-        post(route('funcionario.store'),{
+        post(route('direccion.store'),{
             onSuccess: () => {showMsg("Exito",severity.success,summary.success);reset()},
             onError: () => {showMsg("Falló",severity.error,summary.error)}
         })
@@ -40,27 +39,22 @@ const AgregarFuncionario = ({auth}) => {
 
     return (
         <Authenticated user={auth.user}
-        header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Agregar funcionario</h2>}>
-            <Head title='Agregar Funcionario'></Head>
-            <TitleTemplate>Agregar funcionario</TitleTemplate>
+        header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Agregar direccion</h2>}>
+            <Head title='Agregar direccion'></Head>
+            <TitleTemplate>Agregar direccion</TitleTemplate>
             <Toast ref={toast_global} />
             <ContentTemplate>
                 <div>
                     <form onSubmit={submit} className='p-8'>
                         <div className='flex w-full mb-5 gap-10'>
                             <div className="w-full me-5">
-                                <InputLabel value={"Ingresa nombres"}></InputLabel>
-                                <TextInput type={'text'} className="w-full" placeholder={"Nombre Nombre"} value={data.nombres} onChange={(e) => setData('nombres',e.target.value)} ></TextInput>
-                                <InputError message={errors.nombres} className="mt-2" />
-                            </div>
-                            <div className="w-full">
-                                <InputLabel value={"Ingresa apellidos"}></InputLabel>
-                                <TextInput type={'text'} className="w-full" placeholder={"Apellido Apellido"} value={data.apellidos} onChange={(e) => setData('apellidos',e.target.value)} ></TextInput>
-                                <InputError message={errors.apellidos} className="mt-2" />
+                                <InputLabel value={"Ingresa nombre"}></InputLabel>
+                                <TextInput type={'text'} className="w-full" placeholder={"Nombre dirección"} value={data.nombre} onChange={(e) => setData('nombre',e.target.value)} ></TextInput>
+                                <InputError message={errors.nombre} className="mt-2" />
                             </div>
                         </div>
                         <div className='w-full flex gap-10'>
-                            <Link href={route("funcionario.index")} className='w-full'>
+                            <Link href={route("direccion.index")} className='w-full'>
                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                             </Link>
                             <Button type='submit' color='primary' variant='ghost' className='w-full'>Agregar</Button>
@@ -72,4 +66,4 @@ const AgregarFuncionario = ({auth}) => {
     )
 }
 
-export default AgregarFuncionario
+export default AgregarDireccion

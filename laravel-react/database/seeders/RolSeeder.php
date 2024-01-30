@@ -80,8 +80,11 @@ class RolSeeder extends Seeder
         Permission::create(['name'=>'Restaurar contraseña'])->syncRoles([$roleAdministrador]);
 
 
-        //GESTION FORMULARIO DOCUMENTO
-        Permission::create(['name'=>'Gestion-Editar formulario'])->syncRoles([$roleAdministrador]);
+        //GESTION DIRECCION
+        Permission::create(['name'=>'Gestion-Direcciones'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Crear direccion'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Editar direccion'])->syncRoles([$roleAdministrador]);
+
 
         //GESTION FUNCIONARIO
         Permission::create(['name'=>'Gestion-Funcionarios'])->syncRoles([$roleAdministrador]);

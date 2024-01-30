@@ -99,12 +99,6 @@ class DocumentoController extends Controller
 
         $input['fecha_documento'] = new DateTime($input['fecha_documento']);
         $input['fecha_documento'] = $input['fecha_documento']->format('Y-m-d');
-        //dd($input['archivo']);
-
-        // $archivo = $request->file('archivo');
-        // $mime_type = $archivo->getClientMimeType();
-        // dd($mime_type);
-        // dd($request->file('archivo'));
 
         Validator::make($input,[
             'tipo_documento'=> ['required','numeric'],
@@ -254,7 +248,7 @@ class DocumentoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        
     }
 
     /**
