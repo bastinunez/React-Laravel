@@ -74,7 +74,7 @@ export const Sidebar = ({user}) => {
                         </NavLink>
                         </>:<></>
                     }{
-                        hasPermission('Gestion-Editar formulario')? 
+                        hasPermission('Gestion-Direcciones')? 
                         <>
                         <NavLink href={route('direccion.index')}
                         active={route().current('direccion.index')} className="py-2 px-2 mb-3" >
@@ -138,8 +138,8 @@ export const Sidebar = ({user}) => {
                             {
                                 hasPermission('Ver historial documento')? 
                                 <>
-                                <NavLink href={route('documento.index')}
-                                active={route().current('documento.index')} className="py-2 px-2 mb-3">
+                                <NavLink href={route('historial-documentos.index')}
+                                active={route().current('historial-documentos.index')} className="py-2 px-2 mb-3">
                                     <div className="me-2">
                                     <Icon path={mdiHistory} size={1} />
                                     </div>
@@ -149,8 +149,8 @@ export const Sidebar = ({user}) => {
                             }{
                                 hasPermission('Ver historial documento anexo')? 
                                 <>
-                                <NavLink href={route('documento.index')}
-                                active={route().current('documento.index')} className="py-2 px-2 mb-3">
+                                <NavLink href={route('historial-documentos-anexos.index')}
+                                active={route().current('historial-documentos-anexos.index')} className="py-2 px-2 mb-3">
                                     <div className="me-2">
                                     <Icon path={mdiHistory} size={1} />
                                     </div>
@@ -158,10 +158,10 @@ export const Sidebar = ({user}) => {
                                 </NavLink>
                                 </>:<></>
                             }{
-                                hasPermission('Ver historial acción usuario')? 
+                                hasPermission('Ver historial accion usuario')? 
                                 <>
-                                <NavLink href={route('documento.index')}
-                                active={route().current('documento.index')} className="py-2 px-2 mb-3">
+                                <NavLink href={route('historial-accion-usuario.index')}
+                                active={route().current('historial-accion-usuario.index')} className="py-2 px-2 mb-3">
                                     <div className="me-2">
                                     <Icon path={mdiHistory} size={1} />
                                     </div>
@@ -172,8 +172,8 @@ export const Sidebar = ({user}) => {
                             {
                                 hasPermission('Ver historial accion formulario')? 
                                 <>
-                                <NavLink href={route('documento.index')}
-                                active={route().current('documento.index')} className="py-2 px-2 mb-3">
+                                <NavLink href={route('historial-accion-formulario.index')}
+                                active={route().current('historial-accion-formulario.index')} className="py-2 px-2 mb-3">
                                     <div className="me-2">
                                     <Icon path={mdiFileDocument} size={1} />
                                     </div>

@@ -11,6 +11,7 @@ use App\Http\Resources\UserSharedResource;
 use App\Http\Resources\UsuarioResource;
 use App\Models\User;
 use App\Models\Estado;
+use App\Models\HistorialUsuario;
 use App\Models\Permission;
 use App\Models\Rol;
 use Illuminate\Support\Facades\Validator;
@@ -107,7 +108,7 @@ class GestionUsuarioController extends Controller
             $dominio="@gdoc.cl";
             $correo=$resultado . $dominio;
 
-            User::create([
+            $usuario=User::create([
                 'nombres' => $input['nombres'],
                 'apellidos' => $input['apellidos'],
                 'rut' => $input['rut'],
@@ -118,9 +119,19 @@ class GestionUsuarioController extends Controller
                 'change_pwd' => true,
                 'password' => 12345678
             ])->assignRole($rol);
-            return redirect()->back()->with(["FormPostUser"=>"Success"]);
+
+            $user_id=Auth::id();
+            HistorialUsuario::create([
+                'usuario_id'=>$usuario->id,
+                'responsable'=>$user_id,
+                'accion'=>2,
+                'detalles'=>"Crea manualmente el usuario"
+                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            ]);
+
+            return redirect()->back()->with(["create"=>"Usuario agregado exitosamente"]);
         }else{
-            return redirect()->back()->withErrors(["FormPostUser"=>"Error"]);
+            return redirect()->back()->withErrors(["create"=>"Usuario no pudo ser agregado"]);
         }
     }
 
@@ -191,10 +202,20 @@ class GestionUsuarioController extends Controller
                 'nombres' => $input['nombres'],
                 'apellidos' => $input['apellidos']
             ]);
-            return redirect()->back()->with("FormUpdateMetadataUser","Se guardó correctamente los cambios");
+
+            $user_id=Auth::id();
+            HistorialUsuario::create([
+                'usuario_id'=>$usuario->id,
+                'responsable'=>$user_id,
+                'accion'=>3,
+                'detalles'=>"Actualiza metadatos"
+                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            ]);
+
+            return redirect()->back()->with("update","Se guardó correctamente los cambios");
             
         }catch (\Throwable $th){
-            return redirect()->back()->withError("FormUpdateMetadataUser","No se pudo guardar");
+            return redirect()->back()->withError("update","No se pudo guardar");
         }
     }
 
@@ -207,7 +228,16 @@ class GestionUsuarioController extends Controller
         $user->forceFill([
             'password' => 12345678,
         ])->save();
-        return redirect()->back()->with("Success","Se restauró correctamente");
+
+        $user_id=Auth::id();
+        HistorialUsuario::create([
+            'usuario_id'=>$user->id,
+            'responsable'=>$user_id,
+            'accion'=>3,
+            'detalles'=>"Restaura contraseña"
+            //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+        ]);
+        return redirect()->back()->with("update","Se restauró correctamente");
     }
 
     public function updateCollection(Request $request, string $id)
@@ -220,16 +250,34 @@ class GestionUsuarioController extends Controller
                 $usuario = User::find($user_id);
                 $usuario->estado = $opcion;
                 $usuario->save();
+
+                $user_id=Auth::id();
+                HistorialUsuario::create([
+                    'usuario_id'=>$usuario->id,
+                    'responsable'=>$user_id,
+                    'accion'=>8,
+                    'detalles'=>"Habilita usuario"
+                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                ]);
             }
         }elseif ($opcion==2){
             foreach($users as $user_id){
                 $usuario = User::find($user_id);
                 $usuario->estado = $opcion;
                 $usuario->save();
+
+                $user_id=Auth::id();
+                HistorialUsuario::create([
+                    'usuario_id'=>$usuario->id,
+                    'responsable'=>$user_id,
+                    'accion'=>7,
+                    'detalles'=>"Anula usuario"
+                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                ]);
             }
         }
         $usuarios = UsuarioResource::collection(User::all());
-        return redirect()->back()->with(['actualizar'=>'Se pudo cambiar los estados de los seleccionados','usuarios'=>$usuarios]);
+        return redirect()->back()->with(['update'=>'Se pudo cambiar los estados de los seleccionados','usuarios'=>$usuarios]);
     }
 
     public function updatePermission(Request $request,string $id){
@@ -250,7 +298,7 @@ class GestionUsuarioController extends Controller
         $user->save();
         dd($user->getPermissionNames());
         $usuario= new UserSharedResource($user);
-        return redirect()->back()->with(['actualizar'=>'Se pudo cambiar los permisos seleccionados','usuario'=>$usuario]);
+        return redirect()->back()->with(['update'=>'Se pudo cambiar los permisos seleccionados','usuario'=>$usuario]);
     }
 
 

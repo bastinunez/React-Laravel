@@ -10,10 +10,12 @@ use App\Models\Documento;
 use App\Models\DocumentoAnexo;
 use App\Models\Estado;
 use App\Models\Funcionario;
+use App\Models\HistorialDocumento;
+use App\Models\HistorialDocumentoAnexo;
 use App\Models\TipoDocumento;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use DateTime;
 use Illuminate\Support\Number;
 use Ramsey\Uuid\Type\Integer;
@@ -108,6 +110,13 @@ class GestionDocumentoController extends Controller
                 'mime_file'=> $mime
             ]);
 
+            $user_id=Auth::id();
+            HistorialDocumento::create([
+                'documento_id'=>$id_doc,
+                'responsable'=>$user_id,
+                'accion'=>2
+            ]);
+
             $documentos = Documento::all();
             $documentos = $documentos->reject(function ($documento) use ($id_doc) {
                 return $documento->id === $id_doc;
@@ -116,9 +125,14 @@ class GestionDocumentoController extends Controller
 
             //return redirect()->back()->with(["FormDocumento"=>"Success","IdDoc"=>$id_doc,"documentos"=>$documentos]);
             return redirect()->route('documento-anexo.show',$id_doc);
-        }catch (\Throwable $th){
-            dd("Error: " . $th->getMessage());
-            return redirect()->back()->with('FormDocumento', 'Error');
+        }catch (\Illuminate\Database\QueryException $e) {
+            // Manejo específico para errores de duplicidad
+            if ($e->errorInfo[1] == 1062) {
+                return redirect()->back()->withErrors(["create"=>"Ya existe el documento"]);
+            } else {
+                // Otros errores de la base de datos
+                throw $e;
+            }
         }
         
     }
@@ -156,10 +170,22 @@ class GestionDocumentoController extends Controller
                 "anno" => $year,
                 "estado" => 1,
             ]);
-            DB::table("documento_anexo")->insert([
+            $id_documento_anexo=DB::table("documento_anexo")->insertGetId([
                 "documento_id"=>$input['id_doc'],
                 "documento_id_anexo"=>$id_documento
-            ]);   
+            ]);
+            $user_id=Auth::id();
+            HistorialDocumento::create([
+                'documento_id'=>$id_documento_anexo,
+                'responsable'=>$user_id,
+                'accion'=>2
+            ]);
+            HistorialDocumentoAnexo::create([
+                'fk_documento_id'=>$id_documento,
+                'fk_documento_id_anexo'=>$id_documento_anexo,
+                'responsable'=>$user_id,
+                'accion'=>5
+            ]);
 
             return redirect()->back()->with("FormDocMini","Success");
         }catch (\Throwable $th){
@@ -258,52 +284,63 @@ class GestionDocumentoController extends Controller
             'archivo.max' => 'El tamaño máximo permitido es 2 MB',
         ])->validate();
         
-
-        $documento = Documento::find($id);
-        if ($request->fecha_documento!==null) {
-            $year = new DateTime($input['fecha_documento']);
-            $year = $year->format('Y');
-            $documento->fecha=$request->fecha_documento;
-            $documento->anno=$year;
-        }
-        if ($request->tipo_documento!==null) {
-            $documento->tipo=$request->tipo_documento;
-        }
-        if ($request->numero_documento!==null) {
-            $documento->numero=$request->numero_documento;
-        }
-        if ($request->materia!==null) {
-            $documento->materia=$request->materia_documento;
-        }
-        if ($request->autor_documento!==null) {
-            $documento->autor=$request->autor_documento;
-        }
-        if ($request->direccion_documento!==null) {
-            $documento->direccion=$request->direccion_documento;
-        }
-        if ($request->archivo!==null) {
-            if ($request->fecha_documento!==null){
+        try{
+            $documento = Documento::find($id);
+            if ($request->fecha_documento!==null) {
                 $year = new DateTime($input['fecha_documento']);
                 $year = $year->format('Y');
-            }else{
-                $year=$documento->anno;
+                $documento->fecha=$request->fecha_documento;
+                $documento->anno=$year;
             }
-            $path = $request->file('archivo')->getRealPath();
-            $ext = $request->file('archivo')->extension();
-            $doc = file_get_contents($path);
-            $base64 = base64_encode($doc);
-            $mime = $request->file('archivo')->getClientMimeType();
-            $nombre_file=($input['numero_documento']).'-'.($year).'-'.($input['autor_documento']).'-'.($input['tipo_documento']);
-            
-            $documento->file=$base64;
-            $documento->mime_file=$mime;
-            $documento->name_file=$nombre_file.'.'.$ext;
+            if ($request->tipo_documento!==null) {
+                $documento->tipo=$request->tipo_documento;
+            }
+            if ($request->numero_documento!==null) {
+                $documento->numero=$request->numero_documento;
+            }
+            if ($request->materia!==null) {
+                $documento->materia=$request->materia_documento;
+            }
+            if ($request->autor_documento!==null) {
+                $documento->autor=$request->autor_documento;
+            }
+            if ($request->direccion_documento!==null) {
+                $documento->direccion=$request->direccion_documento;
+            }
+            if ($request->archivo!==null) {
+                if ($request->fecha_documento!==null){
+                    $year = new DateTime($input['fecha_documento']);
+                    $year = $year->format('Y');
+                }else{
+                    $year=$documento->anno;
+                }
+                $path = $request->file('archivo')->getRealPath();
+                $ext = $request->file('archivo')->extension();
+                $doc = file_get_contents($path);
+                $base64 = base64_encode($doc);
+                $mime = $request->file('archivo')->getClientMimeType();
+                $nombre_file=($input['numero_documento']).'-'.($year).'-'.($input['autor_documento']).'-'.($input['tipo_documento']);
+                
+                $documento->file=$base64;
+                $documento->mime_file=$mime;
+                $documento->name_file=$nombre_file.'.'.$ext;
+            }
+            $documento->save();
+
+            $user_id=Auth::id();
+            HistorialDocumento::create([
+                'documento_id'=>$documento->id,
+                'responsable'=>$user_id,
+                'accion'=>3,
+                'detalles'=>"Actualiza metadatos"
+                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            ]);
+
+            return redirect()->back()->with(['actualizar'=>'Se pudo actualizar el documento','documento'=>$documento]);
+        }catch(\Throwable $th){
+            return redirect()->back()->withErrors(['actualizar'=>'No se pudo actualizar el documento','documento'=>$documento]);
         }
-        $documento->save();
-
-        return redirect()->back()->with(['actualizar'=>'Se pudo actualizar el documento','documento'=>$documento]);
-
-
+        
     }
 
     public function updateCollection(Request $request, string $id)
@@ -316,13 +353,32 @@ class GestionDocumentoController extends Controller
                 $documento = Documento::find($doc_id);
                 $documento->estado = $opcion;
                 $documento->save();
+
+                $user_id=Auth::id();
+                HistorialDocumento::create([
+                    'documento_id'=>$documento->id,
+                    'responsable'=>$user_id,
+                    'accion'=>8,
+                    'detalles'=>"Habilita documento"
+                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                ]);
             }
         }elseif ($opcion==2){
             foreach($docs as $doc_id){
                 $documento = Documento::find($doc_id);
                 $documento->estado = $opcion;
                 $documento->save();
+
+                $user_id=Auth::id();
+                HistorialDocumento::create([
+                    'documento_id'=>$documento->id,
+                    'responsable'=>$user_id,
+                    'accion'=>7,
+                    'detalles'=>"Anula documento"
+                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                ]);
             }
+            
         }
         $documentos = DocumentoResource::collection(Documento::all());
         return redirect()->back()->with(['actualizar'=>'Se pudo cambiar los estados de los seleccionados','documentos'=>$documentos]);

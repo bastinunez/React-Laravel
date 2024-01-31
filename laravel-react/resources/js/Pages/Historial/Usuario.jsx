@@ -14,12 +14,13 @@ import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,
   mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline, mdiVanityLight} from '@mdi/js';
 import FilterTemplate from '@/Components/FilterTemplate'
 
-const Documentos = ({auth}) => {
+const Usuario = ({auth}) => {
   //toast
   const toast_global = useRef(null);
 
 
   const { historial,tipos,autores } = usePage().props;
+  console.log(historial)
 
   //TABLA Y FILTROS
   //Filtros
@@ -38,10 +39,7 @@ const Documentos = ({auth}) => {
 
   const columnas = [
     {name: "ID", uid: "id", sortable: true},
-    {name: "Número", uid: "numero", sortable: true},
-    {name: "Fecha", uid: "fecha", sortable: true},
-    {name: "Autor", uid: "autor", sortable: true},
-    {name: "Tipo", uid: "tipo", sortable: true},
+    {name: "Nombre", uid: "nombre", sortable: true},
     {name: "Responsable", uid: "responsable", sortable: true},
     {name: "Acción", uid: "accion", sortable: true},
     {name: "Detalles", uid: "detalles", sortable: true},
@@ -129,10 +127,10 @@ const Documentos = ({auth}) => {
 
   return (
     <Authenticated user={auth.user}>
-      <Head title="Historial de historial" />
+      <Head title="Historial acciones sobre usuario" />
       <Toast ref={toast_global}></Toast>
       <TitleTemplate>
-        Historial de historial
+        Historial acciones sobre usuario
       </TitleTemplate>
       <FilterTemplate>
           <div className="flex flex-col gap-4">
@@ -149,43 +147,8 @@ const Documentos = ({auth}) => {
               </div>
               <div className="flex gap-3">
                 <div>
-                  {/* FILTRO TIPO */}
-                  <Dropdown >
-                    <DropdownTrigger className="hidden sm:flex">
-                      <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                        Tipo
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
-                      closeOnSelect={false} selectedKeys={tipoFilter} selectionMode="multiple"
-                      onSelectionChange={setTipoFilter} >
-                      {tipos.map( (tipo) => (
-                        <DropdownItem key={tipo.id}>{tipo.nombre}</DropdownItem>
-                      ) )}
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-                <div>
-                  {/* FILTRO AUTOR */}
-                  <Dropdown>
-                    <DropdownTrigger className="hidden sm:flex">
-                      <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                        Autor
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu  disallowEmptySelection aria-label="Table Columns" id='autor' selectedKeys={autorFilter}
-                      onSelectionChange={setAutorFilter} closeOnSelect={false} selectionMode="multiple" items={autores}>
-                      {
-                        (autor)=>(
-                          <DropdownItem key={autor.id}>{autor.nombres}</DropdownItem>
-                        )
-                      }
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-                <div>
                   {/* FILTRO RESPONSABLE */}
-                  <Dropdown>
+                  {/* <Dropdown>
                     <DropdownTrigger className="hidden sm:flex">
                       <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
                         Responsable
@@ -199,7 +162,7 @@ const Documentos = ({auth}) => {
                         )
                       }
                     </DropdownMenu>
-                  </Dropdown>
+                  </Dropdown> */}
                 </div>
               </div>
             </div>
@@ -238,20 +201,18 @@ const Documentos = ({auth}) => {
               </TableHeader>
               <TableBody emptyContent={"No existen historial"}>
                 {
-                  sortedItems.map((fila,index)=>(
-                    <TableRow key={index} className='text-start'>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_id}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_numero}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_fecha}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_autor}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_tipo}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.responsable.nombres} {fila.responsable.apellidos}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.accion.nombre}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.detalles}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{new Date(fila.created_at).toLocaleString()}</TableCell>
-                    </TableRow>
-                  ))
+                    sortedItems.map((fila,index)=>(
+                        <TableRow key={index} className='text-start'>
+                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.user_id}</TableCell>
+                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.user_nombre}</TableCell>
+                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.responsable.nombres} {fila.responsable.apellidos}</TableCell>
+                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.accion.nombre}</TableCell>
+                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.detalles}</TableCell>
+                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{new Date(fila.created_at).toLocaleString()}</TableCell>
+                        </TableRow>
+                    ))
                 }
+                
               </TableBody>
             </Table>
             </div>
@@ -260,4 +221,4 @@ const Documentos = ({auth}) => {
     </Authenticated>
   )
 }
-export default Documentos
+export default Usuario

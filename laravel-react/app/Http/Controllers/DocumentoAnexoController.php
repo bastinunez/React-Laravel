@@ -8,10 +8,13 @@ use App\Models\DocumentoAnexo;
 use App\Models\Documento;
 use App\Models\Estado;
 use App\Models\Funcionario;
+use App\Models\HistorialDocumento;
+use App\Models\HistorialDocumentoAnexo;
 use App\Models\TipoDocumento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use DateTime;
 use Inertia\Inertia;
 
@@ -56,7 +59,8 @@ class DocumentoAnexoController extends Controller
                 DB::table("documento_anexo")->insert([
                     "documento_id"=>$documento_id,
                     "documento_id_anexo"=>$doc_id
-                ]);   
+                ]);
+
             }
             return redirect()->back()->with(['anexar'=>'Se pudo anexar el documento']);
         }catch (\Throwable $th){
@@ -74,7 +78,15 @@ class DocumentoAnexoController extends Controller
                 DB::table("documento_anexo")->insert([
                     "documento_id"=>$documento_id,
                     "documento_id_anexo"=>$doc_id
-                ]);   
+                ]);
+
+                $user_id=Auth::id();
+                HistorialDocumentoAnexo::create([
+                    'fk_documento_id'=>$documento_id,
+                    'fk_documento_id_anexo'=>$doc_id,
+                    'responsable'=>$user_id,
+                    'accion'=>5
+                ]);
             }
             return redirect()->back()->with(['add_anexo'=>'Se pudo anexar el documento']);
         }catch (\Throwable $th){
@@ -120,15 +132,35 @@ class DocumentoAnexoController extends Controller
                 "anno" => $year,
                 "estado" => 1,
             ]);
-            DB::table("documento_anexo")->insert([
+            DB::table("documento_anexo")->insertGetId([
                 "documento_id"=>$input['id_doc'],
                 "documento_id_anexo"=>$id_documento
-            ]);   
+            ]);
 
-            return redirect()->back()->with(['create'=>'Se pudo crear el documento anexo']);
-        }catch (\Throwable $th){
-            //dd("Error: " . $th->getMessage());
-            return redirect()->back()->withErrors(['create'=>'No se pudo crear el documento anexo']);
+            $user_id=Auth::id();
+            HistorialDocumento::create([
+                'documento_id'=>$id_documento,
+                'responsable'=>$user_id,
+                'accion'=>2
+            ]);
+            HistorialDocumentoAnexo::create([
+                'fk_documento_id'=>$input['id_doc'],
+                'fk_documento_id_anexo'=>$id_documento,
+                'responsable'=>$user_id,
+                'accion'=>5
+            ]);
+
+            return redirect()->back()->with(["create"=>"Se pudo crear el documento anexo"]);
+        }catch (\Illuminate\Database\QueryException $e) {
+            // Manejo específico para errores de duplicidad
+            if ($e->errorInfo[1] == 1062) {
+                return redirect()->back()->withErrors(["create"=>"Ya existe el documento"]);
+            } elseif ($e->errorInfo[1] == 1452) {
+                return redirect()->back()->withErrors(["create"=>"No existe una referencia"]);
+            }else {
+                // Otros errores de la base de datos
+                throw $e;
+            }
         }
     }
 
@@ -192,6 +224,15 @@ class DocumentoAnexoController extends Controller
                 'documento_id_anexo' => $anexo_id
             ])->delete();
             if (!$eliminar){
+                $user_id=Auth::id();
+                HistorialDocumentoAnexo::create([
+                    'fk_documento_id'=>$documento_id,
+                    'fk_documento_id'=>$anexo_id,
+                    'responsable'=>$user_id,
+                    'accion'=>6,
+                    'detalles'=>"Quita anexo del documento ID: " . $documento_id 
+                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                ]);
                 return redirect()->back()->with(['destroy'=>'Se pudo eliminar el documento '.$anexo_id]);
             }
         }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nombres',40);
             $table->string('apellidos',40);
             $table->string('abreviacion',4);
+            $table->unique(['nombres', 'apellidos']);
         });
     }
 

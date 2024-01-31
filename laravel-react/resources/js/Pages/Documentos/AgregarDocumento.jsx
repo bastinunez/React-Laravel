@@ -128,7 +128,6 @@ const AgregarDocumento = ({auth}) => {
       onSuccess: (msg) => { data_mini.id_doc=id_document;getDocuments(id_document);
         reset('materia_documento'); showMsg(msg.success,severity.success,summary.success)},
       onError: (errors) => {
-        console.log(errors.create)
         showMsg(errors.create,severity.error,summary.error)
       }
     });
@@ -247,7 +246,7 @@ const AgregarDocumento = ({auth}) => {
                 </div>
                 <div className="w-80">
                   <InputLabel value={"Agregar archivo"}></InputLabel>
-                  <input value={data.archivo}  onChange ={(e) => setData('archivo',e.target.files[0])} type='file' accept='.pdf' />
+                  <input onChange ={(e) => setData('archivo',e.target.files[0])} type='file' accept='.pdf' />
                   <InputError message={errors.archivo} className="mt-2" />
                 </div>
               </div>

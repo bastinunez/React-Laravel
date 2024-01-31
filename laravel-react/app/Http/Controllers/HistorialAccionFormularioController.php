@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\HistorialAccionFormularioResource;
+use App\Models\Accion;
+use App\Models\Funcionario;
+use App\Models\HistorialFormulario;
+use App\Models\TipoDocumento;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -13,7 +18,11 @@ class HistorialAccionFormularioController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Historial/Documentos');
+        return Inertia::render('Historial/Formulario',[
+            'historial'=>HistorialAccionFormularioResource::collection(HistorialFormulario::all()),
+            'acciones'=>Accion::all(),
+            'tipos'=>TipoDocumento::all(),
+        ]);
     }
 
     /**

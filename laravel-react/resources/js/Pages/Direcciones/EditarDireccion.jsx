@@ -39,7 +39,7 @@ const EditarDireccion = ({auth}) => {
     const submit = (e) => {
         e.preventDefault()
         patch(route('direccion.update',String(direccion.id)),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success);reset()},
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);},
             onError: () => {showMsg("Falló",severity.error,summary.error)}
         })
     }

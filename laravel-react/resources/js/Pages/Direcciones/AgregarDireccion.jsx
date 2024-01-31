@@ -32,8 +32,8 @@ const AgregarDireccion = ({auth}) => {
     const submit = (e) => {
         e.preventDefault()
         post(route('direccion.store'),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success);reset()},
-            onError: () => {showMsg("Falló",severity.error,summary.error)}
+            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);reset()},
+            onError: (msg) => {showMsg(msg.create,severity.error,summary.error)}
         })
     }
 

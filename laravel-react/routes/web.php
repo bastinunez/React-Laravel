@@ -92,10 +92,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     //HISTORIAL
-    Route::resource('historial-documentos', HistorialDocumentosController::class)->names('historialdocumentos');
-    Route::resource('historial-documentos-anexos', HistorialDocumentosAnexosController::class)->names('historialdocumentosanexos');
-    Route::resource('historial-accion-usuario', HistorialAccionUsuarioController::class)->names('historialaccionusuario');
-    Route::resource('historial-accion-formulario', HistorialAccionFormularioController::class)->names('historialaccionformulario');
+    Route::resource('historial-documentos', HistorialDocumentosController::class)->names('historial-documentos');
+    Route::resource('historial-documentos-anexos', HistorialDocumentosAnexosController::class)->names('historial-documentos-anexos');
+    Route::resource('historial-accion-usuario', HistorialAccionUsuarioController::class)->names('historial-accion-usuario');
+    Route::resource('historial-accion-formulario', HistorialAccionFormularioController::class)->names('historial-accion-formulario');
     Route::resource('usuario', UsuarioController::class);
   
 

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\HistorialAccionUsuarioResource;
+use App\Models\Accion;
+use App\Models\HistorialUsuario;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -13,7 +16,10 @@ class HistorialAccionUsuarioController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Historial/Documentos');
+        return Inertia::render('Historial/Usuario',[
+            'historial'=>HistorialAccionUsuarioResource::collection(HistorialUsuario::all()),
+            'acciones'=>Accion::all(),
+        ]);
     }
 
     /**

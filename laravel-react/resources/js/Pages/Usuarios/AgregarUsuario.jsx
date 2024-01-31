@@ -48,8 +48,8 @@ const AgregarUsuario = ({auth}) => {
     const submit = (e) => {
         e.preventDefault()
         post(route('gestion-usuarios.store'),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
-            onError: () => {showMsg("Falló",severity.error,summary.error)},
+            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success)},
+            onError: (msg) => {showMsg(msg.create,severity.error,summary.error)},
         })
     }
     

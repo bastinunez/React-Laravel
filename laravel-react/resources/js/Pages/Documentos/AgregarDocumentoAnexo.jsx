@@ -42,7 +42,6 @@ const AgregarDocumentoAnexo = ({auth}) => {
 
   //recibo los datos desde el controlador
   const { id_doc,all_docs, tipos,autores,flash } = usePage().props;
-  console.log(id_doc)
   const [documentos,setDocumentos] = useState(all_docs)
   const getDocumentosLess = async () => {
     try {
@@ -120,12 +119,12 @@ const AgregarDocumentoAnexo = ({auth}) => {
     //console.log(data_mini)
     post_mini(route('documento-anexo.store'),{
       onSuccess: (msg) => {
+        showMsg(msg.create,severity.success,summary.success)
         getDocumentsAnexos(id_doc);
         reset_mini('numero_documento','autor_documento','tipo_documento','fecha_documento')
-        showMsg(msg.create,severity.success,summary.success)
+        
       },
       onError: (errors) => {
-        console.log(errors.create)
         showMsg(errors.create,severity.error,summary.error)
     }
     })

@@ -123,12 +123,11 @@ const GestionDocumentos = ({auth}) => {
     }
     if (autorFilter !== "all" && Array.from(autorFilter).length !== autores.length) {
       let arrayAutor =  new Set([...autorFilter].map(numero => {
-          const matchingItem = autores.find(item => item.id === parseInt(numero));
-          return matchingItem ? matchingItem.nombres : null;
-        }).filter(nombres => nombres !== null));
-      
-      filteredDocumentos = filteredDocumentos.filter((documento) =>
-        Array.from(arrayAutor).includes(documento.direccion),
+        const matchingItem = autores.find(item => item.id === parseInt(numero));
+        return matchingItem ? [matchingItem.nombres + " " + matchingItem.apellidos]: null;
+      }).filter(nombres => nombres !== null));
+      filteredDocumentos = filteredDocumentos.filter((fila) =>
+        Array.from(arrayAutor).some(item=>JSON.stringify(item) === JSON.stringify([fila.autor]))
       );
     }
     return filteredDocumentos;

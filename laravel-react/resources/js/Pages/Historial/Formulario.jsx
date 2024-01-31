@@ -14,12 +14,13 @@ import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,
   mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline, mdiVanityLight} from '@mdi/js';
 import FilterTemplate from '@/Components/FilterTemplate'
 
-const Documentos = ({auth}) => {
+const Formulario = ({auth}) => {
   //toast
   const toast_global = useRef(null);
 
 
-  const { historial,tipos,autores } = usePage().props;
+  const { historial,tipos,acciones } = usePage().props;
+  console.log(historial)
 
   //TABLA Y FILTROS
   //Filtros
@@ -28,7 +29,7 @@ const Documentos = ({auth}) => {
   const [filterFechaCreated,setFilterFechaCreated] = useState('');
   const [filterNumero,setFilterNumero] = useState('');
   const hasSearchFilterNumero = Boolean(filterNumero);
-  const [tipoFilter, setTipoFilter] = useState("all");
+  const [accionFilter, setAccionFilter] = useState("all");
   const [autorFilter, setAutorFilter] = useState("all");
   const [responsableFilter, setResponsableFilter] = useState("all");
   const [sortDescriptor, setSortDescriptor] = useState({
@@ -37,11 +38,6 @@ const Documentos = ({auth}) => {
   });
 
   const columnas = [
-    {name: "ID", uid: "id", sortable: true},
-    {name: "Número", uid: "numero", sortable: true},
-    {name: "Fecha", uid: "fecha", sortable: true},
-    {name: "Autor", uid: "autor", sortable: true},
-    {name: "Tipo", uid: "tipo", sortable: true},
     {name: "Responsable", uid: "responsable", sortable: true},
     {name: "Acción", uid: "accion", sortable: true},
     {name: "Detalles", uid: "detalles", sortable: true},
@@ -66,13 +62,13 @@ const Documentos = ({auth}) => {
         return fecha_registro >= filterFechaCreated[0] && fecha_registro <= filterFechaCreated[1]
       });
     }
-    if (tipoFilter !== "all" && Array.from(tipoFilter).length !== tipos.length) {
-      let arrayTipo =  new Set([...tipoFilter].map(numero => {
+    if (accionFilter !== "all" && Array.from(accionFilter).length !== tipos.length) {
+      let arrayTipo =  new Set([...accionFilter].map(numero => {
           const matchingItem = tipos.find(item => item.id === parseInt(numero));
           return matchingItem ? matchingItem.nombre : null;
         }).filter(nombre => nombre !== null));
       filteredHistorial = filteredHistorial.filter((fila) =>
-        Array.from(arrayTipo).includes(fila.doc_tipo),
+        Array.from(arrayTipo).includes(fila.accion.nombre),
       );
     }
     if (autorFilter !== "all" && Array.from(autorFilter).length !== autores.length) {
@@ -85,7 +81,7 @@ const Documentos = ({auth}) => {
       );
     }
     return filteredHistorial;
-  }, [historial, filterNumero,tipoFilter,autorFilter,filterFechaDoc]);
+  }, [historial, filterNumero,accionFilter,autorFilter,filterFechaDoc]);
 
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(8);
@@ -123,16 +119,18 @@ const Documentos = ({auth}) => {
     setFilterNumero("")
     setFilterFechaCreated('')
     setFilterFechaDoc('')
-    setTipoFilter("all")
+    setAccionFilter("all")
     setAutorFilter("all")
   }
 
+//   QUEDE AQUI HAY QUE CORREGIR LOS FILTROS DE LOS HISTORIALES
+
   return (
     <Authenticated user={auth.user}>
-      <Head title="Historial de historial" />
+      <Head title="Historial sobre formulario" />
       <Toast ref={toast_global}></Toast>
       <TitleTemplate>
-        Historial de historial
+        Historial sobre formulario
       </TitleTemplate>
       <FilterTemplate>
           <div className="flex flex-col gap-4">
@@ -149,37 +147,19 @@ const Documentos = ({auth}) => {
               </div>
               <div className="flex gap-3">
                 <div>
-                  {/* FILTRO TIPO */}
+                  {/* FILTRO ACCION */}
                   <Dropdown >
                     <DropdownTrigger className="hidden sm:flex">
                       <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                        Tipo
+                        Accion
                       </Button>
                     </DropdownTrigger>
                     <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
-                      closeOnSelect={false} selectedKeys={tipoFilter} selectionMode="multiple"
-                      onSelectionChange={setTipoFilter} >
-                      {tipos.map( (tipo) => (
-                        <DropdownItem key={tipo.id}>{tipo.nombre}</DropdownItem>
+                      closeOnSelect={false} selectedKeys={accionFilter} selectionMode="multiple"
+                      onSelectionChange={setAccionFilter} >
+                      {acciones.map( (accion) => (
+                        <DropdownItem key={accion.id}>{accion.nombre}</DropdownItem>
                       ) )}
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-                <div>
-                  {/* FILTRO AUTOR */}
-                  <Dropdown>
-                    <DropdownTrigger className="hidden sm:flex">
-                      <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                        Autor
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu  disallowEmptySelection aria-label="Table Columns" id='autor' selectedKeys={autorFilter}
-                      onSelectionChange={setAutorFilter} closeOnSelect={false} selectionMode="multiple" items={autores}>
-                      {
-                        (autor)=>(
-                          <DropdownItem key={autor.id}>{autor.nombres}</DropdownItem>
-                        )
-                      }
                     </DropdownMenu>
                   </Dropdown>
                 </div>
@@ -192,7 +172,7 @@ const Documentos = ({auth}) => {
                       </Button>
                     </DropdownTrigger>
                     <DropdownMenu  disallowEmptySelection aria-label="Table Columns" id='autor' selectedKeys={autorFilter}
-                      onSelectionChange={setAutorFilter} closeOnSelect={false} selectionMode="multiple" items={autores}>
+                      onSelectionChange={setAutorFilter} closeOnSelect={false} selectionMode="multiple" items={acciones}>
                       {
                         (autor)=>(
                           <DropdownItem key={autor.id}>{autor.nombres}</DropdownItem>
@@ -240,11 +220,6 @@ const Documentos = ({auth}) => {
                 {
                   sortedItems.map((fila,index)=>(
                     <TableRow key={index} className='text-start'>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_id}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_numero}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_fecha}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_autor}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_tipo}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.responsable.nombres} {fila.responsable.apellidos}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.accion.nombre}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.detalles}</TableCell>
@@ -260,4 +235,4 @@ const Documentos = ({auth}) => {
     </Authenticated>
   )
 }
-export default Documentos
+export default Formulario

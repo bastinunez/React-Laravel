@@ -135,14 +135,14 @@ const EditarUsuario = ({auth}) => {
   const submitUpdateData = (e) => {
     e.preventDefault()
     patchEdit(route("gestion-usuarios.update-metadata",String(usuario.id)),{
-      onSuccess: (msg) => {showMsg("Exito",severity.success,summary.success);console.log(msg)},
-      onError: (msg) => {showMsg("Falló",severity.error,summary.error);console.log(msg)}
+      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);console.log(msg)},
+      onError: (msg) => {showMsg(msg.update,severity.error,summary.error);console.log(msg)}
     })
   }
   const submitRestaurarPwd = (e) => {
     patchPwd(route('gestion-usuarios.update',usuario.id),{
-      onSuccess: (msg) => {showMsg("Exito",severity.success,summary.success);console.log(msg)},
-      onError: (msg) => {showMsg("Falló",severity.error,summary.error);console.log(msg)}
+      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);console.log(msg)},
+      onError: (msg) => {showMsg(msg.update,severity.error,summary.error);console.log(msg)}
     })
   }
 

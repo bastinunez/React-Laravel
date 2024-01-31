@@ -14,12 +14,13 @@ import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,
   mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline, mdiVanityLight} from '@mdi/js';
 import FilterTemplate from '@/Components/FilterTemplate'
 
-const Documentos = ({auth}) => {
+const DocumentosAnexos = ({auth}) => {
   //toast
   const toast_global = useRef(null);
 
 
   const { historial,tipos,autores } = usePage().props;
+  console.log(historial)
 
   //TABLA Y FILTROS
   //Filtros
@@ -30,7 +31,6 @@ const Documentos = ({auth}) => {
   const hasSearchFilterNumero = Boolean(filterNumero);
   const [tipoFilter, setTipoFilter] = useState("all");
   const [autorFilter, setAutorFilter] = useState("all");
-  const [responsableFilter, setResponsableFilter] = useState("all");
   const [sortDescriptor, setSortDescriptor] = useState({
     column: "fecha",
     direction: "ascending",
@@ -38,10 +38,15 @@ const Documentos = ({auth}) => {
 
   const columnas = [
     {name: "ID", uid: "id", sortable: true},
-    {name: "Número", uid: "numero", sortable: true},
+    {name: "#", uid: "numero", sortable: true},
     {name: "Fecha", uid: "fecha", sortable: true},
     {name: "Autor", uid: "autor", sortable: true},
     {name: "Tipo", uid: "tipo", sortable: true},
+    {name: "ID anexo", uid: "id_anexo", sortable: true},
+    {name: "# anexo", uid: "numero_anexo", sortable: true},
+    {name: "Fecha anexo", uid: "fecha_anexo", sortable: true},
+    //{name: "Autor anexo", uid: "autor_anexo", sortable: true},
+    //{name: "Tipo anexo", uid: "tipo_anexo", sortable: true},
     {name: "Responsable", uid: "responsable", sortable: true},
     {name: "Acción", uid: "accion", sortable: true},
     {name: "Detalles", uid: "detalles", sortable: true},
@@ -129,10 +134,10 @@ const Documentos = ({auth}) => {
 
   return (
     <Authenticated user={auth.user}>
-      <Head title="Historial de historial" />
+      <Head title="Historial de documentos anexos" />
       <Toast ref={toast_global}></Toast>
       <TitleTemplate>
-        Historial de historial
+        Historial de documentos anexos
       </TitleTemplate>
       <FilterTemplate>
           <div className="flex flex-col gap-4">
@@ -245,6 +250,11 @@ const Documentos = ({auth}) => {
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_fecha}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_autor}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_tipo}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_anexo_id}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_anexo_numero}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_anexo_fecha}</TableCell>
+                      {/* <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_anexo_autor}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_anexo_tipo}</TableCell> */}
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.responsable.nombres} {fila.responsable.apellidos}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.accion.nombre}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.detalles}</TableCell>
@@ -260,4 +270,4 @@ const Documentos = ({auth}) => {
     </Authenticated>
   )
 }
-export default Documentos
+export default DocumentosAnexos

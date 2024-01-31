@@ -9,16 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('direccion', function (Blueprint $table) {
+        Schema::create('accion',function (Blueprint $table){
             $table->id();
-            $table->string('nombre', 25)->unique();
+            $table->string('nombre', 30);
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
-        Schema::dropIfExists('direccion');
+        Schema::dropIfExists('accion');
     }
 };

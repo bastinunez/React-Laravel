@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\FuncionarioResource;
 use App\Models\Funcionario;
+use App\Models\HistorialFormulario;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -61,16 +63,30 @@ class FuncionarioController extends Controller
 
         $iniciales = $inicialesNombres . $inicialesApellidos;
         try{
-            DB::table('funcionario')->insert([
+            $funcionario_id=DB::table('funcionario')->insertGetId([
                 'nombres'=>$input['nombres'],
                 'apellidos'=>$input['apellidos'],
                 'abreviacion'=>$iniciales
             ]);
-            return redirect()->back()->with(["FormPostFuncionario"=>"Success"]);
-        }catch(\Throwable $th){
-            return redirect()->back()->withErrors(["FormPostFuncionario"=>"Error"]);
+
+            $user_id=Auth::id();
+            HistorialFormulario::create([
+                'responsable'=>$user_id,
+                'accion'=>2,
+                'detalles'=>"Crea el funcionario con nombres: " . $input['nombres'] . " " . $input['apellidos']
+                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            ]);
+            
+            return redirect()->back()->with(["create"=>"Success"]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Manejo específico para errores de duplicidad
+            if ($e->errorInfo[1] == 1062) {
+                return redirect()->back()->withErrors(["create"=>"Ya existe el funcionario"]);
+            } else {
+                // Otros errores de la base de datos
+                throw $e;
+            }
         }
-        
     }
 
     /**
@@ -130,9 +146,24 @@ class FuncionarioController extends Controller
             $funcionario->apellidos = $input['apellidos'];
             $funcionario->abreviacion = $iniciales;
             $funcionario->save();
-            return redirect()->back()->with(["FormUpdateFuncionario"=>"Success"]);
-        }catch(\Throwable $th){ 
-            return redirect()->back()->withErrors(["FormUpdateFuncionario"=>"Error"]);
+
+            $user_id=Auth::id();
+            HistorialFormulario::create([
+                'responsable'=>$user_id,
+                'accion'=>3,
+                'detalles'=>"Edita el funcionario con ID: " . $funcionario->id
+                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            ]);
+
+            return redirect()->back()->with(["update"=>"Actualizado correctamente"]);
+        }catch (\Illuminate\Database\QueryException $e) {
+            // Manejo específico para errores de duplicidad
+            if ($e->errorInfo[1] == 1062) {
+                return redirect()->back()->withErrors(["update"=>"Ya existe el funcionario"]);
+            } else {
+                // Otros errores de la base de datos
+                throw $e;
+            }
         }
     }
 
