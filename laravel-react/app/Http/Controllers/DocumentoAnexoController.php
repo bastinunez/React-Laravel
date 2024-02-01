@@ -30,7 +30,6 @@ class DocumentoAnexoController extends Controller
         //     return $documento->id === $id;
         // });
         
-        dd($id);
         $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
         ->pluck('documento_id_anexo')
         ->toArray();

@@ -286,14 +286,17 @@ class GestionDocumentoController extends Controller
         
         try{
             $documento = Documento::find($id);
+            //dd($documento);
             if ($request->fecha_documento!==null) {
                 $year = new DateTime($input['fecha_documento']);
                 $year = $year->format('Y');
-                $documento->fecha=$request->fecha_documento;
+                $documento->fecha= $input['fecha_documento'];
                 $documento->anno=$year;
             }
             if ($request->tipo_documento!==null) {
                 $documento->tipo=$request->tipo_documento;
+            }if ($request->rut_documento!==null) {
+                $documento->rut=$request->rut_documento;
             }
             if ($request->numero_documento!==null) {
                 $documento->numero=$request->numero_documento;
@@ -326,19 +329,19 @@ class GestionDocumentoController extends Controller
                 $documento->name_file=$nombre_file.'.'.$ext;
             }
             $documento->save();
-
-            $user_id=Auth::id();
+           
+            $user_id=Auth::user();
             HistorialDocumento::create([
                 'documento_id'=>$documento->id,
-                'responsable'=>$user_id,
+                'responsable'=>$user_id->id,
                 'accion'=>3,
                 'detalles'=>"Actualiza metadatos"
                 //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
             ]);
 
-            return redirect()->back()->with(['actualizar'=>'Se pudo actualizar el documento','documento'=>$documento]);
+            return redirect()->back()->with(['update'=>'Se pudo actualizar el documento','documento'=>$documento]);
         }catch(\Throwable $th){
-            return redirect()->back()->withErrors(['actualizar'=>'No se pudo actualizar el documento','documento'=>$documento]);
+            return redirect()->back()->withErrors(['update'=>'No se pudo actualizar el documento','documento'=>$documento]);
         }
         
     }

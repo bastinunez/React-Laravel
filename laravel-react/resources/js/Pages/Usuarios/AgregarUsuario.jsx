@@ -12,9 +12,10 @@ import { Toast } from 'primereact/toast';
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import { Button, Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,
-    Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider} from '@nextui-org/react';
+    Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Input} from '@nextui-org/react';
 import Icon from '@mdi/react';
 import { mdiDownloadOutline, mdiTrashCanOutline } from '@mdi/js';
+import * as XLSX from "xlsx";
 
 
 const AgregarUsuario = ({auth}) => {
@@ -37,6 +38,18 @@ const AgregarUsuario = ({auth}) => {
         rut:'',
         rol:'',
     });
+    const { data:dataExcel, setData:setDataExcel, post:postExcel, processing:processingExcel, errors:errorsExcel, reset:resetExcel} = useForm({
+        archivo:'',
+        nombres:'',
+        apellidos:'',
+        rut:'',
+        rol:''
+    });
+
+    //MODAL
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const [modalPlacement, setModalPlacement] = useState("auto");
+    const [dataModal,setDataModal] = useState('')
 
     //mensaje formulario
     const severity = { success:'success',error:'error'}
@@ -52,7 +65,86 @@ const AgregarUsuario = ({auth}) => {
             onError: (msg) => {showMsg(msg.create,severity.error,summary.error)},
         })
     }
+
+    const submitExcel = (e) => {
+        e.preventDefault()
+        //console.log(dataExcel)
+
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(dataExcel.archivo);
+        reader.onload = async (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            // Suponiendo que el primer sheet (hoja) contiene los datos
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const usuarios = XLSX.utils.sheet_to_json(sheet);
+
+            let cargarUsuarios = true;
+            // Ahora puedes procesar los datos y realizar la llamada a la API
+            let cont_i=1
+            for (const usuario of usuarios) {
+                if (!usuario.apellidos || !usuario.nombres || !usuario.rut || !usuario.role) {
+                    setDataModal(`Hay datos vacíos para un usuario, revisa el archivo. Fila: ${cont_i}`)
+                    onOpen()
+                    cargarUsuarios = false;
+                    return;
+                } else {
+                  try {
+                    const response = await axios.get(`/api/find-user/${usuario.rut}`);
+                    if (response.data.filas.length!=0) {
+                        setDataModal("El usuario con rut: ",usuario.rut ," ya se encuentra registrado, modifica para seguir")
+                        onOpen()
+                        cargarUsuarios = false;
+                        return;
+                    }else{
+                        console.log("No se encuentra puede seguir")
+                    }
+                  } catch (error) {
+                    console.error(error);
+                  }
+                }
+                cont_i++
+            }
+            if(cargarUsuarios){
+                try {
+                  usuarios.forEach(async (usuario) => {
+                    dataExcel.nombres=usuario.nombres
+                    dataExcel.apellidos=usuario.apellidos
+                    dataExcel.rut=usuario.rut
+                    if (usuario.role=="Usuario"){
+                        dataExcel.rol=1
+                    }else if (usuario.role=="Digitador"){
+                        dataExcel.rol=2
+                    }else{
+                        dataExcel.rol=3
+                    }
+                    postExcel(route('gestion-usuarios.store'),{
+                        onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success)},
+                        onError: (msg) => {showMsg(msg.create,severity.error,summary.error)},
+                    })
+                  });
+                } catch (error) {
+                    
+                }
+              } 
+        }
+    }
+
+    const getTemplate = (e) => {
+        const path = '/assets/plantilla-usuarios.xlsx';
+        const link = document.createElement('a');
+        link.href = path;
+        link.download = 'plantilla-usuarios.xlsx';
     
+        document.body.appendChild(link);
+        link.click();
+    
+        document.body.removeChild(link);
+    }
+    
+    const borrarExcel = () =>{
+
+    }
 
 
     return (
@@ -107,17 +199,17 @@ const AgregarUsuario = ({auth}) => {
                                     <div className='w-full justify-between flex mb-7 gap-10'>
                                         <div className="w-full">
                                             <InputLabel value={"Ingresa nombres"}></InputLabel>
-                                            <TextInput type={'text'} className="w-full" value={data.nombres} onChange={(e) => setData('nombres',e.target.value)} required></TextInput>
+                                            <TextInput type={'text'} className="w-full" placeholder={"Nombre Nombre"} value={data.nombres} onChange={(e) => setData('nombres',e.target.value)} required></TextInput>
                                             <InputError message={errors.nombres} className="mt-2" />
                                         </div>
                                         <div className="w-full">
                                             <InputLabel value={"Ingresa apellidos"}></InputLabel>
-                                            <TextInput type={'text'} className="w-full" value={data.apellidos} onChange={(e) => setData('apellidos',e.target.value)} required ></TextInput>
+                                            <TextInput type={'text'} className="w-full" placeholder={"Apellido Apellido"} value={data.apellidos} onChange={(e) => setData('apellidos',e.target.value)} required ></TextInput>
                                             <InputError message={errors.apellidos} className="mt-2" />
                                         </div>
                                         <div className="w-full">
                                             <InputLabel value={"Ingresa rut"}></InputLabel>
-                                            <TextInput type={'text'} className="w-full" value={data.rut} onChange={(e) => setData('rut',e.target.value)} required ></TextInput>
+                                            <TextInput type={'text'} className="w-full" placeholder={"XX.XXX.XXX-X"} value={data.rut} onChange={(e) => setData('rut',e.target.value)} required ></TextInput>
                                             <InputError message={errors.rut} className="mt-2" />
                                         </div>
                                         <div className='w-full'>
@@ -138,7 +230,48 @@ const AgregarUsuario = ({auth}) => {
                             :
                             //se muestra plantilla para cargar masivamente usuarios
                             <>
-
+                                <form onSubmit={submitExcel}>
+                                    <div className='justify-between flex'>
+                                        <div className='w-full justify-center flex mx-auto'>
+                                            <div className='me-3'>
+                                                <InputLabel value={"Subir archivo"}></InputLabel>
+                                                <Input type='file' accept='.xls, .xlsx' onChange ={(e) => setDataExcel('archivo',e.target.files[0])} >
+                                                </Input>
+                                                <InputError message={errors.archivo} className="mt-2" />
+                                            </div>
+                                            <div className='flex items-end me-2'>
+                                                <Button color='primary' size='lg' type='submit'>Subir archivo</Button>
+                                            </div>
+                                            <div className='flex items-end'>
+                                                <Button color='secondary' size='lg' onPress={()=>getTemplate()}>Descargar plantilla</Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <Link href={route("gestion-usuarios.index")} className='w-full'>
+                                            <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                                        </Link>
+                                    </div>
+                                </form>
+                                <Modal isOpen={isOpen} placement={modalPlacement} onOpenChange={onOpenChange} size="md" >
+                                    <ModalContent>
+                                    {(onClose) => (
+                                        <>
+                                        <ModalHeader className="flex flex-col gap-1">Error</ModalHeader>
+                                        <ModalBody>
+                                            <div>
+                                                <h2>{dataModal}</h2>
+                                            </div>
+                                        </ModalBody>
+                                        <ModalFooter>
+                                            <Button color="danger" variant="light" onPress={onClose}>
+                                            Cerrar
+                                            </Button>
+                                        </ModalFooter>
+                                        </>
+                                    )}
+                                    </ModalContent>
+                                </Modal>
                             </>
                         }
                     </div>

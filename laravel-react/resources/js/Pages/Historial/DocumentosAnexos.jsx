@@ -19,8 +19,7 @@ const DocumentosAnexos = ({auth}) => {
   const toast_global = useRef(null);
 
 
-  const { historial,tipos,autores } = usePage().props;
-  console.log(historial)
+  const { historial,tipos,autores,acciones } = usePage().props;
 
   //TABLA Y FILTROS
   //Filtros
@@ -28,8 +27,13 @@ const DocumentosAnexos = ({auth}) => {
   const [filterFechaDoc,setFilterFechaDoc] = useState('');
   const [filterFechaCreated,setFilterFechaCreated] = useState('');
   const [filterNumero,setFilterNumero] = useState('');
+  const [filterResponsable,setFilterResponsable] = useState('');
+  const [filterDetalles,setFilterDetalles] = useState('');
   const hasSearchFilterNumero = Boolean(filterNumero);
+  const hasSearchFilterResponsable = Boolean(filterResponsable);
+  const hasSearchFilterDetalles = Boolean(filterDetalles);
   const [tipoFilter, setTipoFilter] = useState("all");
+  const [accionFilter, setAccionFilter] = useState("all");
   const [autorFilter, setAutorFilter] = useState("all");
   const [sortDescriptor, setSortDescriptor] = useState({
     column: "fecha",
@@ -58,6 +62,12 @@ const DocumentosAnexos = ({auth}) => {
     let filteredHistorial = [...historial];
     if (hasSearchFilterNumero) {
       filteredHistorial = filteredHistorial.filter((fila) => fila.doc_numero == parseInt(filterNumero));
+    }
+    if (hasSearchFilterResponsable) {
+      filteredHistorial = filteredHistorial.filter((fila) => (fila.responsable.nombres + " " + fila.responsable.apellidos).toLowerCase().includes(filterResponsable.toLowerCase()));
+    }
+    if (hasSearchFilterDetalles) {
+      filteredHistorial = filteredHistorial.filter((fila) => fila.detalles? (fila.detalles).toLowerCase().includes(filterDetalles.toLowerCase()) : null);
     }
     if (filterFechaDoc){
       filteredHistorial = filteredHistorial.filter((fila) => {
@@ -90,7 +100,7 @@ const DocumentosAnexos = ({auth}) => {
       );
     }
     return filteredHistorial;
-  }, [historial, filterNumero,tipoFilter,autorFilter,filterFechaDoc]);
+  }, [historial, filterNumero,filterDetalles,filterResponsable,tipoFilter,accionFilter,autorFilter,filterFechaDoc,filterFechaCreated]);
 
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(8);
@@ -124,12 +134,40 @@ const DocumentosAnexos = ({auth}) => {
     setPage(1)
   },[])
 
+  const onSearchChangeResponsable = useCallback((value) => {
+    if (value) {
+      setFilterResponsable(value);
+      setPage(1);
+    } else {
+      setFilterResponsable("");
+    }
+  }, []);
+  const onClearResponsable = useCallback(()=>{
+    setFilterResponsable("")
+    setPage(1)
+  },[])
+
+  const onSearchChangeDetalles = useCallback((value) => {
+    if (value) {
+      setFilterDetalles(value);
+      setPage(1);
+    } else {
+      setFilterDetalles("");
+    }
+  }, []);
+  const onClearDetalles = useCallback(()=>{
+    setFilterDetalles("")
+    setPage(1)
+  },[])
+
   const limpiarFiltros = () =>{
     setFilterNumero("")
     setFilterFechaCreated('')
     setFilterFechaDoc('')
     setTipoFilter("all")
     setAutorFilter("all")
+    setFilterResponsable('')
+    setFilterDetalles('')
   }
 
   return (
@@ -146,13 +184,38 @@ const DocumentosAnexos = ({auth}) => {
                 className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
                 startContent={<Icon path={mdiMagnify} size={1} />} value={filterNumero}
                 onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
+              <Input isClearable classNames={{input:["border-none"]}} type='text'
+                className="w-full input-next border-none" size='sm' placeholder="Buscar por responsable..."
+                startContent={<Icon path={mdiMagnify} size={1} />} value={filterResponsable}
+                onClear={() => onClearResponsable()} onValueChange={onSearchChangeResponsable} />
+              <Input isClearable classNames={{input:["border-none"]}} type='text'
+                className="w-full input-next border-none" size='sm' placeholder="Buscar por detalles..."
+                startContent={<Icon path={mdiMagnify} size={1} />} value={filterDetalles}
+                onClear={() => onClearDetalles()} onValueChange={onSearchChangeDetalles} />
               <div className='w-full card'>
                 <Calendar className='max-h-12 border-0 flex p-0' placeholder='Rango de fecha documento' dateFormat="yy//mm/dd" showIcon value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
               </div>
               <div className='w-full card'>
-                <Calendar className='max-h-12 border-0 flex p-0' placeholder='Rango de fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
+                <Calendar className='max-h-12 border-0 flex p-0' placeholder='Rango de fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
               </div>
               <div className="flex gap-3">
+                <div>
+                  {/* FILTRO ACCION */}
+                  <Dropdown >
+                    <DropdownTrigger className="hidden sm:flex">
+                      <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
+                        Accion
+                      </Button>
+                    </DropdownTrigger>
+                    <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
+                      closeOnSelect={false} selectedKeys={accionFilter} selectionMode="multiple"
+                      onSelectionChange={setAccionFilter} >
+                      {acciones.map( (accion) => (
+                        <DropdownItem key={accion.id}>{accion.nombre}</DropdownItem>
+                      ) )}
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
                 <div>
                   {/* FILTRO TIPO */}
                   <Dropdown >

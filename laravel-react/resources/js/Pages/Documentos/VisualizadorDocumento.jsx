@@ -3,7 +3,7 @@ import Authenticated from '@/Layouts/AuthenticatedLayout'
 import { usePage ,Link} from '@inertiajs/react';
 import { Viewer,Worker,CharacterMap,ProgressBar, ZoomEvent } from '@react-pdf-viewer/core';
 import { getFilePlugin } from '@react-pdf-viewer/get-file';
-import Head from '@inertiajs/react';
+import {Head} from '@inertiajs/react';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import TitleTemplate from '@/Components/TitleTemplate';
 import ContentTemplate from '@/Components/ContentTemplate';
@@ -47,8 +47,8 @@ const VisualizadorDocumento = ({auth}) => {
   const blob = base64toBlob(documento.file);
   const url = URL.createObjectURL(blob);
 
-  const getFilePluginInstance = getFilePlugin();
-  const { DownloadButton } = getFilePluginInstance;
+  // const getFilePluginInstance = getFilePlugin();
+  // const { DownloadButton } = getFilePluginInstance;
 
   //necesario para poder descargar el archivo
   const link=`data:${documento.mime_file};base64,${documento.file}`
@@ -137,7 +137,7 @@ const VisualizadorDocumento = ({auth}) => {
                   <div style={{ width: '240px' }}>
                       <ProgressBar progress={Math.round(percentages)} />
                   </div>
-                )} plugins={[getFilePluginInstance]}/>
+                )} />
               </div>
           </div>
             

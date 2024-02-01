@@ -21,7 +21,7 @@ class AccionSeeder extends Seeder
             ['nombre' => 'Anexar'],
             ['nombre' => 'Desanexar'],
             ['nombre' => 'Anular'],
-            ['nombre' => 'habilitar'],
+            ['nombre' => 'Habilitar'],
         ]);
     }
 }

@@ -74,6 +74,11 @@ class DireccionController extends Controller
      */
     public function edit(string $id)
     {
+        $direccion= Direccion::find((int)$id);
+
+        if(is_null($direccion)){
+            return Inertia::render('Direcciones/NoDireccionEdit');
+        }
         return Inertia::render('Direcciones/EditarDireccion',[
             'direccion'=>new DireccionResource(Direccion::find((int)$id))
         ]);

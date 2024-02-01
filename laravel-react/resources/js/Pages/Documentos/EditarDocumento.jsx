@@ -136,12 +136,13 @@ const EditarDocumento = ({auth}) => {
         e.preventDefault();
         console.log(data)
         patch(route('gestion-documento.update',String(documento.id)),{
-            onSuccess: (msg) => {showMsg("Exito",severity.success,summary.success);console.log(msg)},
-            onError: (msg) => {showMsg("Falló",severity.error,summary.error);console.log(msg)}
+            onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
+            onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
         });
     }
     const submitMiniForm = (e) => {
         e.preventDefault()
+        console.log(data_mini)
         post_mini(route('documento-anexo.store'),{
             onSuccess: (msg) => {
                 getDocuments(documento.id);
@@ -425,11 +426,11 @@ const EditarDocumento = ({auth}) => {
                                                             
                                                         </NextSelect>
                                                     </div>
-                                                    <div className='flex items-center'>
+                                                    <div className='flex items-center '>
+                                                        <Button type='text' className="w-full me-2" color='primary' variant='ghost'>Anexar documentos</Button>
                                                         <Link href={route("gestion-documento.index")} className='w-full'>
                                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                                         </Link>
-                                                        <Button type='text' size='lg' color='primary' variant='ghost'>Anexar documentos</Button>
                                                     </div>
                                                 </form>
                                             </div>

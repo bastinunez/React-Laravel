@@ -34,6 +34,7 @@
         "primeicons": "^6.0.1",
         "primereact": "^10.3.2",
         "save-as": "^0.1.8",
+        "xlsx": "^0.18.5",
         "zustand": "^4.4.7"
     }
 }

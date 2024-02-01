@@ -82,9 +82,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     //USUARIOS
+    Route::resource('usuario', UsuarioController::class);
     Route::post('/usuarios/editar-datos', [UsuarioController::class, 'edit_data'])->name('usuario.edit_data');
     Route::post('/usuarios/editar', [UsuarioController::class, 'update_pwd'])->name('usuario.update_pwd');
-
+    Route::get('/api/find-user/{id}', [GestionUsuarioController::class, 'get_user']);
     Route::patch('/gestion-usuarios/update-metadata/{id}',[GestionUsuarioController::class,'edit_user_metadata'])->name('gestion-usuarios.update-metadata');
     Route::patch('/gestion-usuarios/update-collection/{mensaje}',[GestionUsuarioController::class,'updateCollection'])->name('gestion-usuarios.update-collection');
     Route::patch('/gestion-usuarios/update-permission/{mensaje}',[GestionUsuarioController::class,'updatePermission'])->name('gestion-usuarios.update-permission');
@@ -96,7 +97,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('historial-documentos-anexos', HistorialDocumentosAnexosController::class)->names('historial-documentos-anexos');
     Route::resource('historial-accion-usuario', HistorialAccionUsuarioController::class)->names('historial-accion-usuario');
     Route::resource('historial-accion-formulario', HistorialAccionFormularioController::class)->names('historial-accion-formulario');
-    Route::resource('usuario', UsuarioController::class);
+    
   
 
 

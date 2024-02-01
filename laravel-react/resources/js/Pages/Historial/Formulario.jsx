@@ -20,7 +20,6 @@ const Formulario = ({auth}) => {
 
 
   const { historial,tipos,acciones } = usePage().props;
-  console.log(historial)
 
   //TABLA Y FILTROS
   //Filtros
@@ -28,7 +27,11 @@ const Formulario = ({auth}) => {
   const [filterFechaDoc,setFilterFechaDoc] = useState('');
   const [filterFechaCreated,setFilterFechaCreated] = useState('');
   const [filterNumero,setFilterNumero] = useState('');
+  const [filterResponsable,setFilterResponsable] = useState('');
+  const [filterDetalles,setFilterDetalles] = useState('');
   const hasSearchFilterNumero = Boolean(filterNumero);
+  const hasSearchFilterResponsable = Boolean(filterResponsable);
+  const hasSearchFilterDetalles = Boolean(filterDetalles);
   const [accionFilter, setAccionFilter] = useState("all");
   const [autorFilter, setAutorFilter] = useState("all");
   const [responsableFilter, setResponsableFilter] = useState("all");
@@ -50,6 +53,12 @@ const Formulario = ({auth}) => {
     if (hasSearchFilterNumero) {
       filteredHistorial = filteredHistorial.filter((fila) => fila.doc_numero == parseInt(filterNumero));
     }
+    if (hasSearchFilterResponsable) {
+      filteredHistorial = filteredHistorial.filter((fila) => (fila.responsable.nombres + " " + fila.responsable.apellidos).toLowerCase().includes(filterResponsable.toLowerCase()));
+    }
+    if (hasSearchFilterDetalles) {
+      filteredHistorial = filteredHistorial.filter((fila) => fila.detalles? (fila.detalles).toLowerCase().includes(filterDetalles.toLowerCase()) : null);
+    }
     if (filterFechaDoc){
       filteredHistorial = filteredHistorial.filter((fila) => {
         const fecha_doc = new Date(fila.doc_fecha);
@@ -62,13 +71,13 @@ const Formulario = ({auth}) => {
         return fecha_registro >= filterFechaCreated[0] && fecha_registro <= filterFechaCreated[1]
       });
     }
-    if (accionFilter !== "all" && Array.from(accionFilter).length !== tipos.length) {
-      let arrayTipo =  new Set([...accionFilter].map(numero => {
-          const matchingItem = tipos.find(item => item.id === parseInt(numero));
+    if (accionFilter !== "all" && Array.from(accionFilter).length !== acciones.length) {
+      let arrayAccion =  new Set([...accionFilter].map(numero => {
+          const matchingItem = acciones.find(item => item.id === parseInt(numero));
           return matchingItem ? matchingItem.nombre : null;
         }).filter(nombre => nombre !== null));
       filteredHistorial = filteredHistorial.filter((fila) =>
-        Array.from(arrayTipo).includes(fila.accion.nombre),
+        Array.from(arrayAccion).includes(fila.accion.nombre),
       );
     }
     if (autorFilter !== "all" && Array.from(autorFilter).length !== autores.length) {
@@ -81,7 +90,7 @@ const Formulario = ({auth}) => {
       );
     }
     return filteredHistorial;
-  }, [historial, filterNumero,accionFilter,autorFilter,filterFechaDoc]);
+  }, [historial, filterNumero,filterDetalles,filterResponsable,accionFilter,autorFilter,filterFechaDoc,filterFechaCreated]);
 
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(8);
@@ -115,12 +124,39 @@ const Formulario = ({auth}) => {
     setPage(1)
   },[])
 
+  const onSearchChangeResponsable = useCallback((value) => {
+    if (value) {
+      setFilterResponsable(value);
+      setPage(1);
+    } else {
+      setFilterResponsable("");
+    }
+  }, []);
+  const onClearResponsable = useCallback(()=>{
+    setFilterResponsable("")
+    setPage(1)
+  },[])
+
+  const onSearchChangeDetalles = useCallback((value) => {
+    if (value) {
+      setFilterDetalles(value);
+      setPage(1);
+    } else {
+      setFilterDetalles("");
+    }
+  }, []);
+  const onClearDetalles = useCallback(()=>{
+    setFilterDetalles("")
+    setPage(1)
+  },[])
+
   const limpiarFiltros = () =>{
     setFilterNumero("")
     setFilterFechaCreated('')
     setFilterFechaDoc('')
-    setAccionFilter("all")
     setAutorFilter("all")
+    setFilterResponsable('')
+    setFilterDetalles('')
   }
 
 //   QUEDE AQUI HAY QUE CORREGIR LOS FILTROS DE LOS HISTORIALES
@@ -139,11 +175,19 @@ const Formulario = ({auth}) => {
                 className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
                 startContent={<Icon path={mdiMagnify} size={1} />} value={filterNumero}
                 onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
+              <Input isClearable classNames={{input:["border-none"]}} type='text'
+                className="w-full input-next border-none" size='sm' placeholder="Buscar por responsable..."
+                startContent={<Icon path={mdiMagnify} size={1} />} value={filterResponsable}
+                onClear={() => onClearResponsable()} onValueChange={onSearchChangeResponsable} />
+              <Input isClearable classNames={{input:["border-none"]}} type='text'
+                className="w-full input-next border-none" size='sm' placeholder="Buscar por detalles..."
+                startContent={<Icon path={mdiMagnify} size={1} />} value={filterDetalles}
+                onClear={() => onClearDetalles()} onValueChange={onSearchChangeDetalles} />
               <div className='w-full card'>
                 <Calendar className='max-h-12 border-0 flex p-0' placeholder='Rango de fecha documento' dateFormat="yy//mm/dd" showIcon value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
               </div>
               <div className='w-full card'>
-                <Calendar className='max-h-12 border-0 flex p-0' placeholder='Rango de fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
+                <Calendar className='max-h-12 border-0 flex p-0' placeholder='Rango de fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
               </div>
               <div className="flex gap-3">
                 <div>

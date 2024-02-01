@@ -6,11 +6,15 @@ import { usePage,useForm } from '@inertiajs/react'
 import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError'
 import TextInput from '@/Components/TextInput'
+import { usePermission } from '@/Composables/Permission';
 import { Dropdown, DropdownMenu, DropdownTrigger, DropdownItem, Button, Tooltip} from '@nextui-org/react'
 
 const Perfil = ({auth}) => {
     const [isDisabled,setIsDisabled] = useState(true);
     const [cambiarPwd,setCambiarPwd] = useState(false);
+
+    //PERMISOS
+    const {hasRole,hasPermission} = usePermission()
 
     const {flash} = usePage().props;
 
@@ -27,7 +31,6 @@ const Perfil = ({auth}) => {
         current_password:'',
         nueva_pwd:'',
     })
-    console.log(flash)
     const editarDatos = (e) => {
         e.preventDefault()
         postEdit(route('usuario.edit_data'),{
@@ -80,23 +83,31 @@ const Perfil = ({auth}) => {
                                     <InputLabel value={"Rol"}></InputLabel>
                                     <TextInput className="w-full" disabled={true} type={'text'} value={dataEdit.rol}  ></TextInput>
                                 </div>
-                                <div className='w-full mx-8'>
-                                    <InputLabel value={"Permisos"}></InputLabel>
-                                    <Dropdown  type='listbox'> 
-                                        <DropdownTrigger>
-                                            <Button variant="bordered">
-                                                Ver Permisos
-                                            </Button>
-                                        </DropdownTrigger>
-                                        <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions" onScroll={true}>
-                                            {
-                                                dataEdit.permisos.map((permiso,index) => (
-                                                    <DropdownItem key={index}>{permiso}</DropdownItem>
-                                                ))
-                                            }
-                                        </DropdownMenu>
-                                    </Dropdown>
-                                </div>
+                                {
+                                    hasRole('Administrador')?
+                                    <>
+                                        <div className='w-full mx-8'>
+                                            <InputLabel value={"Permisos"}></InputLabel>
+                                            <Dropdown  type='listbox'> 
+                                                <DropdownTrigger>
+                                                    <Button variant="bordered">
+                                                        Ver Permisos
+                                                    </Button>
+                                                </DropdownTrigger>
+                                                <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions" >
+                                                    {
+                                                        dataEdit.permisos.map((permiso,index) => (
+                                                            <DropdownItem key={index}>{permiso}</DropdownItem>
+                                                        ))
+                                                    }
+                                                </DropdownMenu>
+                                            </Dropdown>
+                                        </div>
+                                    </>
+                                    :
+                                    <></>
+                                }
+                                
                             </div>
                         </div>
                         <div className='pt-5 flex w-full mx-auto justify-center mt-3 text-large'>

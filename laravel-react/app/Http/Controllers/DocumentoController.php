@@ -37,6 +37,9 @@ class DocumentoController extends Controller
 
     public function visualizar(String $id){
         $documento=(Documento::find((int)$id)); 
+        if ($documento && is_null($documento->file)) {
+            return Inertia::render('Documentos/NoFileView');
+        }
         return Inertia::render('Documentos/VisualizadorDocumento',[
             "documento"=>$documento,
             'direcciones'=>Direccion::all(),

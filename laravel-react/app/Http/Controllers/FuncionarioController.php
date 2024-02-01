@@ -102,8 +102,13 @@ class FuncionarioController extends Controller
      */
     public function edit(string $id)
     {
+        $funcionario= Funcionario::find((int)$id);
+
+        if(is_null($funcionario)){
+            return Inertia::render('Funcionarios/NoFuncionarioEdit');
+        }
         return Inertia::render('Funcionarios/EditarFuncionario',[
-            'funcionario'=>new FuncionarioResource(Funcionario::find((int)$id))
+            'funcionario'=>new FuncionarioResource($funcionario)
         ]);
     }
 

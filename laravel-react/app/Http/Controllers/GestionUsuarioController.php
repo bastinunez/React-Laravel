@@ -28,7 +28,8 @@ class GestionUsuarioController extends Controller
      */
     public function index()
     {
-        $usuarios = User::all();
+        $usuarios = User::whereNotIn("id",[Auth::id()])->get();
+        //dd($usuarios);
         // $usuario_solo = User::find(2);
         // dd($usuarios,$usuario_solo);
         $usuarios->load('roles.permissions');
@@ -46,6 +47,14 @@ class GestionUsuarioController extends Controller
         return Inertia::render('Usuarios/AgregarUsuario',[
             'roles'=>RoleResource::collection(Rol::all())
         ]);
+    }
+
+    public function get_user($rut){
+        //dd($request->rut);
+        // Obtener los IDs de los documentos anexos relacionados con el documento dado
+        $usuario = User::where('rut',$rut)->get();
+
+        return response()->json(["filas"=>$usuario]);
     }
 
     /**
@@ -87,10 +96,10 @@ class GestionUsuarioController extends Controller
 
             //rol (no es necesario)
             $rol="";
-            if ($input['rol']==1){
+            if ((int)$input['rol']==1){
                 $rol='Usuario';
             }
-            elseif ($input['rol']==2){
+            elseif ((int)$input['rol']==2){
                 $rol='Digitador';
             }
             else{
@@ -101,12 +110,30 @@ class GestionUsuarioController extends Controller
             $nombres = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ñ'], ['a', 'e', 'i', 'o', 'u', 'n'], $input["nombres"]);
             $apellidos = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ñ'], ['a', 'e', 'i', 'o', 'u', 'n'], $input["apellidos"]);
             $nombresArray = explode(" ", $nombres);
-            $primerNombre = strtolower(substr($nombresArray[0], 0, 2));
+            $primerNombre = strtolower(substr($nombresArray[0], 0, 1));
             $apellidosArray = explode(" ", $apellidos);
             $apellidosCompletos = strtolower(implode("", $apellidosArray));
             $resultado = $primerNombre . $apellidosCompletos;
             $dominio="@gdoc.cl";
             $correo=$resultado . $dominio;
+
+            $validacion_correo=User::where('correo',$correo)->get();
+            if (sizeof($validacion_correo)!=0){
+                $primerNombre = strtolower(substr($nombresArray[0], 0, 2));
+                $apellidosArray = explode(" ", $apellidos);
+                $apellidosCompletos = strtolower(implode("", $apellidosArray));
+                $resultado = $primerNombre . $apellidosCompletos;
+                $correo=$resultado . $dominio;
+                $validacion_correo=User::where('correo',$correo)->get();
+                if (sizeof($validacion_correo)!=0){
+                    $primerNombre = strtolower(substr($nombresArray[0], 0, 3));
+                    $apellidosArray = explode(" ", $apellidos);
+                    $apellidosCompletos = strtolower(implode("", $apellidosArray));
+                    $resultado = $primerNombre . $apellidosCompletos;
+                    $correo=$resultado . $dominio;
+                }
+            }
+            
 
             $usuario=User::create([
                 'nombres' => $input['nombres'],
@@ -176,8 +203,14 @@ class GestionUsuarioController extends Controller
      */
     public function edit(string $id)
     {
+        $usuario= User::find((int)$id);
+
+        if(is_null($usuario)){
+            return Inertia::render('Usuarios/NoUserEdit');
+        }
+
         return Inertia::render("Usuarios/EditarUsuario",[
-            "usuario"=> new UserSharedResource(User::find((int)$id)),
+            "usuario"=> new UserSharedResource($usuario),
             'roles'=>RoleResource::collection(Rol::all()),
             'permisos'=>PermissionResource::collection(Permission::all())
         ]);
