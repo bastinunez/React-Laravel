@@ -5,7 +5,7 @@ import { Head,usePage } from '@inertiajs/react'
 import { Toast } from 'primereact/toast'
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
   Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
-  Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip,}  from "@nextui-org/react";
+  Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip, Accordion, AccordionItem,}  from "@nextui-org/react";
 import React,{useState,useEffect,useRef,useMemo,useCallback} from 'react'
 import Icon from '@mdi/react';
 import { Calendar } from 'primereact/calendar';
@@ -170,64 +170,52 @@ const Formulario = ({auth}) => {
       </TitleTemplate>
       <FilterTemplate>
           <div className="flex flex-col gap-4">
-            <div className="flex justify-center gap-4 items-end">
-              <Input isClearable classNames={{input:["border-none"]}} type='text'
-                className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
-                startContent={<Icon path={mdiMagnify} size={1} />} value={filterNumero}
-                onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
-              <Input isClearable classNames={{input:["border-none"]}} type='text'
-                className="w-full input-next border-none" size='sm' placeholder="Buscar por responsable..."
-                startContent={<Icon path={mdiMagnify} size={1} />} value={filterResponsable}
-                onClear={() => onClearResponsable()} onValueChange={onSearchChangeResponsable} />
-              <Input isClearable classNames={{input:["border-none"]}} type='text'
-                className="w-full input-next border-none" size='sm' placeholder="Buscar por detalles..."
-                startContent={<Icon path={mdiMagnify} size={1} />} value={filterDetalles}
-                onClear={() => onClearDetalles()} onValueChange={onSearchChangeDetalles} />
-              <div className='w-full card'>
-                <Calendar className='max-h-12 border-0 flex p-0' placeholder='Rango de fecha documento' dateFormat="yy//mm/dd" showIcon value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
+            <div className="lg:flex">
+              <div className='lg:flex gap-4 justify-center items-end'>
+                <Input isClearable classNames={{input:["border-none"]}} type='text'
+                  className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
+                  startContent={<Icon path={mdiMagnify} size={1} />} value={filterNumero}
+                  onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
+                <Input isClearable classNames={{input:["border-none"]}} type='text'
+                  className="w-full input-next border-none" size='sm' placeholder="Buscar por responsable..."
+                  startContent={<Icon path={mdiMagnify} size={1} />} value={filterResponsable}
+                  onClear={() => onClearResponsable()} onValueChange={onSearchChangeResponsable} />
+                <Input isClearable classNames={{input:["border-none"]}} type='text'
+                  className="w-full input-next border-none" size='sm' placeholder="Buscar por detalles..."
+                  startContent={<Icon path={mdiMagnify} size={1} />} value={filterDetalles}
+                  onClear={() => onClearDetalles()} onValueChange={onSearchChangeDetalles} />
               </div>
-              <div className='w-full card'>
-                <Calendar className='max-h-12 border-0 flex p-0' placeholder='Rango de fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
-              </div>
-              <div className="flex gap-3">
-                <div>
-                  {/* FILTRO ACCION */}
-                  <Dropdown >
-                    <DropdownTrigger className="hidden sm:flex">
-                      <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                        Accion
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
-                      closeOnSelect={false} selectedKeys={accionFilter} selectionMode="multiple"
-                      onSelectionChange={setAccionFilter} >
-                      {acciones.map( (accion) => (
-                        <DropdownItem key={accion.id}>{accion.nombre}</DropdownItem>
-                      ) )}
-                    </DropdownMenu>
-                  </Dropdown>
+              <div className='lg:flex gap-4 justify-center items-end'>
+                <div className='w-full card'>
+                  <Calendar className='max-h-12 border-0 flex p-0' placeholder='Rango de fecha documento' dateFormat="yy//mm/dd" showIcon value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
                 </div>
-                <div>
-                  {/* FILTRO RESPONSABLE */}
-                  <Dropdown>
-                    <DropdownTrigger className="hidden sm:flex">
-                      <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                        Responsable
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu  disallowEmptySelection aria-label="Table Columns" id='autor' selectedKeys={autorFilter}
-                      onSelectionChange={setAutorFilter} closeOnSelect={false} selectionMode="multiple" items={acciones}>
-                      {
-                        (autor)=>(
-                          <DropdownItem key={autor.id}>{autor.nombres}</DropdownItem>
-                        )
-                      }
-                    </DropdownMenu>
-                  </Dropdown>
+                <div className='w-full card'>
+                  <Calendar className='max-h-12 border-0 flex p-0' placeholder='Rango de fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
+                </div>
+                <div className="flex gap-3">
+                  <div>
+                    {/* FILTRO ACCION */}
+                    <Dropdown >
+                      <DropdownTrigger className="">
+                        <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
+                          Accion
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
+                        closeOnSelect={false} selectedKeys={accionFilter} selectionMode="multiple"
+                        onSelectionChange={setAccionFilter} >
+                        {acciones.map( (accion) => (
+                          <DropdownItem key={accion.id}>{accion.nombre}</DropdownItem>
+                        ) )}
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
                 </div>
               </div>
+             
+              
             </div>
-            <div className="flex justify-between items-center">
+            <div className="lg:flex justify-between items-center">
               <div>
                 <span className="text-default-400 text-small">Total {historial.length} filas</span>
               </div>

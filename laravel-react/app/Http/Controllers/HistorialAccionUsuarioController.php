@@ -6,6 +6,7 @@ use App\Http\Resources\HistorialAccionUsuarioResource;
 use App\Models\Accion;
 use App\Models\HistorialUsuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 
@@ -16,10 +17,16 @@ class HistorialAccionUsuarioController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Historial/Usuario',[
-            'historial'=>HistorialAccionUsuarioResource::collection(HistorialUsuario::all()),
-            'acciones'=>Accion::all(),
-        ]);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Gestion-Crear permiso')){
+            return Inertia::render('Historial/Usuario',[
+                'historial'=>HistorialAccionUsuarioResource::collection(HistorialUsuario::all()),
+                'acciones'=>Accion::all(),
+            ]);
+        }else{
+            return back();
+        }
+        
     }
 
     /**

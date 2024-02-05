@@ -9,7 +9,7 @@ import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow
   Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
   Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip,}  from "@nextui-org/react";
 import Icon from '@mdi/react';
-import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline} from '@mdi/js';
+import { mdiVacuumOutline, mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline} from '@mdi/js';
 import { Calendar } from 'primereact/calendar';
 import Select from '@/Components/Select';
 import { Head } from '@inertiajs/react';
@@ -31,6 +31,7 @@ const ShowUsers = ({auth}) => {
 
   //VARIABLES QUE ENTREGA EL CONTROLADOR
   const { usuarios,estados } = usePage().props;
+  console.log(usuarios)
 
   //MODAL
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
@@ -225,6 +226,14 @@ const ShowUsers = ({auth}) => {
     }
   }
 
+  const limpiarFiltros = () =>{
+    setEstadoFilter('all')
+    setFilterApellido('')
+    setFilterCorreo('')
+    setFilterNombre('')
+    setFilterRut('')
+  }
+
 
   return (
     <Authenticated user={auth.user}
@@ -278,12 +287,22 @@ const ShowUsers = ({auth}) => {
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-default-400 text-small">Total {usuarios.length} usuarios</span>
-              <label className="flex items-center text-default-400 text-small">
-                Filas por pagina:
-                <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
-                </Select>
-              </label>
+              <div>
+                <span className="text-default-400 text-small">Total {usuarios.length} usuarios</span>
+              </div>
+              <div className='flex gap-5'>
+                <Button color='warning'  onPress={()=>limpiarFiltros()}>
+                  <Icon path={mdiVacuumOutline} size={1} />
+                  <p className='hidden sm:flex'>
+                  Limpiar filtros
+                  </p>
+                </Button>
+                <label className="flex items-center text-default-400 text-small">
+                  Filas por pagina:
+                  <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
+                  </Select>
+                </label>
+              </div>
             </div>
           </div>
         </FilterTemplate>
@@ -292,13 +311,15 @@ const ShowUsers = ({auth}) => {
             <div>
               <h1 className='text-2xl'>Resultados</h1>
             </div>
-            <div className='flex gap-3'>
+            <div className='flex gap-3 md:gap-3'>
               {
                 hasPermission('Crear usuario') || hasPermission('Cargar usuarios xlsx')?
                 <>
                   <Link href={route('gestion-usuarios.create')}>
                     <Button color="success" variant="solid" endContent={<Icon path={mdiPlus} size={1} />}>
-                      Agregar usuario
+                      <div className='hidden text-tiny xl:flex xl:text-small'>
+                        Agregar usuario
+                      </div>
                     </Button>
                   </Link>
                 </>:<></>
@@ -307,7 +328,9 @@ const ShowUsers = ({auth}) => {
                 <>
                   <Button color="danger" variant="solid" onPress={()=>anularSeleccionados()}
                   endContent={<Icon path={mdiCancel} size={1} />}>
-                    Anular seleccionados
+                    <div className='hidden text-tiny xl:flex xl:text-small'>
+                      Anular seleccionados
+                    </div>
                   </Button>
                 </>:<></>
               }{
@@ -315,7 +338,9 @@ const ShowUsers = ({auth}) => {
                 <>
                   <Button color="secondary" variant="solid" onPress={habilitarSeleccionados}
                   endContent={<Icon path={mdiCheckUnderline} size={1} />}>
-                    Habilitar seleccionados
+                    <div className='hidden text-tiny xl:flex xl:text-small'>
+                      Habilitar seleccionados
+                    </div>
                   </Button>
                 </>:<></>
               }
@@ -349,7 +374,7 @@ const ShowUsers = ({auth}) => {
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{usuario.roles[0].name}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                         {
-                           usuario.roles[0].permissions.length!==0?
+                           usuario.permissions.length!==0?
                           <>
                             <Dropdown  type='listbox'> 
                               <DropdownTrigger>
@@ -359,8 +384,8 @@ const ShowUsers = ({auth}) => {
                               </DropdownTrigger>
                               <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions" onScroll={true} emptyContent={'No posee'}>
                                   {
-                                      usuario.roles[0].permissions.map((permiso) => (
-                                          <DropdownItem key={permiso.id} textValue={`${permiso.name}`}>{permiso.name}</DropdownItem>
+                                      usuario.permissions.map((permiso) => (
+                                          <DropdownItem key={permiso} textValue={`${permiso}`}>{permiso}</DropdownItem>
                                       ))
                                   }
                               </DropdownMenu>

@@ -4,30 +4,26 @@ import Authenticated from '@/Layouts/AuthenticatedLayout';
 import TitleTemplate from '@/Components/TitleTemplate';
 import ContentTemplate from '@/Components/ContentTemplate';
 import FilterTemplate from '@/Components/FilterTemplate';
+
 import { usePage ,Link, useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import Select from '@/Components/Select';
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
-    Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
-    Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip,}  from "@nextui-org/react";
+    Input, Tooltip,}  from "@nextui-org/react";
 import Icon from '@mdi/react';
-import { mdiVacuumOutline, mdiFileDownloadOutline, 
-    mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline} from '@mdi/js';
+import { mdiPencilBoxOutline,mdiMagnify,mdiVacuumOutline,mdiPlus} from '@mdi/js';
 
-
-const ShowFuncionarios = ({auth}) => {
+const Gestion = ({auth}) => {
     //PERMISOS
     const {hasRoles,hasPermission} = usePermission()
 
     //VARIABLES QUE ENTREGA EL CONTROLADOR
-    const { all_funcionarios } = usePage().props;
-    const [funcionarios,setFuncionarios] = useState(all_funcionarios)
+    const { all_permisos } = usePage().props;
+    const [permisos,setPermisos] = useState(all_permisos)
 
     const columnas = [
         {name: "ID", uid: "id", sortable: true},
-        {name: "Nombres", uid: "nombres", sortable: true},
-        {name: "Apellidos", uid: "apellidos", sortable: true},
-        {name: "Abreviacion", uid: "abreviacion", sortable: true},
+        {name: "Nombre", uid: "nombre", sortable: true},
         {name: "Acciones", uid: "accion"},
     ];
     
@@ -35,12 +31,12 @@ const ShowFuncionarios = ({auth}) => {
     const [seleccion, setSeleccion] = useState([]);
     const hasSearchFilterNombre = Boolean(filterNombre);
     const filteredItems = useMemo(() => {
-        let filteredFuncionarios = [...funcionarios];
+        let filteredPermiso = [...permisos];
         if (hasSearchFilterNombre) {
-            filteredFuncionarios = filteredFuncionarios.filter((funcionario) => funcionario.nombres.toLowerCase().includes(filterNombre.toLowerCase()));
+            filteredPermiso = filteredPermiso.filter((rol) => rol.name.toLowerCase().includes(filterNombre.toLowerCase()));
         }
-        return filteredFuncionarios;
-    }, [funcionarios,filterNombre]);
+        return filteredPermiso;
+    }, [permisos,filterNombre]);
 
     const onSearchChangeNombre = useCallback((value) => {
         if (value) {
@@ -79,11 +75,11 @@ const ShowFuncionarios = ({auth}) => {
         });
     }, [sortDescriptor, items]);
 
+
     return (
-        <Authenticated  user={auth.user}
-        header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Funcionarios</h2>}>
-            <Head title='Funcionarios' />
-            <TitleTemplate>Funcionarios</TitleTemplate>
+        <Authenticated user={auth.user}>
+            <Head title='Permisos' />
+            <TitleTemplate>Permisos</TitleTemplate>
             <FilterTemplate>
                 <div className="flex flex-col gap-4">
                     <div className="md:flex justify-center gap-4 items-end">
@@ -91,9 +87,9 @@ const ShowFuncionarios = ({auth}) => {
                         className="w-full input-next border-none" size='sm' placeholder="Buscar por nombre..."
                         startContent={<Icon path={mdiMagnify} size={1} />} value={filterNombre}
                         onClear={() => onClearNombre()} onValueChange={onSearchChangeNombre} />
-                        <div className="flex items-center w-full">
+                        <div className="flex w-full mt-2">
                             <div className='w-full flex items-center'>
-                                <span className="text-default-400 text-small">Total {funcionarios.length} funcionarios</span>
+                                <span className="text-default-400 text-small">Total {permisos.length} permisos</span>
                             </div>
                             <Button color='warning'  onPress={()=>limpiarFiltros()}>
                                 <Icon path={mdiVacuumOutline} size={1} />
@@ -121,11 +117,11 @@ const ShowFuncionarios = ({auth}) => {
                     </div>
                     <div className='flex gap-3'>
                         {
-                            hasPermission('Gestion-Crear funcionario')?
+                            hasPermission('Gestion-Crear rol')?
                             <>
-                            <Link href={route('funcionario.create')}>
+                            <Link href={route('permiso.create')}>
                                 <Button color="success" variant="solid" endContent={<Icon path={mdiPlus} size={1} />}>
-                                Agregar funcionario
+                                Agregar rol
                                 </Button>
                             </Link>
                             </>:<></>
@@ -147,20 +143,18 @@ const ShowFuncionarios = ({auth}) => {
                                 <TableColumn className='text-start text-small' key={columna.uid}>{columna.name}</TableColumn>
                             ))}
                         </TableHeader>
-                        <TableBody emptyContent={"No existen funcionarios"}>
+                        <TableBody emptyContent={"No existen permisos"}>
                             {
-                                sortedItems.map((funcionario)=>(
-                                    <TableRow key={funcionario.id} className='text-start'>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{funcionario.id}</TableCell>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{funcionario.nombres}</TableCell>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{funcionario.apellidos}</TableCell>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{funcionario.abreviacion}</TableCell>
+                                sortedItems.map((permiso)=>(
+                                    <TableRow key={permiso.id} className='text-start'>
+                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{permiso.id}</TableCell>
+                                        <TableCell className='overflow-auto whitespace-nowrap text-ellipsis'>{permiso.name}</TableCell>
                                         <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                                             {
-                                                hasPermission('Gestion-Editar funcionario')?
+                                                hasPermission('Gestion-Editar permiso')?
                                                 <>
                                                   <Tooltip content={"Editar"} color='warning'>
-                                                    <Link href={route('funcionario.edit',String(funcionario.id))} >
+                                                    <Link href={route('permiso.edit',String(permiso.id))} >
                                                       <Button className="me-1" size='sm' color='warning' variant='flat'> 
                                                         {/* active={route().current('documento.visualizar')} */}
                                                       <Icon path={mdiPencilBoxOutline} size={1}/>
@@ -183,4 +177,4 @@ const ShowFuncionarios = ({auth}) => {
     )
 }
 
-export default ShowFuncionarios
+export default Gestion

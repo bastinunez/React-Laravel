@@ -49,10 +49,14 @@ class FortifyServiceProvider extends ServiceProvider
             $user = User::where('rut', $request->rut)->first();
             //dd($user);
             //dd('pasa por aqui');
-            if ($user && Hash::check($request->password, $user->password)) {
-                    
-                return $user;
+            if ($user->estado==1){
+                if ($user && Hash::check($request->password, $user->password)) {
+                    return $user;
+                }
+            }else{
+                redirect()->back()->with('message', 'La cuenta no está habilitada');
             }
+            
         });
     }
 }

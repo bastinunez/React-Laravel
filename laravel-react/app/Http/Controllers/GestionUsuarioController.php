@@ -29,14 +29,18 @@ class GestionUsuarioController extends Controller
     public function index()
     {
         $usuarios = User::whereNotIn("id",[Auth::id()])->get();
-        //dd($usuarios);
-        // $usuario_solo = User::find(2);
-        // dd($usuarios,$usuario_solo);
-        $usuarios->load('roles.permissions');
-        return Inertia::render('Usuarios/ShowUsers',[
-            'usuarios'=>UsuarioResource::collection($usuarios),
-            'estados'=>Estado::all(),
-        ]);
+        $usuarios->load('roles.permissions', 'permissions');
+        
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Ver todos usuarios')){
+            $usuarios->load('roles.permissions');
+            return Inertia::render('Usuarios/ShowUsers',[
+                'usuarios'=>UsuarioResource::collection($usuarios),
+                'estados'=>Estado::all(),
+            ]);
+        }else{
+            return back();
+        }
     }
 
     /**
@@ -44,9 +48,15 @@ class GestionUsuarioController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Usuarios/AgregarUsuario',[
-            'roles'=>RoleResource::collection(Rol::all())
-        ]);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Crear usuario')){
+            return Inertia::render('Usuarios/AgregarUsuario',[
+                'roles'=>RoleResource::collection(Rol::all())
+            ]);
+        }else{
+            return back();
+        }
+        
     }
 
     public function get_user($rut){
@@ -203,17 +213,25 @@ class GestionUsuarioController extends Controller
      */
     public function edit(string $id)
     {
-        $usuario= User::find((int)$id);
-
-        if(is_null($usuario)){
-            return Inertia::render('Usuarios/NoUserEdit');
+        $usuario= User::find($id);
+        $usuario->load('roles.permissions', 'permissions');
+        $permisos = $usuario->getAllPermissions();
+        //dd($permisos);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Editar usuario')){
+            if(is_null($usuario)){
+                return Inertia::render('Usuarios/NoUserEdit');
+            }
+    
+            return Inertia::render("Usuarios/EditarUsuario",[
+                "usuario"=> new UserSharedResource($usuario),
+                'roles'=>RoleResource::collection(Rol::all()),
+                'permisos'=>PermissionResource::collection(Permission::all())
+            ]);
+        }else{
+            return back();
         }
-
-        return Inertia::render("Usuarios/EditarUsuario",[
-            "usuario"=> new UserSharedResource($usuario),
-            'roles'=>RoleResource::collection(Rol::all()),
-            'permisos'=>PermissionResource::collection(Permission::all())
-        ]);
+       
     }
 
     public function edit_user_metadata(Request $request,string $id){
@@ -316,20 +334,27 @@ class GestionUsuarioController extends Controller
     public function updatePermission(Request $request,string $id){
         $opcion=$request->opcion;
         $permisos=$request->permisos;
-        $user=User::find($id);
-        //dd(Permission::all());
+        $user = User::find($id);
+        //dd($user);
+        
+        //dd($user->getAllPermissions());
+        //dd($user->roles, $user->hasPermissionTo('prueba1'));
+        //dd($user->syncPermissions($permisos));
+        // //dd($permisos);
         if ($opcion==0){
             foreach($permisos as $permiso){
                 $user->revokePermissionTo($permiso);
+                $user->save();
             }
         }else{
-            foreach($permisos as $permiso){
-                $permision_name=Permission::find($permiso);
-                $user->givePermissionTo($permision_name);
-            }
+            $user->syncPermissions($permisos);
+            // foreach($permisos as $permiso){
+            //     $permision_name=Permission::find($permiso);
+            //     //$user->syncPermissions($permision_name->name);
+            //     // $user->givePermissionTo($permision_name);
+            //     // $user->save();
+            // }
         }
-        $user->save();
-        dd($user->getPermissionNames());
         $usuario= new UserSharedResource($user);
         return redirect()->back()->with(['update'=>'Se pudo cambiar los permisos seleccionados','usuario'=>$usuario]);
     }

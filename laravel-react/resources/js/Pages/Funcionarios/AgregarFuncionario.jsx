@@ -47,7 +47,7 @@ const AgregarFuncionario = ({auth}) => {
             <ContentTemplate>
                 <div>
                     <form onSubmit={submit} className='p-8'>
-                        <div className='flex w-full mb-5 gap-10'>
+                        <div className='xl:flex w-full mb-5 gap-10'>
                             <div className="w-full me-5">
                                 <InputLabel value={"Ingresa nombres"}></InputLabel>
                                 <TextInput type={'text'} className="w-full" placeholder={"Nombre Nombre"} value={data.nombres} onChange={(e) => setData('nombres',e.target.value)} ></TextInput>
@@ -59,11 +59,11 @@ const AgregarFuncionario = ({auth}) => {
                                 <InputError message={errors.apellidos} className="mt-2" />
                             </div>
                         </div>
-                        <div className='w-full flex gap-10'>
+                        <div className='w-full xl:flex gap-10'>
                             <Link href={route("funcionario.index")} className='w-full'>
                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                             </Link>
-                            <Button type='submit' color='primary' variant='ghost' className='w-full'>Agregar</Button>
+                            <Button type='submit' color='primary' variant='ghost' className='w-full text-large'>Agregar</Button>
                         </div>
                     </form>
                 </div>

@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\DireccionResource;
-use Illuminate\Http\Request;
-use App\Models\Direccion;
+use App\Http\Resources\PermissionResource;
+use App\Http\Resources\RoleResource;
 use App\Models\HistorialFormulario;
+use App\Models\Permission;
+use App\Models\Rol;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
-
-class DireccionController extends Controller
+class RolesController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,14 +20,14 @@ class DireccionController extends Controller
     public function index()
     {
         $current_user=Auth::user();
-        if ($current_user->hasPermissionTo('Gestion-Direcciones')){
-            return Inertia::render('Direcciones/ShowDirecciones',[
-                'all_direcciones'=>DireccionResource::collection(Direccion::all())
+        //dd(RoleResource::collection(Rol::all()));
+        if ($current_user->hasPermissionTo('Gestion-Roles')){
+            return Inertia::render('Roles/Gestion',[
+                "all_roles"=>RoleResource::collection(Role::all())
             ]);
         }else{
             return back();
         }
-        
     }
 
     /**
@@ -36,8 +36,8 @@ class DireccionController extends Controller
     public function create()
     {
         $current_user=Auth::user();
-        if ($current_user->hasPermissionTo('Gestion-Crear direccion')){
-            return Inertia::render('Direcciones/AgregarDireccion',);
+        if ($current_user->hasPermissionTo('Gestion-Crear rol')){
+            return Inertia::render('Roles/AgregarRol');
         }else{
             return back();
         }
@@ -49,27 +49,19 @@ class DireccionController extends Controller
     public function store(Request $request)
     {
         try{
-            $direccion = Direccion::create([
-                "nombre"=>$request->nombre
+            $direccion = Role::create([
+                "name"=>$request->nombre
             ]);
-            $user_id=Auth::id();
-            HistorialFormulario::create([
-                'responsable'=>$user_id,
-                'accion'=>2,
-                'detalles'=>"Crea direccion con nombre: " . $direccion->nombre
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-            ]);
-            return redirect()->back()->with(["create"=>"Se añadió la dirección"]);
+            return redirect()->back()->with(["create"=>"Se añadió el rol"]);
         }catch (\Illuminate\Database\QueryException $e) {
             // Manejo específico para errores de duplicidad
             if ($e->errorInfo[1] == 1062) {
-                return redirect()->back()->withErrors(["create"=>"Ya existe la direccion"]);
+                return redirect()->back()->withErrors(["create"=>"Ya existe el rol"]);
             } else {
                 // Otros errores de la base de datos
                 throw $e;
             }
         }
-       
     }
 
     /**
@@ -86,19 +78,14 @@ class DireccionController extends Controller
     public function edit(string $id)
     {
         $current_user=Auth::user();
-        if ($current_user->hasPermissionTo('Gestion-Editar direccion')){
-            $direccion= Direccion::find((int)$id);
-
-            if(is_null($direccion)){
-                return Inertia::render('Direcciones/NoDireccionEdit');
-            }
-            return Inertia::render('Direcciones/EditarDireccion',[
-                'direccion'=>new DireccionResource(Direccion::find((int)$id))
+        if ($current_user->hasPermissionTo('Gestion-Editar rol')){
+            return Inertia::render('Roles/EditarRol',[
+                'rol'=>Role::with('permissions')->find($id),
+                'all_permisos'=>PermissionResource::collection(Permission::all())
             ]);
         }else{
             return back();
         }
-        
     }
 
     /**
@@ -107,16 +94,16 @@ class DireccionController extends Controller
     public function update(Request $request, string $id)
     {
         try{
-            $direccion = Direccion::find($id);
-            $antiguo= $direccion->nombre;
-            $direccion->nombre=$request->nombre;
-            $direccion->save();
+            $rol = Role::find($id);
+            $antiguo= $rol->name;
+            $rol->name=$request->nombre;
+            $rol->save();
     
             $user_id=Auth::id();
             HistorialFormulario::create([
                 'responsable'=>$user_id,
                 'accion'=>3,
-                'detalles'=>"Edita direccion " . $antiguo . " con nuevo nombre: " . $direccion->nombre
+                'detalles'=>"Edita rol " . $antiguo . " con nuevo nombre: " . $rol->name
                 //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
             ]);
     
@@ -124,13 +111,32 @@ class DireccionController extends Controller
         }catch (\Illuminate\Database\QueryException $e) {
             // Manejo específico para errores de duplicidad
             if ($e->errorInfo[1] == 1062) {
-                return redirect()->back()->withErrors(["update"=>"Ya existe la direccion"]);
+                return redirect()->back()->withErrors(["update"=>"Ya existe la rol"]);
             } else {
                 // Otros errores de la base de datos
                 throw $e;
             }
         }
-       
+    }
+
+    public function addPermissions(Request $request,string $id){
+        $rol=Role::find($id);
+        $rol->givePermissionTo($request->permisos);
+    }
+
+    public function deletePermissions(Request $request,string $id){
+        $rol=Role::find($id);
+        if ($request->opcion==0){
+            foreach($request->permisos as $permiso){
+                $rol->revokePermissionTo($permiso['name']);
+            }
+        }else{
+            foreach($request->permisos as $permiso){
+
+                $rol->revokePermissionTo($permiso);
+            }
+        }
+        
     }
 
     /**

@@ -3,17 +3,16 @@ import { Link } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 import {Divider,Accordion, AccordionItem} from "@nextui-org/react";
 import { usePermission } from '@/Composables/Permission';
-import { useSidebarStore } from '@/Store/useStore';
+import { useSidebarStore,useActiveLinkStore } from '@/Store/useStore';
 import {User} from "@nextui-org/react";
 import Icon from '@mdi/react';
-import { mdiFileMultiple, mdiFileDocument,mdiHistory,mdiAccountGroup,mdiBadgeAccount,mdiOfficeBuildingOutline} from '@mdi/js';
+import { mdiFileMultiple,mdiAccountCircleOutline, mdiFileDocument,mdiShieldAccountVariantOutline,mdiAccountSettingsOutline,mdiHistory,mdiWrenchCogOutline,mdiAccountGroup,mdiBadgeAccount,mdiOfficeBuildingOutline} from '@mdi/js';
 
 
 export const Sidebar = ({user}) => {
     //console.log(visible)
     const { sidebar,changeState} = useSidebarStore();
     const {hasRoles,hasPermission} = usePermission();
-
     return(
         <>
             <div className={`bg-slate-100 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
@@ -42,7 +41,7 @@ export const Sidebar = ({user}) => {
                     }{
                         hasPermission('Gestion-Ver documentos')? 
                         <>
-                        <NavLink href={route('gestion-documento.index')}
+                        <NavLink href={route('gestion-documento.index')} 
                         active={route().current('gestion-documento.index')} className="py-2 px-2 mb-3" >
                              <div className="me-3">
                                 <Icon path={mdiFileMultiple} size={1} />
@@ -86,12 +85,30 @@ export const Sidebar = ({user}) => {
                         </>:<></>
                     }
                     {
+                         <NavLink href={route('rol.index')}
+                         active={route().current('rol.index')} className="py-2 px-2 mb-3" >
+                              <div className="me-3">
+                                 <Icon path={mdiAccountSettingsOutline} size={1} />
+                             </div>
+                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Roles</span>
+                         </NavLink>
+                    }
+                    {
+                         <NavLink href={route('permiso.index')}
+                         active={route().current('permiso.index')} className="py-2 px-2 mb-3" >
+                              <div className="me-3">
+                                 <Icon path={mdiShieldAccountVariantOutline} size={1} />
+                             </div>
+                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Permisos</span>
+                         </NavLink>
+                    }
+                    {
                         hasPermission('Ver perfil')? 
                         <>
                         <NavLink href={route('usuario.index',user.id)}
                         active={route().current('usuario.index')} className="py-2 px-2 mb-3" >
                              <div className="me-3">
-                                <Icon path={mdiFileMultiple} size={1} />
+                                <Icon path={mdiAccountCircleOutline} size={1} />
                             </div>
                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Perfil</span>
                         </NavLink>

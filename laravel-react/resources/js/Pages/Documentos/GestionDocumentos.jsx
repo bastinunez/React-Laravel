@@ -9,7 +9,7 @@ import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow
   Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
   Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip,}  from "@nextui-org/react";
 import Icon from '@mdi/react';
-import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline} from '@mdi/js';
+import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline,mdiVacuumOutline} from '@mdi/js';
 import { Calendar } from 'primereact/calendar';
 import Select from '@/Components/Select';
 import { Head } from '@inertiajs/react';
@@ -192,6 +192,17 @@ const GestionDocumentos = ({auth}) => {
     console.log("se limpia rut")
     setPage(1)
   },[])
+
+  const limpiarFiltros = () =>{
+    setFilterRut('')
+    setFilterFecha('')
+    setFilterMateria('')
+    setFilterNumero('')
+    setTipoFilter("all")
+    setAutorFilter("all")
+    setDireccionFilter('all')
+    setEstadoFilter('all')
+  }
    
 
   const columnas = [
@@ -283,32 +294,33 @@ const GestionDocumentos = ({auth}) => {
         <TitleTemplate>Gestión de Documentos</TitleTemplate>
         <Toast ref={toast_global}></Toast>
         <FilterTemplate>
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-center gap-4 items-end">
-              <Input isClearable classNames={{input:["border-none"]}} type='text'
-                className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
-                startContent={<Icon path={mdiMagnify} size={1} />} value={filterNumero}
-                onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
+          <div className="block xl:flex xl:flex-col gap-4">
+            <div className="xl:flex mb-2">
+              <div className='flex w-full gap-4 items-center justify-center mb-1 me-1'>
+                <Input isClearable classNames={{input:["border-none", "placeholder:none",]}} type='text'
+                  className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
+                  startContent={<Icon path={mdiMagnify} size={1} />} value={filterNumero}
+                  onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
 
-              <Input isClearable classNames={{input:["border-none"]}}
-                className="w-full" size='sm' placeholder="Buscar por materia..."
-                startContent={<Icon path={mdiMagnify} size={1} />} value={filterMateria}
-                onClear={() => onClearMateria()} onValueChange={onSearchChangeMateria} />
+                <Input isClearable classNames={{input:["border-none"]}}
+                  className="w-full" size='sm' placeholder="Buscar por materia..."
+                  startContent={<Icon path={mdiMagnify} size={1} />} value={filterMateria}
+                  onClear={() => onClearMateria()} onValueChange={onSearchChangeMateria} />
 
-              <Input isClearable classNames={{input:["border-none"]}}
-                className="w-full" size='sm'  placeholder="Buscar por rut..."
-                startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
-                onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
+                <Input isClearable classNames={{input:["border-none"]}}
+                  className="w-full" size='sm'  placeholder="Buscar por rut..."
+                  startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
+                  onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
 
-              <div className='w-full card'>
-                <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="yy//mm/dd" showIcon value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
+                <div className='w-full card'>
+                  <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="yy//mm/dd" showIcon value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
+                </div>
               </div>
-              
-              <div className="flex gap-3">
-                <div>
+              <div className="flex  gap-3">
+                <div className='w-full'>
                   {/* FILTRO TIPO */}
                   <Dropdown >
-                    <DropdownTrigger className="hidden sm:flex">
+                    <DropdownTrigger className="hidden sm:flex text-tiny md:text-small">
                       <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
                         Tipo
                       </Button>
@@ -322,10 +334,10 @@ const GestionDocumentos = ({auth}) => {
                     </DropdownMenu>
                   </Dropdown>
                 </div>
-                <div>
+                <div className='w-full'>
                   {/* FILTRO AUTOR */}
                   <Dropdown>
-                    <DropdownTrigger className="hidden sm:flex">
+                    <DropdownTrigger className="hidden sm:flex text-tiny md:text-small">
                       <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
                         Autor
                       </Button>
@@ -340,10 +352,10 @@ const GestionDocumentos = ({auth}) => {
                     </DropdownMenu>
                   </Dropdown>
                 </div>
-                <div>
+                <div className='w-full'>
                   {/* FILTRO DIRECCION */}
                   <Dropdown>
-                    <DropdownTrigger className="hidden sm:flex">
+                    <DropdownTrigger className="hidden sm:flex text-tiny md:text-small">
                       <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
                         Direccion
                       </Button>
@@ -356,9 +368,9 @@ const GestionDocumentos = ({auth}) => {
                     </DropdownMenu>
                   </Dropdown>
                 </div>
-                <div>
+                <div className='w-full'>
                   <Dropdown >
-                    <DropdownTrigger className="hidden sm:flex">
+                    <DropdownTrigger className="hidden sm:flex text-tiny md:text-small">
                       <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
                         Estado
                       </Button>
@@ -378,27 +390,39 @@ const GestionDocumentos = ({auth}) => {
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-default-400 text-small">Total {documentos.length} documentos</span>
-              <label className="flex items-center text-default-400 text-small">
-                Filas por pagina:
-                <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
-                </Select>
-              </label>
+              <div>
+                <span className="text-default-400 text-small">Total {documentos.length} documentos</span>
+              </div>
+              <div className='flex gap-5'>
+              <Button color='warning'  onPress={()=>limpiarFiltros()}>
+                  <Icon path={mdiVacuumOutline} size={1} />
+                  <p className='hidden sm:flex'>
+                  Limpiar filtros
+                  </p>
+                  </Button>
+                <label className="flex items-center text-default-400 text-small">
+                  Filas por pagina:
+                  <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
+                  </Select>
+                </label>
+              </div>
             </div>
           </div>
         </FilterTemplate>
         <ContentTemplate>
-          <div className='flex justify-between mb-3'>
-            <div>
+          <div className='flex justify-between mb-3 gap-4'>
+            <div >
               <h1 className='text-2xl'>Resultados</h1>
             </div>
-            <div className='flex gap-3'>
+            <div className='flex md:gap-3'>
               {
                 hasPermission('Gestion-Crear documento')?
                 <>
                   <Link href={route('gestion-documento.create')}>
                     <Button color="success" variant="solid" endContent={<Icon path={mdiPlus} size={1} />}>
-                      Agregar documento
+                      <div className='hidden text-tiny xl:flex xl:text-small'>
+                        Agregar documento
+                      </div>
                     </Button>
                   </Link>
                 </>:<></>
@@ -407,7 +431,9 @@ const GestionDocumentos = ({auth}) => {
                 <>
                   <Button color="danger" variant="solid" onPress={()=>anularSeleccionados()}
                   endContent={<Icon path={mdiCancel} size={1} />}>
-                    Anular seleccionados
+                    <div className='hidden text-tiny xl:flex xl:text-small'>
+                      Anular seleccionados
+                    </div>
                   </Button>
                 </>:<></>
               }{
@@ -415,7 +441,9 @@ const GestionDocumentos = ({auth}) => {
                 <>
                   <Button color="secondary" variant="solid" onPress={habilitarSeleccionados}
                   endContent={<Icon path={mdiCheckUnderline} size={1} />}>
+                    <div className='hidden text-tiny xl:flex xl:text-small'>
                     Habilitar seleccionados
+                    </div>
                   </Button>
                 </>:<></>
               }{
@@ -423,7 +451,9 @@ const GestionDocumentos = ({auth}) => {
                 <>
                     <Button color="primary" variant="solid" onClick={descargarSeleccionados}
                     endContent={<Icon path={mdiFileDownloadOutline} size={1} />}>
+                      <div className='hidden text-tiny xl:flex xl:text-small'>
                       Descargar seleccionados
+                    </div>
                     </Button>
                 </>:<></>
               }
@@ -454,7 +484,27 @@ const GestionDocumentos = ({auth}) => {
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.autor}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.fecha}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.tipo}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.materia}</TableCell>
+                      <TableCell>
+                        {
+                          documento.materia?
+                          <>
+                             <Dropdown  type='listbox'> 
+                              <DropdownTrigger>
+                                  <Button variant="bordered" size='sm'>
+                                      Ver materia
+                                  </Button>
+                              </DropdownTrigger>
+                              <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
+                                <DropdownItem key={documento.materia} >{documento.materia}</DropdownItem>   
+                              </DropdownMenu>
+                            </Dropdown>
+                          </>
+                          :<>
+                          <Chip>No posee</Chip>
+                          </>
+                        }
+                       
+                      </TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.rut}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.direccion}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
@@ -476,7 +526,7 @@ const GestionDocumentos = ({auth}) => {
                               </DropdownMenu>
                           </Dropdown>
                           </>:
-                          <><p className=''>No posee</p></>
+                          <><Chip>No posee</Chip></>
                         }
                         
                       </TableCell>
@@ -499,7 +549,7 @@ const GestionDocumentos = ({auth}) => {
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                         <>
                         {
-                          hasPermission('Visualizar documento') && documento.file?
+                          hasPermission('Visualizar documento') && documento.file && documento.estado=="Habilitado"?
                           <>
                             <Tooltip content={"Visualizar"} color='secondary'>
                               <Link href={route('documento.visualizar',documento.id)} >
@@ -513,7 +563,7 @@ const GestionDocumentos = ({auth}) => {
                           </>:
                           <></>
                         }{
-                          hasPermission('Descargar documento') && documento.file?
+                          hasPermission('Descargar documento') && documento.file && documento.estado=="Habilitado"?
                           <>
                             <Tooltip content={"Descargar"} color='primary'>
                               <a download={documento.name_file+".pdf"} href={`data:${documento.mime_file};base64,${documento.file}`}>

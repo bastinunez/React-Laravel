@@ -113,7 +113,7 @@ const EditarUsuario = ({auth}) => {
     })
   }
   const submitPermisosDeleteSeleccion = () => {
-    if (seleccion.length>0){
+    if (seleccion.size>0){
       let datos=""
       if (seleccion=="all"){
           datos = permisos_filter.map(permiso => permiso.id)
@@ -154,8 +154,8 @@ const EditarUsuario = ({auth}) => {
         <Head title='Editar usuario'></Head>
         <Toast ref={toast_global}></Toast>
         <ContentTemplate>
-            <div className='p-8'>
-              <div className='flex w-full gap-4'>
+            <div className='lg:p-8'>
+              <div className='lg:flex w-full gap-4'>
                 <div className='w-full'>
                     <Button color='secondary' className='w-full text-medium' variant={btnMetadato?'solid':'ghost'} 
                     onClick={() => { if(!btnMetadato){setBtnRolesPermisos(!btnRolesPermisos);setBtnMetadato(!btnMetadato)}}} >
@@ -169,7 +169,7 @@ const EditarUsuario = ({auth}) => {
                             setBtnRolesPermisos(!btnRolesPermisos);setBtnMetadato(!btnMetadato)
                         }
                         }} >
-                        Roles y Permisos
+                        Roles
                     </Button>
                 </div>
               </div>
@@ -179,7 +179,7 @@ const EditarUsuario = ({auth}) => {
                   btnMetadato?
                   <>
                     <form onSubmit={submitUpdateData}>
-                      <div className='flex w-full gap-10'>
+                      <div className='lg:flex w-full gap-10'>
                         <div className='w-full mb-5'>
                             <InputLabel value={"Nombres"}></InputLabel>
                             <TextInput className="w-full"  type={'text'} value={dataEdit.nombres} onChange={(e) => setDataEdit('nombres',e.target.value)} ></TextInput>
@@ -195,11 +195,11 @@ const EditarUsuario = ({auth}) => {
                             <TextInput className="w-full" disabled={true} type={'text'} value={dataEdit.correo} ></TextInput>
                         </div>
                         <div className='w-full mb-5'>
-                            <InputLabel value={"rut"}></InputLabel>
+                            <InputLabel value={"Rut"}></InputLabel>
                             <TextInput className="w-full" disabled={true} type={'text'} value={dataEdit.rut} ></TextInput>
                         </div>
                       </div>
-                      <div className='w-full flex gap-5'>
+                      <div className='w-full lg:flex gap-5'>
                         <Link href={route("gestion-usuarios.index")} className='w-full'>
                           <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                         </Link>
@@ -210,8 +210,8 @@ const EditarUsuario = ({auth}) => {
                   :
                   <>
                   <div>
-                    <div className='w-full flex justify-between mb-6 '>
-                      <div className='w-full me-12'>
+                    <div className='w-full lg:flex justify-between mb-6 '>
+                      <div className='w-full lg:me-12'>
                         
                         <div className='w-full mb-8'>
                           <InputLabel value={"Rol"}></InputLabel>
@@ -237,7 +237,7 @@ const EditarUsuario = ({auth}) => {
                                     onSelectionChange={setPermissionSelect} closeOnSelect={false} selectionMode="multiple" items={permisos_filter}>
                                     {
                                       (permiso)=>(
-                                        <DropdownItem key={permiso.id}>{permiso.name}</DropdownItem>
+                                        <DropdownItem key={permiso.name}>{permiso.name}</DropdownItem>
                                       )
                                     }
                                   </DropdownMenu>
@@ -249,7 +249,7 @@ const EditarUsuario = ({auth}) => {
                               </div>
                             </div>
                             
-                          </div>
+                        </div>
                       </div>
                       <div className='w-full'>
                         <div className='flex mb-2'>
@@ -258,7 +258,7 @@ const EditarUsuario = ({auth}) => {
                           </div>
                         </div>
                         <Table aria-label="Tabla documentos" color={"primary"} selectionMode="multiple"
-                        selectedKeys={seleccion} onSelectionChange={setSeleccion} 
+                        selectedKeys={seleccion} onSelectionChange={setSeleccion}
                         bottomContent={ 
                           <div className="flex w-full justify-center">
                             <Pagination isCompact showControls showShadow color="secondary" page={page}
@@ -266,15 +266,15 @@ const EditarUsuario = ({auth}) => {
                           </div>
                         }>
                           <TableHeader>
-                              <TableColumn className='text-start text-small'>Permiso</TableColumn>
-                              <TableColumn className='text-start text-small'>Acción</TableColumn>
+                              <TableColumn className='text-start text-tiny lg:text-small'>Permiso</TableColumn>
+                              <TableColumn className='text-start text-tiny lg:text-small'>Acción</TableColumn>
                           </TableHeader>
-                          <TableBody>
+                          <TableBody className=''>
                             {
                               sortedItems.map((permiso,index)=>(
                                 <TableRow key={index}>
-                                  <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{permiso}</TableCell>
-                                  <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
+                                  <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis text-tiny lg:text-small'>{permiso}</TableCell>
+                                  <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis text-tiny lg:text-small'>
                                     {
                                       <Button color='danger' endContent={<Icon size={1} path={mdiTrashCanOutline} />} 
                                       onPress={() => submitPermisosDelete(permiso)} size='sm'></Button>

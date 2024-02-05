@@ -23,7 +23,9 @@ export default function Login({ status, canResetPassword }) {
     const submit = (e) => {
         e.preventDefault();
         //console.log("intenta ir")
-        post(route('login'));
+        post(route('login'),{
+            onError: () => console.log("error")
+        });
     };
 
     return (

@@ -206,7 +206,7 @@ const Documentos = ({auth}) => {
                 <div>
                   {/* FILTRO ACCION */}
                   <Dropdown >
-                    <DropdownTrigger className="hidden sm:flex">
+                    <DropdownTrigger className="">
                       <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
                         Accion
                       </Button>
@@ -223,7 +223,7 @@ const Documentos = ({auth}) => {
                 <div>
                   {/* FILTRO TIPO */}
                   <Dropdown >
-                    <DropdownTrigger className="hidden sm:flex">
+                    <DropdownTrigger className="">
                       <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
                         Tipo
                       </Button>
@@ -240,7 +240,7 @@ const Documentos = ({auth}) => {
                 <div>
                   {/* FILTRO AUTOR */}
                   <Dropdown>
-                    <DropdownTrigger className="hidden sm:flex">
+                    <DropdownTrigger className="">
                       <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
                         Autor
                       </Button>
@@ -276,7 +276,7 @@ const Documentos = ({auth}) => {
       <ContentTemplate>
         <div>
             <div>
-            <Table aria-label="Tabla historial" color={"primary"}
+            <Table aria-label="Tabla historial" color={"primary"} className=''
             selectedKeys={seleccion} onSelectionChange={setSeleccion}  
             bottomContent={ 
               <div className="flex w-full justify-center">
@@ -285,7 +285,7 @@ const Documentos = ({auth}) => {
               </div>
             }
             classNames={{  wrapper: "min-h-[222px]", }}>
-              <TableHeader>
+              <TableHeader className=''>
                   {columnas.map((columna)=>(
                     <TableColumn className='text-start text-small' key={columna.uid}>{columna.name}</TableColumn>
                   ))}

@@ -8,6 +8,7 @@ use App\Models\Funcionario;
 use App\Models\HistorialDocumentoAnexo;
 use App\Models\TipoDocumento;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 
@@ -15,12 +16,18 @@ class HistorialDocumentosAnexosController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Historial/DocumentosAnexos',[
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Ver historial documento anexo')){ 
+            return Inertia::render('Historial/DocumentosAnexos',[
             'historial'=>HistorialDocumentosAnexosResource::collection(HistorialDocumentoAnexo::all()),
             'autores'=>Funcionario::all(),
             'acciones'=>Accion::all(),
             'tipos'=>TipoDocumento::all(),
         ]);
+        }else{
+            return back();
+        }
+       
     }
 
     /**

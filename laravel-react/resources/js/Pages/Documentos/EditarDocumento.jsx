@@ -11,11 +11,11 @@ import { Toast } from 'primereact/toast';
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import { Button, Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,
-        Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider} from '@nextui-org/react';
+        Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Checkbox} from '@nextui-org/react';
 import Icon from '@mdi/react';
 import { mdiDownloadOutline, mdiTrashCanOutline } from '@mdi/js';
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
-import { all } from 'axios'
+import { Transform } from '@/Composables/Base64toBlob'
 import { Head } from '@inertiajs/react';
 import { DescargarDocumento } from '@/Composables/DownloadPDF'
 locale('en');
@@ -74,6 +74,10 @@ const EditarDocumento = ({auth}) => {
         setValuesAgregarAnexo(new Set(e.target.value.split(",")));
     };
 
+    const base64toBlob = () => {
+        const {url,link,filename} = Transform(documento.file,documento.mime_file,documento.name_file)
+        return url
+    }
 
     //formularios
     const matchAutor = autores.find(autor => documento.autor === (autor.nombres+" "+autor.apellidos))
@@ -85,9 +89,11 @@ const EditarDocumento = ({auth}) => {
         materia_documento: documento.materia?documento.materia:'',
         autor_documento: matchAutor.id,
         direccion_documento: documento.direccion?matchDireccion.id:'',
+        // archivo: documento.file? base64toBlob():'',
         archivo: documento.file? documento.file:'',
         fecha_documento: new Date(documento.fecha),
         tipo_documento: matchTipo.id,
+        estado:documento.estado == 1 ? false:true
     });
     const { data:data_mini, setData:setData_mini, post:post_mini, processing:processing_mini, errors:errors_mini, reset:reset_mini } = useForm({
         numero_documento: '',
@@ -294,9 +300,17 @@ const EditarDocumento = ({auth}) => {
                                             </div>
                                             <div className="w-80">
                                                 <InputLabel value={"Agregar archivo"}></InputLabel>
-                                                <input  onChange ={(e) => setData('archivo',e.target.files[0])} type='file' accept='.pdf' />
+                                                <input  onChange ={(e) => setData('archivo',e.target.files[0])} id="inputArchivo"
+                                                    style={{ display: 'none' }}  type='file' accept='.pdf' />
+                                                 <label htmlFor="inputArchivo" style={{ cursor: 'pointer', padding: '', border: '1px solid #ccc' }}>
+                                                    {data.archivo ? `Archivo seleccionado ${documento.name_file}` : 'Seleccionar archivo PDF'}
+                                                </label>
                                                 {/* <TextInput value={data.archivo} type={'file'} accept={'.pdf'} onChange={handleFileChange} required></TextInput> */}
                                                 <InputError message={errors.archivo} className="mt-2" />
+                                            </div>
+                                            <div className='w-80'>
+                                                <InputLabel value={"Marque si el documento se encuentra anulado"}></InputLabel>
+                                                <Checkbox value={data.estado} onChange={(e) => setData('estado',e.target.checked)} isSelected={data.estado} color="danger">Anulado</Checkbox>
                                             </div>
                                         </div>
                                         <div className='w-full flex mb-5 gap-5'>

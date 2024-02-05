@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Arr;
 use DateTime;
-
+use Illuminate\Support\Facades\Auth;
 
 class DocumentoController extends Controller
 {
@@ -25,27 +25,38 @@ class DocumentoController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Documentos/ShowDocuments',[
-            'all_documents'=>DocumentoResource::collection(Documento::all()),
-            'direcciones'=>Direccion::all(),
-            'autores'=>Funcionario::all(),
-            'tipos'=>TipoDocumento::all(),
-            'estados'=>Estado::all(),
-        ]);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Ver todos documentos')){
+            return Inertia::render('Documentos/ShowDocuments',[
+                'all_documents'=>DocumentoResource::collection(Documento::all()),
+                'direcciones'=>Direccion::all(),
+                'autores'=>Funcionario::all(),
+                'tipos'=>TipoDocumento::all(),
+                'estados'=>Estado::all(),
+            ]);
+        }else{
+            return back();
+        }
+        
     }
 
 
     public function visualizar(String $id){
-        $documento=(Documento::find((int)$id)); 
-        if ($documento && is_null($documento->file)) {
-            return Inertia::render('Documentos/NoFileView');
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Visualizar documento')){
+            $documento=(Documento::find((int)$id)); 
+            if ($documento && is_null($documento->file)) {
+                return Inertia::render('Documentos/NoFileView');
+            }
+            return Inertia::render('Documentos/VisualizadorDocumento',[
+                "documento"=>$documento,
+                'direcciones'=>Direccion::all(),
+                'autores'=>Funcionario::all(),
+                'tipos'=>TipoDocumento::all()
+            ]);
+        }else{
+            return back();
         }
-        return Inertia::render('Documentos/VisualizadorDocumento',[
-            "documento"=>$documento,
-            'direcciones'=>Direccion::all(),
-            'autores'=>Funcionario::all(),
-            'tipos'=>TipoDocumento::all()
-        ]);
     }
     
     public function get_all(){
@@ -74,23 +85,6 @@ class DocumentoController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Documentos/AgregarDocumento',[
-            'direcciones'=>Direccion::all(),
-            'autores'=>Funcionario::all(),
-            'tipos'=>TipoDocumento::all()
-        ]);
-    }
-    public function anular()
-    {
-        return Inertia::render('Documentos/AgregarDocumento');
-    }
-    public function habilitar()
-    {
-        return Inertia::render('Documentos/AgregarDocumento');
-    }
-    public function descargar()
-    {
-        return Inertia::render('Documentos/AgregarDocumento');
     }
 
     /**
@@ -233,9 +227,21 @@ class DocumentoController extends Controller
      */
     public function show(string $id)
     {
-        return Inertia::render('Documentos/GestionDocumentos',[
-            'documentos'=>DocumentoResource::collection(Documento::all())
-        ]);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Visualizar documento')){
+            $documento=(Documento::find((int)$id)); 
+            if ($documento && is_null($documento->file)) {
+                return Inertia::render('Documentos/NoFileView');
+            }
+            return Inertia::render('Documentos/VisualizadorDocumento',[
+                "documento"=>$documento,
+                'direcciones'=>Direccion::all(),
+                'autores'=>Funcionario::all(),
+                'tipos'=>TipoDocumento::all()
+            ]);
+        }else{
+            return back();
+        }
     }
 
     /**

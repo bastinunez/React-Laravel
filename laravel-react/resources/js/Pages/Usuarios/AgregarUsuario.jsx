@@ -156,7 +156,7 @@ const AgregarUsuario = ({auth}) => {
             <ContentTemplate>
                 <div className='p-8'>
                     {/* Seleccionar accion */}
-                    <div className='flex w-full gap-4'>
+                    <div className='xl:flex w-full xl:gap-4'>
                         {
                             hasPermission('Crear usuario')?
                             <>
@@ -196,7 +196,7 @@ const AgregarUsuario = ({auth}) => {
                             //se muestra formulario de agregar usuario
                             <>
                                 <form onSubmit={submit}>
-                                    <div className='w-full justify-between flex mb-7 gap-10'>
+                                    <div className='w-full justify-between xl:flex mb-7 gap-10'>
                                         <div className="w-full">
                                             <InputLabel value={"Ingresa nombres"}></InputLabel>
                                             <TextInput type={'text'} className="w-full" placeholder={"Nombre Nombre"} value={data.nombres} onChange={(e) => setData('nombres',e.target.value)} required></TextInput>
@@ -232,22 +232,22 @@ const AgregarUsuario = ({auth}) => {
                             <>
                                 <form onSubmit={submitExcel}>
                                     <div className='justify-between flex'>
-                                        <div className='w-full justify-center flex mx-auto'>
+                                        <div className='w-full justify-center xl:flex mx-auto'>
                                             <div className='me-3'>
                                                 <InputLabel value={"Subir archivo"}></InputLabel>
                                                 <Input type='file' accept='.xls, .xlsx' onChange ={(e) => setDataExcel('archivo',e.target.files[0])} >
                                                 </Input>
                                                 <InputError message={errors.archivo} className="mt-2" />
                                             </div>
-                                            <div className='flex items-end me-2'>
-                                                <Button color='primary' size='lg' type='submit'>Subir archivo</Button>
+                                            <div className='flex items-end xl:me-2'>
+                                                <Button className='w-full' color='primary' size='lg' type='submit'>Subir archivo</Button>
                                             </div>
                                             <div className='flex items-end'>
-                                                <Button color='secondary' size='lg' onPress={()=>getTemplate()}>Descargar plantilla</Button>
+                                                <Button className='w-full' color='secondary' size='lg' onPress={()=>getTemplate()}>Descargar plantilla</Button>
                                             </div>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div className='mt-3'>
                                         <Link href={route("gestion-usuarios.index")} className='w-full'>
                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                         </Link>

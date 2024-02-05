@@ -11,7 +11,7 @@ import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow
     Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
     Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip,}  from "@nextui-org/react";
 import Icon from '@mdi/react';
-import { mdiFileEyeOutline, mdiFileDownloadOutline, 
+import { mdiVacuumOutline, mdiFileDownloadOutline, 
     mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline} from '@mdi/js';
 
 
@@ -57,6 +57,11 @@ const ShowDirecciones = ({auth}) => {
         direction: "ascending",
       });
 
+    const limpiarFiltros = () =>{
+        setFilterNombre('')
+    }
+
+
     //Tabla
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(8);
@@ -84,17 +89,23 @@ const ShowDirecciones = ({auth}) => {
             <TitleTemplate>Direcciones</TitleTemplate>
             <FilterTemplate>
                 <div className="flex flex-col gap-4">
-                    <div className="flex justify-center gap-4 items-end">
+                    <div className="xl:flex justify-center gap-4 items-end">
                         <Input isClearable classNames={{input:["border-none"]}} type='text'
                         className="w-full input-next border-none" size='sm' placeholder="Buscar por nombre..."
                         startContent={<Icon path={mdiMagnify} size={1} />} value={filterNombre}
                         onClear={() => onClearNombre()} onValueChange={onSearchChangeNombre} />
                         <div className="flex w-full">
                             <div className='w-full flex items-center'>
-                                <span className="text-default-400 text-small">Total {direcciones.length} direcciones</span>
+                                <span className="text-default-400 text-tiny lg:text-small">Total {direcciones.length} direcciones</span>
                             </div>
-                            <div className='w-full'>
-                                <label className="flex items-center text-default-400 text-small">
+                            <div className='w-full flex items-center'>
+                                <Button color='warning'  onPress={()=>limpiarFiltros()}>
+                                    <Icon path={mdiVacuumOutline} size={1} />
+                                    <p className='hidden sm:flex'>
+                                    Limpiar filtros
+                                    </p>
+                                </Button>
+                                <label className="flex items-center text-default-400 text-tiny lg:text-small">
                                     Filas por pagina:
                                     <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
                                     </Select>
@@ -144,7 +155,7 @@ const ShowDirecciones = ({auth}) => {
                                 sortedItems.map((direccion)=>(
                                     <TableRow key={direccion.id} className='text-start'>
                                         <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{direccion.id}</TableCell>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{direccion.nombre}</TableCell>
+                                        <TableCell className='overflow-auto whitespace-nowrap text-ellipsis'>{direccion.nombre}</TableCell>
                                         <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                                             {
                                                 hasPermission('Gestion-Editar direccion')?

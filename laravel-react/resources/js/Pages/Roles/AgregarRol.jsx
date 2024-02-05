@@ -9,7 +9,7 @@ import { Button } from '@nextui-org/react'
 import { Toast } from 'primereact/toast';        
 import React,{useRef} from 'react'
 
-const AgregarDireccion = ({auth}) => {
+const AgregarRol = ({auth}) => {
     //toast
     const toast_global = useRef(null);
     
@@ -21,9 +21,6 @@ const AgregarDireccion = ({auth}) => {
     }
 
 
-    //QUEDE AQUI FALTA REALIZAR EL POST, MODIFICAR LOS MENSAJES CON TOAST (ES MEJOR DEJARLO GLOBAL EN EL AUTHENTICAD LAYOUT )
-
-
     //formularios
     const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset} = useForm({
         nombre: '',
@@ -31,30 +28,28 @@ const AgregarDireccion = ({auth}) => {
 
     const submit = (e) => {
         e.preventDefault()
-        post(route('direccion.store'),{
-            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);reset()},
-            onError: (msg) => {showMsg(msg.create,severity.error,summary.error)}
+        post(route('rol.store'),{
+            onSuccess: () => console.log("bien")
         })
     }
 
     return (
         <Authenticated user={auth.user}
-        header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Agregar direccion</h2>}>
-            <Head title='Agregar direccion'></Head>
-            <TitleTemplate>Agregar direccion</TitleTemplate>
+        header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Agregar rol</h2>}>
+            <Head title='Agregar rol'></Head>
+            <TitleTemplate>Agregar rol</TitleTemplate>
             <Toast ref={toast_global} />
             <ContentTemplate>
                 <div>
                     <form onSubmit={submit} className='p-8'>
-                        <div className='flex w-full mb-5 gap-10'>
-                            <div className="w-full me-5">
-                                <InputLabel value={"Ingresa nombre"}></InputLabel>
-                                <TextInput type={'text'} className="w-full" placeholder={"Nombre dirección"} value={data.nombre} onChange={(e) => setData('nombre',e.target.value)} ></TextInput>
-                                <InputError message={errors.nombre} className="mt-2" />
-                            </div>
+                        <div className=' w-full mb-5 gap-10'>
+                            <InputLabel value={"Ingresa nombre"}></InputLabel>
+                            <TextInput type={'text'} className="w-full" placeholder={"Nombre"} value={data.nombre} 
+                            onChange={(e) => setData('nombre',e.target.value)} ></TextInput>
+                            <InputError message={errors.nombre} className="mt-2" />
                         </div>
-                        <div className='w-full flex gap-10'>
-                            <Link href={route("direccion.index")} className='w-full'>
+                        <div className='w-full xl:flex gap-10'>
+                            <Link href={route("rol.index")} className='w-full'>
                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                             </Link>
                             <Button type='submit' color='primary' variant='ghost' className='w-full text-large'>Agregar</Button>
@@ -66,4 +61,4 @@ const AgregarDireccion = ({auth}) => {
     )
 }
 
-export default AgregarDireccion
+export default AgregarRol

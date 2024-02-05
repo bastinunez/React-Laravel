@@ -18,9 +18,14 @@ class FuncionarioController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Funcionarios/ShowFuncionarios',[
-            'all_funcionarios'=>FuncionarioResource::collection(Funcionario::all())
-        ]);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Gestion-Funcionarios')){
+            return Inertia::render('Funcionarios/ShowFuncionarios',[
+                'all_funcionarios'=>FuncionarioResource::collection(Funcionario::all())
+            ]);
+        }else{
+            return back();
+        }
     }
 
     /**
@@ -28,7 +33,12 @@ class FuncionarioController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Funcionarios/AgregarFuncionario',);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Gestion-Crear funcionario')){
+            return Inertia::render('Funcionarios/AgregarFuncionario',);
+        }else{
+            return back();
+        }
     }
 
     /**
@@ -102,14 +112,19 @@ class FuncionarioController extends Controller
      */
     public function edit(string $id)
     {
-        $funcionario= Funcionario::find((int)$id);
-
-        if(is_null($funcionario)){
-            return Inertia::render('Funcionarios/NoFuncionarioEdit');
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Gestion-Editar funcionario')){
+            $funcionario= Funcionario::find((int)$id);
+    
+            if(is_null($funcionario)){
+                return Inertia::render('Funcionarios/NoFuncionarioEdit');
+            }
+            return Inertia::render('Funcionarios/EditarFuncionario',[
+                'funcionario'=>new FuncionarioResource($funcionario)
+            ]);
+        }else{
+            return back();
         }
-        return Inertia::render('Funcionarios/EditarFuncionario',[
-            'funcionario'=>new FuncionarioResource($funcionario)
-        ]);
     }
 
     /**

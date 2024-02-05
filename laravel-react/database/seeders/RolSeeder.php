@@ -15,11 +15,6 @@ class RolSeeder extends Seeder
      */
     public function run(): void
     {
-        // DB::table('roles')->insert([
-        //     ['name' => 'Usuario'],
-        //     ['name' => 'Digitador'],
-        //     ['name' => 'Administrador'],
-        // ]);
         
         $roleUsuario = Role::create(['name'=>'Usuario']);
         $roleDigitador = Role::create(['name'=>'Digitador']);
@@ -91,53 +86,13 @@ class RolSeeder extends Seeder
         Permission::create(['name'=>'Gestion-Crear funcionario'])->syncRoles([$roleAdministrador]);
         Permission::create(['name'=>'Gestion-Editar funcionario'])->syncRoles([$roleAdministrador]);
 
-        // $permisos = [
-        //     ['Recuperar contraseña',[3,2,1]],
-        //     ['dashboard',[3,2,1]],
-        //     ['Ver perfil',[3,2,1]],
-        //     ['Editar perfil',[3,2,1]],
-        //     ['Ver todos documentos',[3,2,1]],
-        //     ['Visualizar documento',[3,2,1]],
-        //     ['Descargar documento',[3,2,1]],
-        //     ['Ver documentos anexos',[3,2,1]],
-        //     ['Gestion-Ver documentos',[3,2]],
-        //     ['Gestion-Ver documento',[3,2]],
-        //     ['Gestion-Crear documento',[3,2]],
-        //     ['Gestion-Editar documento',[3,2]],
-        //     ['Gestion-Editar metadatos documento',[3,2]],
-        //     ['Gestion-Editar documentos anexos de documento',[3,2]],
-        //     ['Gestion-Anular documento',[3,2]],
-        //     ['Gestion-Habilitar documento',[3,2]],
-        //     ['Gestion-Descargar documento',[3,2]],
-        //     ['Gestion-Añadir documento anexo',[3,2]],
-        //     ['Gestion-Eliminar documento anexo',[3,2]],
-        //     ['Gestion-Mostrar documentos anexos',[3,2]],
-        //     ['Ver historial documento',[3]],
-        //     ['Ver historial documento anexo',[3]],
-        //     ['Ver historial accion usuario',[3]],
-        //     ['Ver historial accion formulario',[3]],
-        //     ['Ver todos usuarios',[3]],
-        //     ['Editar usuario',[3]],
-        //     ['Crear usuario',[3]],
-        //     ['Cargar usuarios xlsx',[3]],
-        //     ['Cambiar estado usuario',[3]],
-        //     ['Restaurar contraseña',[3]],
-        //     ['Gestion-Editar formulario',[3]],
-        //     ['Gestion-Funcionarios',[3]],
-        //     ['Gestion-Crear funcionario',[3]],
-        //     ['Gestion-Editar funcionario',[3]],
-        // ];
-        
-        // foreach ($permisos as $permiso) {
-        //     if(sizeof($permiso[1])==3){
-        //         Permission::create(['name' => $permiso[0]])->givePermissionTo([$roleUsuario, $roleDigitador, $roleAdministrador]);
-        //     }elseif(sizeof($permiso[1])==2){
-        //         Permission::create(['name' => $permiso[0]])->givePermissionTo([$roleDigitador, $roleAdministrador]);
-        //     }else{
-        //         Permission::create(['name' => $permiso[0]])->givePermissionTo([$roleAdministrador]);
-        //     }
-           
-        // }
 
+        //GESTION ROLES Y PERMISOS
+        Permission::create(['name'=>'Gestion-Roles'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Crear rol'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Editar rol'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Permisos'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Crear permiso'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Editar permiso'])->syncRoles([$roleAdministrador]);
     }
 }

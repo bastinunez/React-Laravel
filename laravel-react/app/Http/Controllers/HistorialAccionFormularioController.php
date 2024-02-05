@@ -8,6 +8,7 @@ use App\Models\Funcionario;
 use App\Models\HistorialFormulario;
 use App\Models\TipoDocumento;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 
@@ -18,11 +19,17 @@ class HistorialAccionFormularioController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Historial/Formulario',[
-            'historial'=>HistorialAccionFormularioResource::collection(HistorialFormulario::all()),
-            'acciones'=>Accion::all(),
-            'tipos'=>TipoDocumento::all(),
-        ]);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Gestion-Crear permiso')){
+            return Inertia::render('Historial/Formulario',[
+                'historial'=>HistorialAccionFormularioResource::collection(HistorialFormulario::all()),
+                'acciones'=>Accion::all(),
+                'tipos'=>TipoDocumento::all(),
+            ]);
+        }else{
+            return back();
+        }
+        
     }
 
     /**

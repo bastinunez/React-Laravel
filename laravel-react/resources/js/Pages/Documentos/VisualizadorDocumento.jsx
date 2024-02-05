@@ -9,6 +9,8 @@ import TitleTemplate from '@/Components/TitleTemplate';
 import ContentTemplate from '@/Components/ContentTemplate';
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Pagination,
   Table, TableHeader, TableBody, TableColumn, TableRow, TableCell} from '@nextui-org/react';
+//import {Transform} from '@Composables/Base64toBlob'
+import { Transform } from '@/Composables/Base64toBlob';
 
 
 const VisualizadorDocumento = ({auth}) => {
@@ -44,16 +46,17 @@ const VisualizadorDocumento = ({auth}) => {
 
     return new Blob([out], { type: 'application/pdf' });
   };
-  const blob = base64toBlob(documento.file);
-  const url = URL.createObjectURL(blob);
+  const {url,link,filename} = Transform(documento.file,documento.mime_file,documento.name_file)
+  // const blob = base64toBlob(documento.file);
+  // const url = URL.createObjectURL(blob);
+  // const link=`data:${documento.mime_file};base64,${documento.file}`
+  // const filename = documento.name_file+".pdf"
+
 
   // const getFilePluginInstance = getFilePlugin();
   // const { DownloadButton } = getFilePluginInstance;
 
   //necesario para poder descargar el archivo
-  const link=`data:${documento.mime_file};base64,${documento.file}`
-  const filename = documento.name_file+".pdf"
-
   //tabla
   const [page, setPage] = React.useState(1);
   const rowsPerPage = 6;
@@ -72,7 +75,7 @@ const VisualizadorDocumento = ({auth}) => {
       <TitleTemplate>
         <div className='w-full flex justify-between'>
           <div>
-              VisualizadorDocumento
+              Visualizador Documento
           </div>
           <div className='align-items-center flex'>
             <Button color='primary' variant='ghost' onPress={onOpen}>Ver documentos anexos</Button>

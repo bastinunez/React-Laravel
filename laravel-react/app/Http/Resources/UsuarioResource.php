@@ -22,7 +22,8 @@ class UsuarioResource extends JsonResource
             'rut' => $this->rut,
             'estado' => $this->estadoRelacion->nombre,
             'roles' => RoleResource::collection($this->whenLoaded('roles')),
-            'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),
+            // 'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),
+            'permissions'=>$this->getAllPermissions()->pluck('name'),
         ];
         //quede aqui falta ver porque no entrega los permisos
     }

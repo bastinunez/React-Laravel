@@ -58,35 +58,35 @@ const Perfil = ({auth}) => {
                 <div>
                     <form onSubmit={editarDatos}>
                         <div className='pt-5'>
-                            <div className='w-full flex justify-between mb-4'>
-                                <div className='w-full mx-8'>
+                            <div className='w-full xl:flex justify-between mb-4'>
+                                <div className='w-full mb-2 lg:mx-8'>
                                     <InputLabel value={"Nombres"}></InputLabel>
                                     <TextInput className="w-full" disabled={isDisabled} type={'text'} value={dataEdit.nombres} onChange={(e) => setDataEdit('nombres',e.target.value)} ></TextInput>
                                     <InputError message={errorsEdit.nombres} className="mt-2" />
                                 </div>
-                                <div className='w-full mx-8'>
+                                <div className='w-full mb-2 lg:mx-8'>
                                     <InputLabel value={"Apellidos"}></InputLabel>
                                     <TextInput className="w-full" disabled={isDisabled} type={'text'} value={dataEdit.apellidos} onChange={(e) => setDataEdit('apellidos',e.target.value)} ></TextInput>
                                     <InputError message={errorsEdit.apellidos} className="mt-2" />
                                 </div>
-                                <div className='w-full mx-8'>
+                                <div className='w-full mb-2 lg:mx-8'>
                                     <InputLabel value={"Correo"}></InputLabel>
                                     <TextInput className="w-full" disabled={true} type={'text'} value={dataEdit.correo} ></TextInput>
                                 </div>
                             </div>
-                            <div className='w-full justify-between flex'>
-                                <div className='w-full mx-8'>
+                            <div className='w-full justify-between xl:flex'>
+                                <div className='w-full mb-2 lg:mx-8'>
                                     <InputLabel value={"Rut"}></InputLabel>
                                     <TextInput className="w-full" disabled={true} type={'text'} value={dataEdit.rut} ></TextInput>
                                 </div>
-                                <div className='w-full mx-8'>
+                                <div className='w-full mb-2 lg:mx-8'>
                                     <InputLabel value={"Rol"}></InputLabel>
                                     <TextInput className="w-full" disabled={true} type={'text'} value={dataEdit.rol}  ></TextInput>
                                 </div>
                                 {
                                     hasRole('Administrador')?
                                     <>
-                                        <div className='w-full mx-8'>
+                                        <div className='w-full mb-2 lg:mx-8'>
                                             <InputLabel value={"Permisos"}></InputLabel>
                                             <Dropdown  type='listbox'> 
                                                 <DropdownTrigger>
@@ -110,16 +110,16 @@ const Perfil = ({auth}) => {
                                 
                             </div>
                         </div>
-                        <div className='pt-5 flex w-full mx-auto justify-center mt-3 text-large'>
+                        <div className='pt-5 xl:flex w-full xl:mx-auto justify-center mt-3 text-large'>
                             {
                                 isDisabled?
                                 <>
-                                    <Button variant='ghost' color='primary' className='w-full mx-8' onClick={(e) => setIsDisabled(!isDisabled)}>Editar mis datos</Button>
+                                    <Button variant='ghost' color='primary' className='w-full xl:mx-8' onClick={(e) => setIsDisabled(!isDisabled)}>Editar mis datos</Button>
                                 </>
                                 :
                                 <>
-                                    <Button variant='ghost' color='warning' className='w-full mx-8' onClick={(e) => {resetEdit('nombres','apellidos');setIsDisabled(!isDisabled)}}>Cancelar</Button>
-                                    <Button variant='ghost' color='success' disabled={processingEdit} className='w-full mx-8' type='submit'>Guardar cambios</Button>
+                                    <Button variant='ghost' color='warning' className='w-full xl:mx-8' onClick={(e) => {resetEdit('nombres','apellidos');setIsDisabled(!isDisabled)}}>Cancelar</Button>
+                                    <Button variant='ghost' color='success' disabled={processingEdit} className='w-full xl:mx-8' type='submit'>Guardar cambios</Button>
                                 </>
                             }
                         </div>

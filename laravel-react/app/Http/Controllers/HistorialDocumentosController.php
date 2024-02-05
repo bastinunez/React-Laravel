@@ -24,18 +24,24 @@ class HistorialDocumentosController extends Controller
      */
     public function index()
     {
-        $roles = Rol::whereIn('name', ['digitador', 'administrador'])->get();
-        $user=Auth::user();
-        // Obtener usuarios con roles específicos
-        //$responsables = User::role($roles)->get();
-        //dd($responsables);
-        return Inertia::render('Historial/Documentos',[
-            'historial'=>HistorialDocumentosResource::collection(HistorialDocumento::all()),
-            'autores'=>Funcionario::all(),
-            'acciones'=>Accion::all(),
-            //'responsables'=>$responsables,
-            'tipos'=>TipoDocumento::all(),
-        ]);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Ver historial documento')){
+            // $roles = Rol::whereIn('name', ['digitador', 'administrador'])->get();
+            // $user=Auth::user();
+            // Obtener usuarios con roles específicos
+            //$responsables = User::role($roles)->get();
+            //dd($responsables);
+            return Inertia::render('Historial/Documentos',[
+                'historial'=>HistorialDocumentosResource::collection(HistorialDocumento::all()),
+                'autores'=>Funcionario::all(),
+                'acciones'=>Accion::all(),
+                //'responsables'=>$responsables,
+                'tipos'=>TipoDocumento::all(),
+            ]);
+        }else{
+            return back();
+        }
+        
     }
 
     /**

@@ -251,24 +251,6 @@ const DocumentosAnexos = ({auth}) => {
                     </DropdownMenu>
                   </Dropdown>
                 </div>
-                <div>
-                  {/* FILTRO RESPONSABLE */}
-                  <Dropdown>
-                    <DropdownTrigger className="hidden sm:flex">
-                      <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                        Responsable
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu  disallowEmptySelection aria-label="Table Columns" id='autor' selectedKeys={autorFilter}
-                      onSelectionChange={setAutorFilter} closeOnSelect={false} selectionMode="multiple" items={autores}>
-                      {
-                        (autor)=>(
-                          <DropdownItem key={autor.id}>{autor.nombres}</DropdownItem>
-                        )
-                      }
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
               </div>
             </div>
             <div className="flex justify-between items-center">

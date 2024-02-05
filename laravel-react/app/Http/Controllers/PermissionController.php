@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\DireccionResource;
-use Illuminate\Http\Request;
-use App\Models\Direccion;
+use App\Http\Resources\PermissionResource;
 use App\Models\HistorialFormulario;
+use App\Models\Permission as ModelsPermission;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Permission;
 
-
-class DireccionController extends Controller
+class PermissionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,14 +18,13 @@ class DireccionController extends Controller
     public function index()
     {
         $current_user=Auth::user();
-        if ($current_user->hasPermissionTo('Gestion-Direcciones')){
-            return Inertia::render('Direcciones/ShowDirecciones',[
-                'all_direcciones'=>DireccionResource::collection(Direccion::all())
+        if ($current_user->hasPermissionTo('Gestion-Permisos')){
+            return Inertia::render('Permisos/Gestion',[
+                "all_permisos"=>PermissionResource::collection(Permission::all())
             ]);
         }else{
             return back();
         }
-        
     }
 
     /**
@@ -36,8 +33,8 @@ class DireccionController extends Controller
     public function create()
     {
         $current_user=Auth::user();
-        if ($current_user->hasPermissionTo('Gestion-Crear direccion')){
-            return Inertia::render('Direcciones/AgregarDireccion',);
+        if ($current_user->hasPermissionTo('Gestion-Crear permiso')){
+            return Inertia::render('Permisos/AgregarPermiso');
         }else{
             return back();
         }
@@ -49,27 +46,20 @@ class DireccionController extends Controller
     public function store(Request $request)
     {
         try{
-            $direccion = Direccion::create([
-                "nombre"=>$request->nombre
+            $direccion = Permission::create([
+                "name"=>$request->nombre,
+                'guard_name' => 'web',
             ]);
-            $user_id=Auth::id();
-            HistorialFormulario::create([
-                'responsable'=>$user_id,
-                'accion'=>2,
-                'detalles'=>"Crea direccion con nombre: " . $direccion->nombre
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-            ]);
-            return redirect()->back()->with(["create"=>"Se añadió la dirección"]);
+            return redirect()->back()->with(["create"=>"Se añadió el permiso"]);
         }catch (\Illuminate\Database\QueryException $e) {
             // Manejo específico para errores de duplicidad
             if ($e->errorInfo[1] == 1062) {
-                return redirect()->back()->withErrors(["create"=>"Ya existe la direccion"]);
+                return redirect()->back()->withErrors(["create"=>"Ya existe el permiso"]);
             } else {
                 // Otros errores de la base de datos
                 throw $e;
             }
         }
-       
     }
 
     /**
@@ -86,19 +76,14 @@ class DireccionController extends Controller
     public function edit(string $id)
     {
         $current_user=Auth::user();
-        if ($current_user->hasPermissionTo('Gestion-Editar direccion')){
-            $direccion= Direccion::find((int)$id);
-
-            if(is_null($direccion)){
-                return Inertia::render('Direcciones/NoDireccionEdit');
-            }
-            return Inertia::render('Direcciones/EditarDireccion',[
-                'direccion'=>new DireccionResource(Direccion::find((int)$id))
+        if ($current_user->hasPermissionTo('Gestion-Crear permiso')){
+            return Inertia::render('Permisos/EditarPermiso',[
+                'permiso'=>Permission::find($id)
             ]);
         }else{
             return back();
         }
-        
+    
     }
 
     /**
@@ -107,16 +92,16 @@ class DireccionController extends Controller
     public function update(Request $request, string $id)
     {
         try{
-            $direccion = Direccion::find($id);
-            $antiguo= $direccion->nombre;
-            $direccion->nombre=$request->nombre;
-            $direccion->save();
+            $permiso = Permission::find($id);
+            $antiguo= $permiso->name;
+            $permiso->name=$request->nombre;
+            $permiso->save();
     
             $user_id=Auth::id();
             HistorialFormulario::create([
                 'responsable'=>$user_id,
                 'accion'=>3,
-                'detalles'=>"Edita direccion " . $antiguo . " con nuevo nombre: " . $direccion->nombre
+                'detalles'=>"Edita permiso " . $antiguo . " con nuevo nombre: " . $permiso->name
                 //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
             ]);
     
@@ -124,13 +109,12 @@ class DireccionController extends Controller
         }catch (\Illuminate\Database\QueryException $e) {
             // Manejo específico para errores de duplicidad
             if ($e->errorInfo[1] == 1062) {
-                return redirect()->back()->withErrors(["update"=>"Ya existe la direccion"]);
+                return redirect()->back()->withErrors(["update"=>"Ya existe el permiso"]);
             } else {
                 // Otros errores de la base de datos
                 throw $e;
             }
         }
-       
     }
 
     /**

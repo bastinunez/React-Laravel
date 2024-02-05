@@ -29,21 +29,26 @@ class DocumentoAnexoController extends Controller
         // $documentos = $documentos->reject(function ($documento) use ($id) {
         //     return $documento->id === $id;
         // });
-        
-        $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
-        ->pluck('documento_id_anexo')
-        ->toArray();
-        $documentosAnexosIds[] = $id;
-
-        // Obtener todos los documentos que NO están en la lista de IDs obtenidos
-        $documentosFiltrados = Documento::whereNotIn('id', $documentosAnexosIds)
-            ->get();
-
-        $documentosTransformados = DocumentoResource::collection($documentosFiltrados);
-        return Inertia::render("Documentos/AgregarDocumentoAnexo",[
-            "all_docs"=>$documentosTransformados,
-            "id_doc"=>$id
-        ]);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Gestion-Crear documento')){
+            $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
+            ->pluck('documento_id_anexo')
+            ->toArray();
+            $documentosAnexosIds[] = $id;
+    
+            // Obtener todos los documentos que NO están en la lista de IDs obtenidos
+            $documentosFiltrados = Documento::whereNotIn('id', $documentosAnexosIds)
+                ->get();
+    
+            $documentosTransformados = DocumentoResource::collection($documentosFiltrados);
+            return Inertia::render("Documentos/AgregarDocumentoAnexo",[
+                "all_docs"=>$documentosTransformados,
+                "id_doc"=>$id
+            ]);
+        }else{
+            return back();
+        }
+       
     }
 
     /**
@@ -104,7 +109,7 @@ class DocumentoAnexoController extends Controller
         $input['fecha_documento'] = $input['fecha_documento']->format('Y-m-d');
         Validator::make($input,[
             'tipo_documento'=> ['required','numeric'],
-            'numero_documento'=> ['required','numeric'],
+            'numero_documento'=> ['required','numeric','gt:0'],
             'autor_documento'=> ['required','numeric'],
             'fecha_documento'=>['required','date'],
             'id_doc'=>['required','numeric']
@@ -112,6 +117,7 @@ class DocumentoAnexoController extends Controller
             'tipo_documento.required'=>'Debe ingresar el tipo de documento',
             'numero_documento.required'=>'Debe ingresar el número de documento',
             'numero_documento.numeric'=>'Debe ingresar un número',
+            'numero_documento.gt'=>'Debe ingresar un número mayor que 0',
             'autor_documento.required'=>'Debe ingresar un autor',
             'fecha_documento.required'=>'Debe ingresar la fecha',
             'fecha_documento.date'=>'Debe ingresar una fecha',
@@ -129,7 +135,7 @@ class DocumentoAnexoController extends Controller
                 'name_file'=> $nombre_file.'.pdf',
                 'direccion' => 1,
                 "anno" => $year,
-                "estado" => 1,
+                "estado" => $request->estado == 0 ? 1 : 2,
             ]);
             DB::table("documento_anexo")->insertGetId([
                 "documento_id"=>$input['id_doc'],
@@ -172,26 +178,31 @@ class DocumentoAnexoController extends Controller
         // $documentos = $documentos->reject(function ($documento) use ($id) {
         //     return $documento->id === $id;
         // });
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Gestion-Crear documento')){
+            $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
+            ->pluck('documento_id_anexo')
+            ->toArray();
+            $documentosAnexosIds[] = $id;
 
-        $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
-        ->pluck('documento_id_anexo')
-        ->toArray();
-        $documentosAnexosIds[] = $id;
+            // Obtener todos los documentos que NO están en la lista de IDs obtenidos
+            $documentosFiltrados = Documento::whereNotIn('id', $documentosAnexosIds)
+                ->get();
 
-        // Obtener todos los documentos que NO están en la lista de IDs obtenidos
-        $documentosFiltrados = Documento::whereNotIn('id', $documentosAnexosIds)
-            ->get();
+            $documentosTransformados = DocumentoResource::collection($documentosFiltrados);
 
-        $documentosTransformados = DocumentoResource::collection($documentosFiltrados);
-
-        return Inertia::render("Documentos/AgregarDocumentoAnexo",[
-            "all_docs"=>$documentosTransformados,
-            'direcciones'=>Direccion::all(),
-            'autores'=>Funcionario::all(),
-            'tipos'=>TipoDocumento::all(),
-            'estados'=>Estado::all(),
-            "id_doc"=>$id
-        ]);
+            return Inertia::render("Documentos/AgregarDocumentoAnexo",[
+                "all_docs"=>$documentosTransformados,
+                'direcciones'=>Direccion::all(),
+                'autores'=>Funcionario::all(),
+                'tipos'=>TipoDocumento::all(),
+                'estados'=>Estado::all(),
+                "id_doc"=>$id
+            ]);
+        }else{
+            return back();
+        }
+        
     }
 
     /**

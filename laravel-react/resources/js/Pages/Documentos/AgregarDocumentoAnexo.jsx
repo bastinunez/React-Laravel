@@ -6,13 +6,12 @@ import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import Select from '@/Components/Select'
-import {Button, Divider, Input, Tooltip, Pagination,Select as NextSelect, SelectItem as NextSelectItem,
+import {Button, Divider, Input, Tooltip, Pagination,Select as NextSelect, SelectItem as NextSelectItem,Checkbox,
     Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, } from "@nextui-org/react";
 import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast'
 import { Head } from '@inertiajs/react';        
 import { usePage ,Link,useForm} from '@inertiajs/react';
-import { useFormDocumentStore,useIdDocumentStore,useFormMiniDocumentStore } from '@/Store/useStore'
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
 locale('en');
 addLocale('es', {
@@ -35,8 +34,6 @@ const AgregarDocumentoAnexo = ({auth}) => {
   const toast_global = useRef(null);
 
   //variables que conservan su estado
-  const {form_document_state,changeStateForm}=useFormDocumentStore()
-  const { id_document, changeStateIdDoc } = useIdDocumentStore();
   const [docAnexos,setDocAnexos] = useState([])
 
 
@@ -60,7 +57,8 @@ const AgregarDocumentoAnexo = ({auth}) => {
     autor_documento: 'DEFAULT',
     fecha_documento: '',
     tipo_documento: 'DEFAULT',
-    id_doc:id_doc
+    id_doc:id_doc,
+    estado:false
   });
   const {data:dataAddAnexo, setData:setDataAddAnexoo, delete:deleteAddAnexo,post:postAddAnexo,reset:resetAddAnexo}=useForm({
     documento_id:"",
@@ -179,10 +177,10 @@ const AgregarDocumentoAnexo = ({auth}) => {
       </TitleTemplate>
       <ContentTemplate>
         <h2>Formulario</h2>
-        <div className='p-5'>
+        <div className='xl:p-5'>
             <div className='w-full'>
                 <Link href={route('gestion-documento.create')}>
-                    <Button className='text-white rounded-md w-full p-2 text-center text-large' color='success' >Se agregó correctamente el documento, presione para agregar otro</Button>
+                    <Button className='text-white rounded-md w-full p-2 whitespace-normal text-center xl:text-large ' color='success' >Se agregó correctamente el documento, presione para agregar otro</Button>
                 </Link>
             </div>
             <div className='p-5'>
@@ -190,7 +188,7 @@ const AgregarDocumentoAnexo = ({auth}) => {
             </div>
             <div className='w-full'>
                 <div className='mt-3 w-full'>
-                    <div className='flex w-full gap-4'>
+                    <div className='xl:flex w-full gap-4'>
                         <div className='w-full'>
                             <Button color='secondary' className='w-full text-medium' variant={btnAgregarNuevo?'solid':'ghost'} 
                             onClick={() => { if(!btnAgregarNuevo){setBtnAgregarExistente(!btnAgregarExistente);setBtnAgregarNuevo(!btnAgregarNuevo)}}} >
@@ -215,30 +213,34 @@ const AgregarDocumentoAnexo = ({auth}) => {
                     btnAgregarNuevo?
                     <>
                     <form onSubmit={submitMiniForm}>
-                    <div className='flex w-full justify-between mb-5'>
-                        <div className="w-80">
+                    <div className='lg:flex w-full justify-between mb-5 md:gap-4'>
+                        <div className="w-80 xl:me-4">
                         <InputLabel value={"Selecciona tipo de documento"}></InputLabel>
                         <Select opciones={tipos} value={data_mini.tipo_documento} onChange={(value) => setData_mini('tipo_documento', value)} required>
                         </Select>
                         <InputError message={errors_mini.tipo_documento} className="mt-2" />
                         </div>
-                        <div className="w-80">
+                        <div className="w-80 xl:me-4">
                         <InputLabel value={"Selecciona autor de documento"}></InputLabel>
                         <Select opciones={autores} value={data_mini.autor_documento} onChange={(value) => setData_mini('autor_documento', value)}  required>
                         </Select>
                         <InputError message={errors_mini.autor_documento} className="mt-2" />
                         </div>
-                        <div className="w-80">
+                        <div className="w-80 xl:me-4">
                         <InputLabel value={"Ingresa numero de documento"}></InputLabel>
                         <TextInput className={"w-full"} type={'number'} value={data_mini.numero_documento} onChange={(e) => setData_mini('numero_documento',e.target.value)}required ></TextInput>
                         <InputError message={errors_mini.numero_documento} className="mt-2" />
                         </div>
-                        <div className="w-80">
-                        <InputLabel value={"Ingresa fecha"}></InputLabel>
-                        <div className="card flex justify-content-center">
-                            <Calendar value={data_mini.fecha_documento} locale="es" inputStyle={{"padding":"0.5rem "}} required onChange={(e) => setData_mini('fecha_documento',e.target.value)} readOnlyInput />
+                        <div className="w-80 xl:me-4">
+                          <InputLabel value={"Ingresa fecha"}></InputLabel>
+                          <div className="card flex justify-content-center">
+                              <Calendar value={data_mini.fecha_documento} locale="es" inputStyle={{"padding":"0.5rem "}} required onChange={(e) => setData_mini('fecha_documento',e.target.value)} readOnlyInput />
+                          </div>
+                          <InputError message={errors_mini.fecha_documento} className="mt-2" />
                         </div>
-                        <InputError message={errors_mini.fecha_documento} className="mt-2" />
+                        <div className='w-80 xl:me-4'>
+                          <InputLabel value={"Marque si el documento se encuentra anulado"}></InputLabel>
+                          <Checkbox value={data_mini.estado} onChange={(e) => setData_mini('estado',e.target.checked)}  color="danger">Anulado</Checkbox>
                         </div>
                     </div>
                     {
@@ -256,7 +258,7 @@ const AgregarDocumentoAnexo = ({auth}) => {
                         </>:
                         <></>
                     }
-                    <div className='mt-3 w-full flex gap-8'>
+                    <div className='mt-3 w-full xl:flex gap-8'>
                         <Link href={route("gestion-documento.index")} className='w-full'>
                         <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                         </Link>
@@ -266,7 +268,7 @@ const AgregarDocumentoAnexo = ({auth}) => {
                     </>
                     :
                     <>
-                    <form onSubmit={submitAgregarAnexo} className='w-full gap-5 flex'>
+                    <form onSubmit={submitAgregarAnexo} className='w-full xl:gap-5 xl:flex'>
                         <div className='w-full'>
                             <NextSelect label="Documentos para anexar: "
                             selectionMode="multiple" placeholder="Seleccionar documentos..."
@@ -287,7 +289,7 @@ const AgregarDocumentoAnexo = ({auth}) => {
                                 }
                             </NextSelect>
                         </div>
-                        <div className='flex items-center gap-5'>
+                        <div className='xl:flex items-center xl:gap-5'>
                             <Button type='text' size='lg' className="w-full" color='primary' variant='ghost'>Anexar documentos</Button>
                             <Link href={route("gestion-documento.index")} className='w-full'>
                                 <Button className='w-full text-large' size='lg' color='warning' variant='ghost' >Volver atrás</Button>
@@ -302,6 +304,7 @@ const AgregarDocumentoAnexo = ({auth}) => {
                 <Divider></Divider>
             </div>
             <div className='w-full mt-5'>
+                <h1>Documentos anexos</h1>
                 <Table  aria-label="Tabla documentos anexos" bottomContent={
                     <div className="flex w-full justify-center">
                     <Pagination
@@ -319,10 +322,10 @@ const AgregarDocumentoAnexo = ({auth}) => {
                     wrapper: "min-h-[222px]",
                 }}>
                     <TableHeader>
-                        <TableColumn>Numero de documento</TableColumn>
-                        <TableColumn>Tipo de documento</TableColumn>
-                        <TableColumn>Autor de documento</TableColumn>
-                        <TableColumn>Fecha de documento</TableColumn>
+                        <TableColumn>Número</TableColumn>
+                        <TableColumn>Tipo</TableColumn>
+                        <TableColumn>Autor</TableColumn>
+                        <TableColumn>Fecha</TableColumn>
                     </TableHeader>
                     <TableBody emptyContent={"Aún no hay documentos anexos"}>
                         {

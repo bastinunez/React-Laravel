@@ -15,7 +15,8 @@ export const useSidebarStore = create(
     persist(
         (set,get)=>({
             sidebar: true,
-            changeState: () => set((state) => ({ sidebar: !state.sidebar  }))
+            changeState: () => set((state) => ({ sidebar: !state.sidebar  })),
+            resetSidebar: () => set({ sidebar: true }),
         }),
         {
             name: 'sidebar-storage', // name of the item in the storage (must be unique)
@@ -24,27 +25,16 @@ export const useSidebarStore = create(
     )
 )
 
-export const useFormDocumentStore = create(
-    persist(
-        (set,get)=>({
-            form_document_state: true,
-            changeStateForm: () => set((state) => ({ form_document_state: !state.form_document_state  }))
-        }),
-        {
-            name: 'form_document_state-storage', // name of the item in the storage (must be unique)
-            storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
-        }
-    )
-)
 
-export const useIdDocumentStore = create(
+export const useActiveLinkStore = create(
     persist(
         (set,get)=>({
-            id_document: 0,
-            changeStateIdDoc: (id) => set({ id_document: id }),
+            activeLink: '',
+            changeStateActiveLink: (value) => set({ activeLink: value }),
+            resetActiveLink: () => set({ activeLink: '' }),
         }),
         {
-            name: 'id_document-storage', // name of the item in the storage (must be unique)
+            name: 'active-link', // name of the item in the storage (must be unique)
             storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
         }
     )   
@@ -54,7 +44,8 @@ export const useFormMiniDocumentStore = create(
     persist(
         (set,get)=>({
             form_mini_document_state: false,
-            changeStateMiniForm: () => set((state) => ({ form_mini_document_state: !state.form_mini_document_state  }))
+            changeStateMiniForm: () => set((state) => ({ form_mini_document_state: !state.form_mini_document_state  })),
+            resetMiniForm: () => set({ form_mini_document_state: false}),
         }),
         {
             name: 'form_mini_document-storage', // name of the item in the storage (must be unique)

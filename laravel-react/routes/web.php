@@ -10,8 +10,10 @@ use App\Http\Controllers\HistorialAccionFormularioController;
 use App\Http\Controllers\HistorialAccionUsuarioController;
 use App\Http\Controllers\HistorialDocumentosAnexosController;
 use App\Http\Controllers\HistorialDocumentosController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RolesController;
 use App\Models\Funcionario;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -98,9 +100,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('historial-accion-usuario', HistorialAccionUsuarioController::class)->names('historial-accion-usuario');
     Route::resource('historial-accion-formulario', HistorialAccionFormularioController::class)->names('historial-accion-formulario');
     
-  
-
-
+    
+    //ROLES Y PERMISOS
+    Route::patch('/roles/editar/permisos/agregar/{id}',[RolesController::class,'addPermissions'])->name('rol.addPermissions');
+    Route::patch('/roles/editar/permisos/quitar/{id}',[RolesController::class,'deletePermissions'])->name('rol.deletePermissions');
+    Route::resource('rol', RolesController::class)->names('rol');
+    Route::resource('permiso', PermissionController::class)->names('permiso');
 });
 
 //require __DIR__.'/auth.php';

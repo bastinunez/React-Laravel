@@ -12,4 +12,15 @@ class Rol extends Model
     protected $fillable = [
         'name'
     ];
+     // Relationship with permissions
+     public function permissions()
+     {
+         return $this->belongsToMany(Permission::class);
+     }
+ 
+     // Relationship with users
+     public function users()
+     {
+         return $this->hasMany(User::class);
+     }
 }

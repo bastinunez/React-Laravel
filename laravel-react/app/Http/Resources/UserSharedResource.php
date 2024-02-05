@@ -23,7 +23,7 @@ class UserSharedResource extends JsonResource
             'rut' => $this->rut,
             'estado' => $this->estadoRelacion->nombre,
             'roles' => $this->getRoleNames(),
-            'permissions' => $this->getPermissionsViaRoles()->pluck('name')
+            'permissions' => $this->getAllPermissions()->pluck('name'),
         ];
     }
 }
