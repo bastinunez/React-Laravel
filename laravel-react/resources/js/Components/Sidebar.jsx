@@ -3,17 +3,16 @@ import { Link } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 import {Divider,Accordion, AccordionItem} from "@nextui-org/react";
 import { usePermission } from '@/Composables/Permission';
-import { useSidebarStore } from '@/Store/useStore';
+import { useSidebarStore,useActiveLinkStore } from '@/Store/useStore';
 import {User} from "@nextui-org/react";
 import Icon from '@mdi/react';
-import { mdiFileMultiple, mdiFileDocument,mdiHistory,mdiAccountGroup} from '@mdi/js';
+import { mdiFileMultiple,mdiAccountCircleOutline, mdiFileDocument,mdiShieldAccountVariantOutline,mdiAccountSettingsOutline,mdiHistory,mdiWrenchCogOutline,mdiAccountGroup,mdiBadgeAccount,mdiOfficeBuildingOutline} from '@mdi/js';
 
 
 export const Sidebar = ({user}) => {
     //console.log(visible)
     const { sidebar,changeState} = useSidebarStore();
     const {hasRoles,hasPermission} = usePermission();
-
     return(
         <>
             <div className={`bg-slate-100 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
@@ -42,7 +41,7 @@ export const Sidebar = ({user}) => {
                     }{
                         hasPermission('Gestion-Ver documentos')? 
                         <>
-                        <NavLink href={route('gestion-documento.index')}
+                        <NavLink href={route('gestion-documento.index')} 
                         active={route().current('gestion-documento.index')} className="py-2 px-2 mb-3" >
                              <div className="me-3">
                                 <Icon path={mdiFileMultiple} size={1} />
@@ -54,8 +53,8 @@ export const Sidebar = ({user}) => {
                     {
                         hasPermission('Ver todos usuarios')? 
                         <>
-                        <NavLink href={route('usuario.gestion.index')}
-                        active={route().current('usuario.gestion.index')} className="py-2 px-2 mb-3" >
+                        <NavLink href={route('gestion-usuarios.index')}
+                        active={route().current('gestion-usuarios.index')} className="py-2 px-2 mb-3" >
                              <div className="me-3">
                                 <Icon path={mdiAccountGroup} size={1} />
                             </div>
@@ -63,18 +62,71 @@ export const Sidebar = ({user}) => {
                         </NavLink>
                         </>:<></>
                     }{
+                        hasPermission('Gestion-Funcionarios')? 
+                        <>
+                        <NavLink href={route('funcionario.index')}
+                        active={route().current('funcionario.index')} className="py-2 px-2 mb-3" >
+                             <div className="me-3">
+                                <Icon path={mdiBadgeAccount} size={1} />
+                            </div>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Gestion de funcionarios</span>
+                        </NavLink>
+                        </>:<></>
+                    }{
+                        hasPermission('Gestion-Direcciones')? 
+                        <>
+                        <NavLink href={route('direccion.index')}
+                        active={route().current('direccion.index')} className="py-2 px-2 mb-3" >
+                             <div className="me-3">
+                                <Icon path={mdiOfficeBuildingOutline} size={1} />
+                            </div>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Gestion de direcciones</span>
+                        </NavLink>
+                        </>:<></>
+                    }
+                    {
+                        hasPermission('Gestion-Roles')?
+                        <>
+                             <NavLink href={route('rol.index')}
+                            active={route().current('rol.index')} className="py-2 px-2 mb-3" >
+                                <div className="me-3">
+                                    <Icon path={mdiAccountSettingsOutline} size={1} />
+                                </div>
+                                <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Roles</span>
+                            </NavLink>
+                        </>
+                        :<></>
+                    }
+                    {
+                        hasPermission('Gestion-Permisos')?
+                        <>
+                            <NavLink href={route('permiso.index')}
+                            active={route().current('permiso.index')} className="py-2 px-2 mb-3" >
+                                <div className="me-3">
+                                    <Icon path={mdiShieldAccountVariantOutline} size={1} />
+                                </div>
+                                <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Permisos</span>
+                            </NavLink>
+                        </>
+                        :<></>
+                    }
+                    {
                         hasPermission('Ver perfil')? 
                         <>
                         <NavLink href={route('usuario.index',user.id)}
                         active={route().current('usuario.index')} className="py-2 px-2 mb-3" >
                              <div className="me-3">
-                                <Icon path={mdiFileMultiple} size={1} />
+                                <Icon path={mdiAccountCircleOutline} size={1} />
                             </div>
                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Perfil</span>
                         </NavLink>
                         </>:<></>
                     }
-                    <Accordion itemClasses={{title:"text-gray-500"}}
+                    {
+                        hasPermission('Ver historial documento') || hasPermission('Ver historial documento anexo') || 
+                        hasPermission('Ver historial accion usuario') || hasPermission('Ver historial accion formulario')?
+                        <>  
+                            <Accordion itemClasses={{title:"text-gray-500"}}
                     motionProps={{ variants: {
                             enter: {
                                 y: 0,
@@ -110,56 +162,60 @@ export const Sidebar = ({user}) => {
                             },
                             },
                         }}>
-                        <AccordionItem key="1" aria-label="Accordion 1" title="Historial" className="text-gray-500"
-                        startContent={<Icon path={mdiHistory} size={1} />} style={{ overflow: 'hidden', transition: 'width 0.3s'}}>
-                            {
-                                hasPermission('Ver historial documento')? 
-                                <>
-                                <NavLink href={route('documento.index')}
-                                active={route().current('documento.index')} className="py-2 px-2 mb-3">
-                                    <div className="me-2">
-                                    <Icon path={mdiHistory} size={1} />
-                                    </div>
-                                    <span className="text-medium">Documentos</span>
-                                </NavLink>
-                                </>:<></>
-                            }{
-                                hasPermission('Ver historial documento anexo')? 
-                                <>
-                                <NavLink href={route('documento.index')}
-                                active={route().current('documento.index')} className="py-2 px-2 mb-3">
-                                    <div className="me-2">
-                                    <Icon path={mdiHistory} size={1} />
-                                    </div>
-                                    <span className="text-medium">Documentos anexos</span>
-                                </NavLink>
-                                </>:<></>
-                            }{
-                                hasPermission('Ver historial acción usuario')? 
-                                <>
-                                <NavLink href={route('documento.index')}
-                                active={route().current('documento.index')} className="py-2 px-2 mb-3">
-                                    <div className="me-2">
-                                    <Icon path={mdiHistory} size={1} />
-                                    </div>
-                                    <span className="text-medium">Acción usuario</span>
-                                </NavLink>
-                                </>:<></>
-                            }
-                            {
-                                hasPermission('Ver historial accion formulario')? 
-                                <>
-                                <NavLink href={route('documento.index')}
-                                active={route().current('documento.index')} className="py-2 px-2 mb-3">
-                                    <div className="me-2">
-                                    <Icon path={mdiFileDocument} size={1} />
-                                    </div>
-                                    <span className="text-medium">Acción formulario</span>
-                                </NavLink>
-                                </>:<></>
-                            } 
-                        </AccordionItem>
-                    </Accordion>
+                            <AccordionItem key="1" aria-label="Accordion 1" title="Historial" className="text-gray-500"
+                                startContent={<Icon path={mdiHistory} size={1} />} style={{ overflow: 'hidden', transition: 'width 0.3s'}}>
+                                    {
+                                        hasPermission('Ver historial documento')? 
+                                        <>
+                                        <NavLink href={route('historial-documentos.index')}
+                                        active={route().current('historial-documentos.index')} className="py-2 px-2 mb-3">
+                                            <div className="me-2">
+                                            <Icon path={mdiHistory} size={1} />
+                                            </div>
+                                            <span className="text-medium">Documentos</span>
+                                        </NavLink>
+                                        </>:<></>
+                                    }{
+                                        // hasPermission('Ver historial documento anexo')? 
+                                        // <>
+                                        // <NavLink href={route('historial-documentos-anexos.index')}
+                                        // active={route().current('historial-documentos-anexos.index')} className="py-2 px-2 mb-3">
+                                        //     <div className="me-2">
+                                        //     <Icon path={mdiHistory} size={1} />
+                                        //     </div>
+                                        //     <span className="text-medium">Documentos anexos</span>
+                                        // </NavLink>
+                                        // </>:<></>
+                                    }{
+                                        hasPermission('Ver historial accion usuario')? 
+                                        <>
+                                        <NavLink href={route('historial-accion-usuario.index')}
+                                        active={route().current('historial-accion-usuario.index')} className="py-2 px-2 mb-3">
+                                            <div className="me-2">
+                                            <Icon path={mdiHistory} size={1} />
+                                            </div>
+                                            <span className="text-medium">Acción usuario</span>
+                                        </NavLink>
+                                        </>:<></>
+                                    }
+                                    {
+                                        hasPermission('Ver historial accion formulario')? 
+                                        <>
+                                        <NavLink href={route('historial-accion-formulario.index')}
+                                        active={route().current('historial-accion-formulario.index')} className="py-2 px-2 mb-3">
+                                            <div className="me-2">
+                                            <Icon path={mdiFileDocument} size={1} />
+                                            </div>
+                                            <span className="text-medium">Acción formulario</span>
+                                        </NavLink>
+                                        </>:<></>
+                                    } 
+                                </AccordionItem>
+                            </Accordion>
+                        </>
+                        :<></>
+                    }
+                    
                     
                 </nav>
             </div>

@@ -47,4 +47,15 @@ class Documento extends Model
     {
         return $this->hasMany(DocumentoAnexo::class,'documento_id');
     }
+
+    public function historialAccionDocumentoAnexoRelacion()
+    {
+        return $this->hasMany(HistorialDocumentoAnexo::class, 'fk_documento_id');
+    }
+
+    public function historialAccionDocumentoRelacion()
+    {
+        return $this->hasMany(HistorialDocumentoAnexo::class, 'fk_documento_id_anexo');
+    }
+
 }

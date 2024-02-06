@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,useRef } from 'react'
 import Authenticated from '@/Layouts/AuthenticatedLayout'
 import TitleTemplate from '@/Components/TitleTemplate'
 import ContentTemplate from '@/Components/ContentTemplate'
@@ -6,11 +6,25 @@ import { usePage,useForm } from '@inertiajs/react'
 import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError'
 import TextInput from '@/Components/TextInput'
+import { Toast } from 'primereact/toast';        
+import { usePermission } from '@/Composables/Permission';
 import { Dropdown, DropdownMenu, DropdownTrigger, DropdownItem, Button, Tooltip} from '@nextui-org/react'
 
 const Perfil = ({auth}) => {
+    //toast
+    const toast_global = useRef(null);
+    //mensaje formulario
+    const severity = { success:'success',error:'error'}
+    const summary = { success:'Exito',error:'Error'}
+    const showMsg = (msg,sev,sum) => {
+        toast_global.current.show({severity:sev, summary:sum, detail:msg, life: 3000});
+    }
+
     const [isDisabled,setIsDisabled] = useState(true);
     const [cambiarPwd,setCambiarPwd] = useState(false);
+
+    //PERMISOS
+    const {hasRole,hasPermission} = usePermission()
 
     const {flash} = usePage().props;
 
@@ -27,19 +41,19 @@ const Perfil = ({auth}) => {
         current_password:'',
         nueva_pwd:'',
     })
-    console.log(flash)
     const editarDatos = (e) => {
         e.preventDefault()
         postEdit(route('usuario.edit_data'),{
-            onSuccess: setIsDisabled(!isDisabled),
-            onError: resetEdit('nombres','apellidos')
+            onSuccess: ()=>setIsDisabled(!isDisabled),
+            onError: () => resetEdit('nombres','apellidos')
         })
         
     }
     const changePwd = (e) => {
         e.preventDefault()
         postPwd(route('usuario.update_pwd'),{
-            // onSuccess:setCambiarPwd(!cambiarPwd)
+            onSuccess: (msg)=> {showMsg(msg.update,severity.success,summary.success)},
+            onError: (msg) => {showMsg(msg.update,severity.error,summary.error)},
         })
         
     }
@@ -51,64 +65,73 @@ const Perfil = ({auth}) => {
             <TitleTemplate>
                 Mi Perfil
             </TitleTemplate>
+            <Toast ref={toast_global}></Toast>
             <ContentTemplate>
                 <div>
                     <form onSubmit={editarDatos}>
                         <div className='pt-5'>
-                            <div className='w-full flex justify-between mb-4'>
-                                <div className='w-full mx-8'>
+                            <div className='w-full xl:flex justify-between mb-4'>
+                                <div className='w-full mb-2 lg:mx-8'>
                                     <InputLabel value={"Nombres"}></InputLabel>
                                     <TextInput className="w-full" disabled={isDisabled} type={'text'} value={dataEdit.nombres} onChange={(e) => setDataEdit('nombres',e.target.value)} ></TextInput>
                                     <InputError message={errorsEdit.nombres} className="mt-2" />
                                 </div>
-                                <div className='w-full mx-8'>
+                                <div className='w-full mb-2 lg:mx-8'>
                                     <InputLabel value={"Apellidos"}></InputLabel>
                                     <TextInput className="w-full" disabled={isDisabled} type={'text'} value={dataEdit.apellidos} onChange={(e) => setDataEdit('apellidos',e.target.value)} ></TextInput>
                                     <InputError message={errorsEdit.apellidos} className="mt-2" />
                                 </div>
-                                <div className='w-full mx-8'>
+                                <div className='w-full mb-2 lg:mx-8'>
                                     <InputLabel value={"Correo"}></InputLabel>
                                     <TextInput className="w-full" disabled={true} type={'text'} value={dataEdit.correo} ></TextInput>
                                 </div>
                             </div>
-                            <div className='w-full justify-between flex'>
-                                <div className='w-full mx-8'>
+                            <div className='w-full justify-between xl:flex'>
+                                <div className='w-full mb-2 lg:mx-8'>
                                     <InputLabel value={"Rut"}></InputLabel>
                                     <TextInput className="w-full" disabled={true} type={'text'} value={dataEdit.rut} ></TextInput>
                                 </div>
-                                <div className='w-full mx-8'>
+                                <div className='w-full mb-2 lg:mx-8'>
                                     <InputLabel value={"Rol"}></InputLabel>
                                     <TextInput className="w-full" disabled={true} type={'text'} value={dataEdit.rol}  ></TextInput>
                                 </div>
-                                <div className='w-full mx-8'>
-                                    <InputLabel value={"Permisos"}></InputLabel>
-                                    <Dropdown  type='listbox'> 
-                                        <DropdownTrigger>
-                                            <Button variant="bordered">
-                                                Ver Permisos
-                                            </Button>
-                                        </DropdownTrigger>
-                                        <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions" onScroll={true}>
-                                            {
-                                                dataEdit.permisos.map((permiso,index) => (
-                                                    <DropdownItem key={index}>{permiso}</DropdownItem>
-                                                ))
-                                            }
-                                        </DropdownMenu>
-                                    </Dropdown>
-                                </div>
+                                {
+                                    hasRole('Administrador')?
+                                    <>
+                                        <div className='w-full mb-2 lg:mx-8'>
+                                            <InputLabel value={"Permisos"}></InputLabel>
+                                            <Dropdown  type='listbox'> 
+                                                <DropdownTrigger>
+                                                    <Button variant="bordered">
+                                                        Ver Permisos
+                                                    </Button>
+                                                </DropdownTrigger>
+                                                <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions" >
+                                                    {
+                                                        dataEdit.permisos.map((permiso,index) => (
+                                                            <DropdownItem key={index}>{permiso}</DropdownItem>
+                                                        ))
+                                                    }
+                                                </DropdownMenu>
+                                            </Dropdown>
+                                        </div>
+                                    </>
+                                    :
+                                    <></>
+                                }
+                                
                             </div>
                         </div>
-                        <div className='pt-5 flex w-full mx-auto justify-center mt-3 text-large'>
+                        <div className='pt-5 xl:flex w-full xl:mx-auto justify-center mt-3 text-large'>
                             {
                                 isDisabled?
                                 <>
-                                    <Button variant='ghost' color='primary' className='w-full mx-8' onClick={(e) => setIsDisabled(!isDisabled)}>Editar mis datos</Button>
+                                    <Button variant='ghost' color='primary' className='w-full xl:mx-8' onClick={(e) => setIsDisabled(!isDisabled)}>Editar mis datos</Button>
                                 </>
                                 :
                                 <>
-                                    <Button variant='ghost' color='warning' className='w-full mx-8' onClick={(e) => {resetEdit('nombres','apellidos');setIsDisabled(!isDisabled)}}>Cancelar</Button>
-                                    <Button variant='ghost' color='success' disabled={processingEdit} className='w-full mx-8' type='submit'>Guardar cambios</Button>
+                                    <Button variant='ghost' color='warning' className='w-full xl:mx-8' onClick={(e) => {resetEdit('nombres','apellidos');setIsDisabled(!isDisabled)}}>Cancelar</Button>
+                                    <Button variant='ghost' color='success' disabled={processingEdit} className='w-full xl:mx-8' type='submit'>Guardar cambios</Button>
                                 </>
                             }
                         </div>

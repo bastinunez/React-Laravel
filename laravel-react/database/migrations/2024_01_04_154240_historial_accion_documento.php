@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('historial_accion_documento',function (Blueprint $table){
             $table->foreignId('documento_id')->constrained('documento')->onUpdate('cascade');
             $table->foreignId('responsable')->constrained('usuario')->onUpdate('cascade');
-            $table->string('accion',50);
-            $table->timestamp('fecha_registro');
+            $table->foreignId('accion')->constrained('accion')->onUpdate('cascade');
+            $table->string('detalles',255)->nullable();
+            $table->timestamp('created_at');
         });
     }
 

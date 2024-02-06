@@ -11,11 +11,12 @@ import { Toast } from 'primereact/toast';
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import { Button, Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,
-        Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider} from '@nextui-org/react';
+        Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Checkbox} from '@nextui-org/react';
 import Icon from '@mdi/react';
 import { mdiDownloadOutline, mdiTrashCanOutline } from '@mdi/js';
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
-import { all } from 'axios'
+import { Transform } from '@/Composables/Base64toBlob'
+import { Head } from '@inertiajs/react';
 import { DescargarDocumento } from '@/Composables/DownloadPDF'
 locale('en');
 addLocale('es', {
@@ -49,7 +50,6 @@ const EditarDocumento = ({auth}) => {
     const [btnAgregarNuevo,setBtnAgregarNuevo] = useState(true)
     const [btnAgregarExistente,setBtnAgregarExistente] = useState(false)
 
-    
 
     //Documentos anexos
     const datos=documento.anexos.map( anexo => anexo.datos_anexo )
@@ -74,33 +74,23 @@ const EditarDocumento = ({auth}) => {
         setValuesAgregarAnexo(new Set(e.target.value.split(",")));
     };
 
-    //Todos documentos
-    const [allDocuments,setAllDocuments] = useState([])
-    const getAllDocs = async () => {
-        try {
-            const response = await axios.get(`/api/all-documents/${documento.id}`); // Cambia la ruta según tu configuración
-            //console.log('Documentos obtenidos:', response.data.documentos);
-            //setAllDocuments(response.data.documentos)
-            //setDocAnexos(response.data.datos)
-            // Aquí puedes actualizar tu estado o realizar otras acciones con los documentos obtenidos
-        } catch (error) {
-            console.error('Error al obtener documentos:', error);
-        }
-    }
 
     //formularios
     const matchAutor = autores.find(autor => documento.autor === (autor.nombres+" "+autor.apellidos))
     const matchDireccion = direcciones.find(direccion => documento.direccion === direccion.nombre)
-    const matchTipo = tipos.find(tipo => documento.tipo === tipo.nombre) 
-    const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset } = useForm({
+    const matchTipo = tipos.find(tipo => documento.tipo === tipo.nombre)
+
+    const { data:data, setData:setData, patch:patch, put, errors:errors, reset:reset,post:post  } = useForm({
         rut_documento: documento.rut ? documento.rut:'',
         numero_documento: documento.numero,
         materia_documento: documento.materia?documento.materia:'',
         autor_documento: matchAutor.id,
         direccion_documento: documento.direccion?matchDireccion.id:'',
-        archivo: documento.file? documento.file:'',
-        fecha_documento: documento.fecha,
+        archivo: documento.file? documento.file:"",
+        //archivo: "",
+        fecha_documento: new Date(`${documento.fecha}T00:00:00`),
         tipo_documento: matchTipo.id,
+        estado:documento.estado == "Habilitado" ? false:true
     });
     const { data:data_mini, setData:setData_mini, post:post_mini, processing:processing_mini, errors:errors_mini, reset:reset_mini } = useForm({
         numero_documento: '',
@@ -147,13 +137,18 @@ const EditarDocumento = ({auth}) => {
     //post
     const submit = async (e) => {
         e.preventDefault();
-        console.log(data)
-        // post(route('documento.store'),{
-        // onSuccess: () => {data_mini.id_doc=id_document;getDocuments(id_document);reset('materia_documento')}
+        post(route('gestion-documento.update-doc',String(documento.id)),{
+            onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
+            onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
+        });
+        // put(route('gestion-documento.update',String(documento.id)),{
+        //     onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
+        //     onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
         // });
     }
     const submitMiniForm = (e) => {
         e.preventDefault()
+        console.log(data_mini)
         post_mini(route('documento-anexo.store'),{
             onSuccess: (msg) => {
                 getDocuments(documento.id);
@@ -225,18 +220,19 @@ const EditarDocumento = ({auth}) => {
 
     return (
         <Authenticated user={auth.user}
-        header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Gestion de Documentos</h2>}>
+        header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Editar Documentos</h2>}>
+            <Head title="Editar Documento" />
             <div>
                 <TitleTemplate>Editar Documento</TitleTemplate>
                 <Toast ref={toast_global} />
                 <ContentTemplate>
-                    <div className='p-5'>
+                    <div className='md:p-5'>
                         {/* Seleccionar accion (Editar metadatos/editar doc. anexos) */}
-                        <div className='flex w-full gap-4'>
+                        <div className='md:flex w-full gap-4'>
                                 <div className='w-full'>
                                     <Button color='secondary' className='w-full text-medium' variant={btnMetadato?'solid':'ghost'} 
                                     onClick={() => { if(!btnMetadato){setBtnAnexos(!btnAnexos);setBtnMetadato(!btnMetadato)}}} >
-                                        Editar metadatos de documento
+                                        Editar metadatos Documento
                                     </Button>
                                 </div>
                                 <div className='w-full'>
@@ -256,60 +252,72 @@ const EditarDocumento = ({auth}) => {
                                 btnMetadato?
                                 // se muestra formulario de editar metadatos
                                 <>
-                                    <form className='p-8' onSubmit={submit} >
-                                        <div className='flex w-full justify-between mb-5'>
-                                            <div className="w-80">
+                                    <form className='md:p-8' onSubmit={submit} >
+                                        <div className='md:flex w-full justify-between mb-5 md:gap-3 '>
+                                            <div className="w-full">
                                                 <InputLabel value={"Selecciona tipo de documento"}></InputLabel>
                                                 <Select opciones={tipos} value={data.tipo_documento} onChange={(value) => {setData('tipo_documento', value)}} required>
                                                 </Select>
                                                 <InputError message={errors.tipo_documento} className="mt-2" />
                                             </div>
-                                            <div className="w-80">
+                                            <div className="w-full">
                                                 <InputLabel value={"Selecciona autor de documento"}></InputLabel>
                                                 <Select opciones={autores} value={data.autor_documento} onChange={(value) => setData('autor_documento', value)} required>
                                                 </Select>
                                                 <InputError message={errors.autor_documento} className="mt-2" />
                                             </div>
-                                            <div className="w-80">
+                                            <div className="w-full">
                                                 <InputLabel value={"Selecciona direccion de documento"}></InputLabel>
                                                 <Select opciones={direcciones} value={data.direccion_documento} onChange={(value) => setData('direccion_documento', value)} required>
                                                 </Select>
                                                 <InputError message={errors.direccion_documento} className="mt-2" />
                                             </div>
                                         </div>
-                                        <div className='w-full justify-between flex mb-5'>
-                                            <div className="">
+                                        <div className='w-full justify-between md:flex mb-5 md:gap-3'>
+                                            <div className="w-full">
                                                 <InputLabel value={"Ingresa rut"}></InputLabel>
-                                                <TextInput type={'text'} value={data.rut_documento} onChange={(e) => setData('rut_documento',e.target.value)} ></TextInput>
+                                                <TextInput type={'text'} className='w-full' value={data.rut_documento} onChange={(e) => setData('rut_documento',e.target.value)} ></TextInput>
                                                 <InputError message={errors.rut_documento} className="mt-2" />
                                             </div>
-                                            <div className="">
+                                            <div className="w-full">
                                                 <InputLabel value={"Ingresa numero de documento"}></InputLabel>
-                                                <TextInput type={'number'} value={data.numero_documento} onChange={(e) => setData('numero_documento',e.target.value)}required ></TextInput>
+                                                <TextInput type={'number'} className='w-full' disabled={true} value={data.numero_documento} onChange={(e) => setData('numero_documento',e.target.value)}required ></TextInput>
                                                 <InputError message={errors.numero_documento} className="mt-2" />
                                             </div>
-                                            <div className=''>
+                                            <div className='w-full'>
                                                 <InputLabel value={"Ingresa materia de documento"}></InputLabel>
-                                                <TextInput type={'text'} value={data.materia_documento} onChange={(e) => setData('materia_documento',e.target.value)} ></TextInput>
+                                                <TextInput type={'text'} className='w-full' value={data.materia_documento} onChange={(e) => setData('materia_documento',e.target.value)} ></TextInput>
                                                 <InputError message={errors.materia_documento} className="mt-2" />
                                             </div>
                                         </div>
-                                        <div className='w-full flex justify-between mb-8 pr-10'>
-                                            <div className="w-80">
+                                        <div className='w-full md:flex justify-between mb-8  md:gap-3'>
+                                            <div className="w-full">
                                                 <InputLabel value={"Ingresa fecha"}></InputLabel>
                                                 <div className="card flex justify-content-center">
                                                     <Calendar value={data.fecha_documento} locale="es"  required onChange={(e) => setData('fecha_documento',e.target.value)} readOnlyInput />
                                                 </div>
                                                 <InputError message={errors.fecha_documento} className="mt-2" />
                                             </div>
-                                            <div className="w-80">
+                                            <div className="w-full">
                                                 <InputLabel value={"Agregar archivo"}></InputLabel>
-                                                <input  onChange ={(e) => setData('archivo',e.target.files[0])} type='file' accept='.pdf' />
-                                                {/* <TextInput value={data.archivo} type={'file'} accept={'.pdf'} onChange={handleFileChange} required></TextInput> */}
+                                                <input  onChange ={(e) => setData('archivo',e.target.files[0])} id="inputArchivo"
+                                                    style={{ display: 'none' }}  type='file' accept='.pdf' />
+                                                 <label htmlFor="inputArchivo" style={{ cursor: 'pointer', padding: '', border: '1px solid #ccc' }}>
+                                                    {data.archivo ? `Archivo seleccionado ${documento.name_file}` : 'Seleccionar archivo PDF'}
+                                                </label>
+                                                {/* <input onChange ={(e) => setData('archivo',e.target.files[0])} className='text-tiny md:text-small'  */}
+                                                {/* type='file' accept='.pdf' formEncType="multipart/form-data"/> */}
                                                 <InputError message={errors.archivo} className="mt-2" />
                                             </div>
+                                            <div className='w-full'>
+                                                <InputLabel value={"Marque si el documento se encuentra anulado"}></InputLabel>
+                                                <Checkbox value={data.estado} onChange={(e) => setData('estado',e.target.checked)} isSelected={data.estado} color="danger">Anulado</Checkbox>
+                                            </div>
                                         </div>
-                                        <div className='w-full mb-5'>
+                                        <div className='w-full flex mb-5 gap-5'>
+                                            <Link href={route("gestion-documento.index")} className='w-full'>
+                                                <Button className='w-full text-large' color='warning' size='md' variant='ghost' >Volver atrás</Button>
+                                            </Link>
                                             <Tooltip content="Confirmar cambios y agregar" color='success'>
                                                 <Button onPress={onOpen} color='success' variant='ghost' className='w-full text-large' size='md'>Guardar cambios</Button>
                                             </Tooltip>
@@ -336,21 +344,6 @@ const EditarDocumento = ({auth}) => {
                                                 </ModalContent>
                                             </Modal>
                                         </div>
-                                        {
-                                            flash.FormDocumento?
-                                            <>
-                                            {
-                                                flash.FormDocumento=="Error"?
-                                                <>
-                                                <h1>Error con subir el formulario</h1>
-                                                </>
-                                                :
-                                                <></>
-                                            }
-                                            </>
-                                            :<></>
-                                        }
-                                        
                                     </form>
                                 </>
                                 :
@@ -359,7 +352,7 @@ const EditarDocumento = ({auth}) => {
                                     <div>
                                         {/* Seleccionar accion (Agregar nuevo documento/Agregar documento existentte) */}
                                         <div className='mt-5 w-full'>
-                                            <div className='flex w-full gap-4'>
+                                            <div className='md:flex w-full gap-4'>
                                                 <div className='w-full'>
                                                     <Button color='secondary' className='w-full text-medium' variant={btnAgregarNuevo?'solid':'ghost'} 
                                                     onClick={() => { if(!btnAgregarNuevo){setBtnAgregarExistente(!btnAgregarExistente);setBtnAgregarNuevo(!btnAgregarNuevo)}}} >
@@ -389,7 +382,7 @@ const EditarDocumento = ({auth}) => {
                                             {/* formulario para agregar nuevo documento anexo*/}
                                             <div className='mt-5'>
                                                 <form onSubmit={submitMiniForm}>
-                                                    <div className='flex w-full justify-between mb-5'>
+                                                    <div className='md:flex w-full justify-between mb-5 gap-3'>
                                                         <div className="w-80">
                                                             <InputLabel value={"Selecciona tipo de documento"}></InputLabel>
                                                             <Select opciones={tipos} value={data_mini.tipo_documento} onChange={(value) => setData_mini('tipo_documento', value)} required>
@@ -426,7 +419,7 @@ const EditarDocumento = ({auth}) => {
                                         <>
                                         {/* seleccionable para agregar documento anexo existente */}
                                             <div className='mt-5 '>
-                                                <form onSubmit={submitAgregarAnexo} className='w-full gap-5 flex'>
+                                                <form onSubmit={submitAgregarAnexo} className='w-full gap-5 md:flex'>
                                                     <div className='w-full'>
                                                         <NextSelect label="Documentos para anexar: "
                                                         selectionMode="multiple" placeholder="Seleccionar documentos..."
@@ -448,8 +441,11 @@ const EditarDocumento = ({auth}) => {
                                                             
                                                         </NextSelect>
                                                     </div>
-                                                    <div className='flex items-center'>
-                                                        <Button type='text' size='lg' color='primary' variant='ghost'>Anexar documentos</Button>
+                                                    <div className='flex items-center '>
+                                                        <Button type='text' className="w-full me-2" color='primary' variant='ghost'>Anexar documentos</Button>
+                                                        <Link href={route("gestion-documento.index")} className='w-full'>
+                                                            <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                                                        </Link>
                                                     </div>
                                                 </form>
                                             </div>
@@ -465,9 +461,11 @@ const EditarDocumento = ({auth}) => {
                                                 </div>
                                                 <div className='gap-4 flex'>
                                                     <Button color='danger' variant='solid' onPress={quitarDocAnexoSeleccion} 
-                                                    startContent={<Icon path={mdiTrashCanOutline} size={1} />}>Quitar seleccionados</Button>
+                                                    startContent={<Icon path={mdiTrashCanOutline} size={1} />}>
+                                                        <p className='md:flex hidden'>Quitar seleccionados</p> </Button>
                                                     <Button color='primary' variant='solid' onPress={descargarDocAnexoSeleccion}
-                                                    startContent={<Icon path={mdiDownloadOutline} size={1} />}>Descargar seleccionados</Button>
+                                                    startContent={<Icon path={mdiDownloadOutline} size={1} />}>
+                                                        <p className='md:flex hidden'>Descargar seleccionados</p></Button>
                                                 </div>
                                             </div>
                                             <div className=''>
@@ -521,50 +519,7 @@ const EditarDocumento = ({auth}) => {
                 </ContentTemplate>
                 {/* MODAL DESCARGA */}
                 <div>
-                <Modal isOpen={isOpen} placement={modalPlacement} onOpenChange={onOpenChange} size="xl" >
-                    <ModalContent>
-                    {(onClose) => (
-                        <>
-                        <ModalHeader className="flex flex-col gap-1">Documentos sin archivo</ModalHeader>
-                        <ModalBody>
-                            <div>
-                            <p>Los siguientes documentos no poseen archivos</p>
-                            </div>
-                            <div>
-                            <Table aria-label="Tabla documentos anexos" color={"primary"}
-                            bottomContent={ <div className="flex w-full justify-center">
-                                                <Pagination isCompact showControls showShadow color="secondary" page={page}
-                                                total={pages} onChange={(page) => setPage(page)} />
-                                            </div> }>
-                                <TableHeader>
-                                    <TableColumn>Numero de documento</TableColumn>
-                                    <TableColumn>Tipo de documento</TableColumn>
-                                    <TableColumn>Nombre archivo</TableColumn>
-                                </TableHeader>
-                                <TableBody emptyContent={"No existen documentos"}>
-                                {
-                                    sinArchivos.map((documento)=>(
-                                    <TableRow key={documento.numero} className='text-start'>
-                                        <TableCell>{documento.numero}</TableCell>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.tipo}</TableCell>
-                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.file}</TableCell>
-                                        
-                                    </TableRow>
-                                    ))
-                                }
-                                </TableBody>
-                            </Table>
-                            </div>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button color="danger" variant="light" onPress={onClose}>
-                            Cerrar
-                            </Button>
-                        </ModalFooter>
-                        </>
-                    )}
-                    </ModalContent>
-                </Modal>
+                
                 </div>
             </div>
         </Authenticated>

@@ -25,7 +25,7 @@ class UsuarioSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'rut' => '23.456.789-0',
                 'rol' => 2,
-                'estado' => true,
+                'estado' => 2,
                 'change_pwd' => false
             ],
             [
@@ -36,7 +36,7 @@ class UsuarioSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'rut' => '34.567.890-1',
                 'rol' => 3,
-                'estado' => true,
+                'estado' => 1,
                 'change_pwd' => false
             ],
             [
@@ -47,7 +47,7 @@ class UsuarioSeeder extends Seeder
                 'password' => Hash::make('miclave123'),
                 'rut' => '45.678.901-2',
                 'rol' => 1,
-                'estado' => true,
+                'estado' => 1,
                 'change_pwd' => false
             ],
             // Rol: 1, Estado: true, Change_pwd: false
@@ -59,7 +59,7 @@ class UsuarioSeeder extends Seeder
                 'password' => Hash::make('clave123'),
                 'rut' => '56.789.012-3',
                 'rol' => 1,
-                'estado' => true,
+                'estado' => 1,
                 'change_pwd' => false
             ],
             [
@@ -70,7 +70,7 @@ class UsuarioSeeder extends Seeder
                 'password' => Hash::make('contraseña456'),
                 'rut' => '67.890.123-4',
                 'rol' => 1,
-                'estado' => true,
+                'estado' => 1,
                 'change_pwd' => false
             ],
             [
@@ -81,7 +81,7 @@ class UsuarioSeeder extends Seeder
                 'password' => Hash::make('mipassword'),
                 'rut' => '78.901.234-5',
                 'rol' => 1,
-                'estado' => true,
+                'estado' => 1,
                 'change_pwd' => false
             ],
             //Rol: 2, Estado: true, Change_pwd: false
@@ -93,7 +93,7 @@ class UsuarioSeeder extends Seeder
                 'password' => Hash::make('otraclave'),
                 'rut' => '89.012.345-6',
                 'rol' => 2,
-                'estado' => true,
+                'estado' => 1,
                 'change_pwd' => false
             ],
             [
@@ -104,7 +104,7 @@ class UsuarioSeeder extends Seeder
                 'password' => Hash::make('password123'),
                 'rut' => '90.123.456-7',
                 'rol' => 2,
-                'estado' => true,
+                'estado' => 1,
                 'change_pwd' => false
             ],
             [
@@ -115,7 +115,7 @@ class UsuarioSeeder extends Seeder
                 'password' => Hash::make('nuevaclave'),
                 'rut' => '01.234.567-8',
                 'rol' => 2,
-                'estado' => true,
+                'estado' => 1,
                 'change_pwd' => false
             ],
             //Rol: 3, Estado: true, Change_pwd: false
@@ -127,7 +127,7 @@ class UsuarioSeeder extends Seeder
                 'password' => Hash::make('miclave'),
                 'rut' => '12.345.678-9',
                 'rol' => 3,
-                'estado' => true,
+                'estado' => 1,
                 'change_pwd' => false
             ],
             [
@@ -138,7 +138,7 @@ class UsuarioSeeder extends Seeder
                 'password' => Hash::make('contraseña567'),
                 'rut' => '23.456.789-5',
                 'rol' => 3,
-                'estado' => true,
+                'estado' => 1,
                 'change_pwd' => false
             ],
             [
@@ -149,7 +149,7 @@ class UsuarioSeeder extends Seeder
                 'password' => Hash::make('miclave123'),
                 'rut' => '34.567.890-4',
                 'rol' => 3,
-                'estado' => true,
+                'estado' => 1,
                 'change_pwd' => false
             ],
         ];
@@ -162,7 +162,7 @@ class UsuarioSeeder extends Seeder
             'password' => Hash::make('admin1'),
             'rut' => '22.222.222-2',
             'rol' => 3,
-            'estado' => true,
+            'estado' => 1,
             'change_pwd' => false
         ])->assignRole("Administrador");
 
@@ -176,7 +176,7 @@ class UsuarioSeeder extends Seeder
             'password' => Hash::make('usuario1'),
             'rut' => '33.333.333-3',
             'rol' => 1,
-            'estado' => true,
+            'estado' => 1,
             'change_pwd' => false
         ])->assignRole("Usuario");
 

@@ -2,7 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\DocumentoResource;
+use App\Http\Resources\HistorialDocumentosResource;
+use App\Models\Accion;
+use App\Models\Documento;
+use App\Models\Direccion;
+use App\Models\Funcionario;
+use App\Models\TipoDocumento;
+use App\Models\Estado;
+use App\Models\HistorialDocumento;
+use App\Models\Rol;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class HistorialDocumentosController extends Controller
@@ -12,7 +24,24 @@ class HistorialDocumentosController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Historial/Documentos');
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Ver historial documento')){
+            // $roles = Rol::whereIn('name', ['digitador', 'administrador'])->get();
+            // $user=Auth::user();
+            // Obtener usuarios con roles específicos
+            //$responsables = User::role($roles)->get();
+            //dd($responsables);
+            return Inertia::render('Historial/Documentos',[
+                'historial'=>HistorialDocumentosResource::collection(HistorialDocumento::all()),
+                'autores'=>Funcionario::all(),
+                'acciones'=>Accion::all(),
+                //'responsables'=>$responsables,
+                'tipos'=>TipoDocumento::all(),
+            ]);
+        }else{
+            return back();
+        }
+        
     }
 
     /**

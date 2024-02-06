@@ -14,13 +14,9 @@ class FuncionarioSeeder extends Seeder
     public function run(): void
     {
         DB::table('funcionario')->insert([
-            ['nombres' => 'Pedrito Pedrito',
-            'apellidos' => 'Perez Perez',
-            'abreviacion' => 'PPPP'
-            ],
-            ['nombres' => 'Fulanito Fulanito',
-            'apellidos' => 'Muñoz Muñoz',
-            'abreviacion' => 'FFMM'
+            ['nombres' => 'Sin Autor',
+            'apellidos' => 'Sin Autor',
+            'abreviacion' => 'NNNN'
             ]
         ]);
     }

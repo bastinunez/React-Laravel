@@ -9,13 +9,14 @@ use App\Models\DocumentoAnexo;
 use App\Models\Documento;
 use App\Models\Funcionario;
 use App\Models\TipoDocumento;
+use App\Models\Estado;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Arr;
 use DateTime;
-
+use Illuminate\Support\Facades\Auth;
 
 class DocumentoController extends Controller
 {
@@ -24,24 +25,47 @@ class DocumentoController extends Controller
      */
     public function index()
     {
-        //dd(DocumentoResource::collection(Documento::all()));
-        return Inertia::render('Documentos/ShowDocuments',[
-            'documentos'=>DocumentoResource::collection(Documento::all())
-        ]);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Ver todos documentos')){
+            return Inertia::render('Documentos/ShowDocuments',[
+                'all_documents'=>DocumentoResource::collection(Documento::all()),
+                'direcciones'=>Direccion::all(),
+                'autores'=>Funcionario::all(),
+                'tipos'=>TipoDocumento::all(),
+                'estados'=>Estado::all(),
+            ]);
+        }else{
+            return back();
+        }
+        
     }
 
 
     public function visualizar(String $id){
-        $documento=(Documento::find((int)$id)); 
-        return Inertia::render('Documentos/VisualizadorDocumento',[
-            "documento"=>$documento,
-            'direcciones'=>Direccion::all(),
-            'autores'=>Funcionario::all(),
-            'tipos'=>TipoDocumento::all()
-        ]);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Visualizar documento')){
+            $documento=(Documento::find((int)$id)); 
+            if ($documento && is_null($documento->file)) {
+                return Inertia::render('Documentos/NoFileView');
+            }
+            return Inertia::render('Documentos/VisualizadorDocumento',[
+                "documento"=>$documento,
+                'direcciones'=>Direccion::all(),
+                'autores'=>Funcionario::all(),
+                'tipos'=>TipoDocumento::all()
+            ]);
+        }else{
+            return back();
+        }
     }
     
-    public function get_all($id){
+    public function get_all(){
+        // Obtener los IDs de los documentos anexos relacionados con el documento dado
+        $documentos=DocumentoResource::collection(Documento::all());
+        return response()->json(["documentos"=>$documentos]);
+    }
+
+    public function get_all_less_one($id){
         // Obtener los IDs de los documentos anexos relacionados con el documento dado
         $documentosAnexosIds = DocumentoAnexo::where('documento_id', $id)
         ->pluck('documento_id_anexo')
@@ -61,23 +85,6 @@ class DocumentoController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Documentos/AgregarDocumento',[
-            'direcciones'=>Direccion::all(),
-            'autores'=>Funcionario::all(),
-            'tipos'=>TipoDocumento::all()
-        ]);
-    }
-    public function anular()
-    {
-        return Inertia::render('Documentos/AgregarDocumento');
-    }
-    public function habilitar()
-    {
-        return Inertia::render('Documentos/AgregarDocumento');
-    }
-    public function descargar()
-    {
-        return Inertia::render('Documentos/AgregarDocumento');
     }
 
     /**
@@ -89,12 +96,6 @@ class DocumentoController extends Controller
 
         $input['fecha_documento'] = new DateTime($input['fecha_documento']);
         $input['fecha_documento'] = $input['fecha_documento']->format('Y-m-d');
-        //dd($input['archivo']);
-
-        // $archivo = $request->file('archivo');
-        // $mime_type = $archivo->getClientMimeType();
-        // dd($mime_type);
-        // dd($request->file('archivo'));
 
         Validator::make($input,[
             'tipo_documento'=> ['required','numeric'],
@@ -226,9 +227,21 @@ class DocumentoController extends Controller
      */
     public function show(string $id)
     {
-        return Inertia::render('Documentos/GestionDocumentos',[
-            'documentos'=>DocumentoResource::collection(Documento::all())
-        ]);
+        $current_user=Auth::user();
+        if ($current_user->hasPermissionTo('Visualizar documento')){
+            $documento=(Documento::find((int)$id)); 
+            if ($documento && is_null($documento->file)) {
+                return Inertia::render('Documentos/NoFileView');
+            }
+            return Inertia::render('Documentos/VisualizadorDocumento',[
+                "documento"=>$documento,
+                'direcciones'=>Direccion::all(),
+                'autores'=>Funcionario::all(),
+                'tipos'=>TipoDocumento::all()
+            ]);
+        }else{
+            return back();
+        }
     }
 
     /**
@@ -244,7 +257,7 @@ class DocumentoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        
     }
 
     /**

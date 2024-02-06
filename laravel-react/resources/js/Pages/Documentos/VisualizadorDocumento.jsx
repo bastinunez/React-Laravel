@@ -1,13 +1,19 @@
 import React, { useState } from 'react'
 import Authenticated from '@/Layouts/AuthenticatedLayout'
 import { usePage ,Link} from '@inertiajs/react';
-import { Viewer,Worker,CharacterMap,ProgressBar, ZoomEvent } from '@react-pdf-viewer/core';
-import { getFilePlugin } from '@react-pdf-viewer/get-file';
+import { Viewer,Worker,LoadError,ProgressBar } from '@react-pdf-viewer/core';
+import { zoomPlugin,RenderCurrentScaleProps, RenderZoomInProps, RenderZoomOutProps,} from '@react-pdf-viewer/zoom';
+import {Head} from '@inertiajs/react';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import TitleTemplate from '@/Components/TitleTemplate';
 import ContentTemplate from '@/Components/ContentTemplate';
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Pagination,
   Table, TableHeader, TableBody, TableColumn, TableRow, TableCell} from '@nextui-org/react';
+import { Transform } from '@/Composables/Base64toBlob';
+// Import styles
+import '@react-pdf-viewer/zoom/lib/styles/index.css';
+import Icon from '@mdi/react';
+import { mdiTrayArrowDown,mdiMagnifyPlusOutline,mdiMagnifyMinusOutline } from '@mdi/js';
 
 
 const VisualizadorDocumento = ({auth}) => {
@@ -29,30 +35,10 @@ const VisualizadorDocumento = ({auth}) => {
   }
 
   //aqui transformo el archivo base64 para mostrarl
-  const base64toBlob = (data) => {
-    // Cut the prefix `data:application/pdf;base64` from the raw base 64
-    const base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
-
-    const bytes = atob(base64WithoutPrefix);
-    let length = bytes.length;
-    let out = new Uint8Array(length);
-
-    while (length--) {
-        out[length] = bytes.charCodeAt(length);
-    }
-
-    return new Blob([out], { type: 'application/pdf' });
-  };
-  const blob = base64toBlob(documento.file);
-  const url = URL.createObjectURL(blob);
-
-  const getFilePluginInstance = getFilePlugin();
-  const { DownloadButton } = getFilePluginInstance;
-
-  //necesario para poder descargar el archivo
-  const link=`data:${documento.mime_file};base64,${documento.file}`
-  const filename = documento.name_file+".pdf"
-
+  const zoomPluginInstance = zoomPlugin();
+  const { CurrentScale, ZoomIn, ZoomOut } = zoomPluginInstance;
+  const {url,link,filename} = Transform(documento.file,documento.mime_file,documento.name_file)
+  
   //tabla
   const [page, setPage] = React.useState(1);
   const rowsPerPage = 6;
@@ -64,13 +50,54 @@ const VisualizadorDocumento = ({auth}) => {
     return docAnexos.slice(start, end);
   }, [page, docAnexos]);
 
+
+  const renderError = (error) => {
+    let message = '';
+    switch (error.name) {
+        case 'InvalidPDFException':
+            message = 'El documento es inválido o corrompido';
+            break;
+        case 'MissingPDFException':
+            message = 'No se encuentra el documento';
+            break;
+        case 'UnexpectedResponseException':
+            message = 'Error inesperado del servidor';
+            break;
+        default:
+            message = 'No se puede cargar el documento';
+            break;
+    }
+    return (
+      <div
+          style={{
+              alignItems: 'center',
+              border: '1px solid rgba(0, 0, 0, 0.3)',
+              display: 'flex',
+              height: '100%',
+              justifyContent: 'center',
+          }}
+      >
+          <div
+              style={{
+                  backgroundColor: '#e53e3e',
+                  borderRadius: '0.25rem',
+                  color: '#fff',
+                  padding: '0.5rem',
+              }}
+          >
+              {message}
+          </div>
+      </div>
+    );
+  }
   return (
     <Authenticated user={auth.user}
     header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Visualizador</h2>}>
+      <Head title="Visualizar" />
       <TitleTemplate>
-        <div className='w-full flex justify-between'>
+        <div className='w-full lg:flex justify-between'>
           <div>
-              VisualizadorDocumento
+              Visualizador Documento
           </div>
           <div className='align-items-center flex'>
             <Button color='primary' variant='ghost' onPress={onOpen}>Ver documentos anexos</Button>
@@ -121,21 +148,67 @@ const VisualizadorDocumento = ({auth}) => {
         </ModalContent>
       </Modal>
       <ContentTemplate>
-        <div className='px-40'>
+        <div className=''>
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
-          <div className="rpv-core__viewer"
-              style={{  border: '1px solid rgba(0, 0, 0, 0.3)', display: 'flex',
-                  flexDirection: 'column', height: '100%', }} >
-              <div style={{ alignItems: 'center', backgroundColor: '#eeeeee', borderBottom: '1px solid rgba(0, 0, 0, 0.3)',
+          <div className="rpv-core__viewer" style={{  border: '1px solid rgba(0, 0, 0, 0.3)', display: 'flex', flexDirection: 'column', height: '100%', }} >
+              <div className='justify-between' style={{ alignItems: 'center', backgroundColor: '#eeeeee', borderBottom: '1px solid rgba(0, 0, 0, 0.3)',
                       display: 'flex', padding: '4px', }} >
-                  <a download={filename} href={link} className='bg-primary-500 p-1 text-medium text-white '>Descarga aqui</a>
+                  
+                  <a download={filename} href={link} className=''>
+                    <Button startContent={<Icon path={mdiTrayArrowDown} size={1} />}>
+                        <p className='md:flex hidden'>
+                          Descarga aqui
+                        </p>
+                    </Button>
+                  </a>
+                  <div className='flex items-center'>
+                    <ZoomOut>
+                      {(props) => (
+                          <Button startContent={<Icon path={mdiMagnifyMinusOutline} size={1} />}
+                              style={{
+                                  backgroundColor: '#357edd',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  color: '#ffffff',
+                                  cursor: 'pointer',
+                                  padding: '8px',
+                              }}
+                              onClick={props.onClick}
+                          >
+                          </Button>
+                      )}
+                    </ZoomOut>
+                    <div style={{ padding: '0px 2px' }}>
+                      <CurrentScale>
+                        {(props) => <>{`${Math.round(props.scale * 100)}%`}</>}
+                      </CurrentScale>
+                    </div>
+                    <ZoomIn>
+                      {(props) => (
+                          <Button  startContent={<Icon path={mdiMagnifyPlusOutline} size={1} />}
+                              style={{
+                                  backgroundColor: '#357edd',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  color: '#ffffff',
+                                  cursor: 'pointer',
+                                  padding: '8px',
+                              }}
+                              onClick={props.onClick}
+                          >
+                          </Button>
+                      )}
+                    </ZoomIn>
+                  </div>
+                  
               </div>
               <div style={{ flex: 1, overflow: 'hidden', }} >
-                <Viewer fileUrl={url} theme={{theme:'auto'}} renderLoader={(percentages) => (
+                <Viewer fileUrl={url} theme={{theme:'auto'}} plugins={[zoomPluginInstance]} defaultScale={0.8} 
+                renderError={renderError} renderLoader={(percentages) => (
                   <div style={{ width: '240px' }}>
                       <ProgressBar progress={Math.round(percentages)} />
                   </div>
-                )} plugins={[getFilePluginInstance]}/>
+                )} />
               </div>
           </div>
             

@@ -37,7 +37,9 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'flash' => [
+                "message"  => fn () => $request->session()->get('message'),
                 'IdDoc' => fn () => $request->session()->get('IdDoc'),
+                'documentos' => fn () => $request->session()->get('documentos'),
                 'FormDocumento' => fn () => $request->session()->get('FormDocumento'),
                 'FormDocMini' => fn () => $request->session()->get('FormDocMini'),
                 'success_form_edit' => fn () => $request->session()->get('success_form_edit'),
@@ -49,7 +51,7 @@ class HandleInertiaRequests extends Middleware
                 ];
             },
             "auth.user.roles" => fn() => $request->user() ? $request->user()->getRoleNames() : null,
-            "auth.user.permisos" => fn() => $request->user() ? $request->user()->getPermissionsViaRoles()->pluck('name'):null
+            "auth.user.permisos" => fn() => $request->user() ? $request->user()->getAllPermissions()->pluck('name'):null
         ];
     }
 }

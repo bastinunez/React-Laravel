@@ -1,33 +1,60 @@
-import React, { useState, useEffect, createElement, useMemo, useCallback} from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback} from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import TitleTemplate from '@/Components/TitleTemplate';
 import FilterTemplate from '@/Components/FilterTemplate';
 import ContentTemplate from '@/Components/ContentTemplate';
-import AppTable from '@/Components/Table';
-import { usePage ,Link} from '@inertiajs/react';
-import NavLink from '@/Components/NavLink';
+import { usePage ,Link, useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
-  RadioGroup, Radio,Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
+  Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
   Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip,}  from "@nextui-org/react";
 import Icon from '@mdi/react';
-import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline} from '@mdi/js';
+import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline,mdiVacuumOutline} from '@mdi/js';
 import { Calendar } from 'primereact/calendar';
 import Select from '@/Components/Select';
-import JSZip from "jszip";
-import { saveAs } from "save-as";
+import { Head } from '@inertiajs/react';
+import { Toast } from 'primereact/toast';  
 import { DescargarDocumento } from '@/Composables/DownloadPDF';
-// import { saveAs } from 'file-saver';
+
 
 const GestionDocumentos = ({auth}) => {
+  //toast
+  const toast_global = useRef(null);
+  //mensaje formulario
+  const severity = { success:'success',error:'error'}
+  const summary = { success:'Exito',error:'Error'}
+  const showMsg = (msg,sev,sum) => {
+      toast_global.current.show({severity:sev, summary:sum, detail:msg, life: 3000});
+  }
+
   //PERMISOS
   const {hasRoles,hasPermission} = usePermission()
+
   //VARIABLES QUE ENTREGA EL CONTROLADOR
-  const { documentos,direcciones, tipos,autores,estados } = usePage().props;
+  const { all_documents,direcciones, tipos,autores,estados } = usePage().props;
+  const [documentos,setDocumentos] = useState(all_documents)
+  const getDocumentos = async () => {
+    try {
+      const response = await axios.get(`/api/all-documents`); // Cambia la ruta según tu configuración
+      //console.log('Documentos obtenidos:', response.data);
+      setDocumentos(response.data.documentos)
+      // Aquí puedes actualizar tu estado o realizar otras acciones con los documentos obtenidos
+    } catch (error) {
+      console.error('Error al obtener documentos:', error);
+    }
+  }
+
   //MODAL
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const [modalPlacement, setModalPlacement] = useState("auto");
   const [sinArchivos,setSinArchivos] = useState([])
+
+  //formulario
+  const { data:dataEstado, setData:setDataEstado, post:postEstado, processing:processingEstado, 
+    errors:errorsEstado, reset:resetEstado, patch: patchEstado} = useForm({
+    id_docs:[],
+    opcion:''
+  });
 
   //TABLA Y FILTROS
   //Filtros
@@ -49,7 +76,6 @@ const GestionDocumentos = ({auth}) => {
   });
 
   //Tabla
-
   const filteredItems = useMemo(() => {
     let filteredDocumentos = [...documentos];
     if (hasSearchFilterNumero) {
@@ -97,19 +123,18 @@ const GestionDocumentos = ({auth}) => {
     }
     if (autorFilter !== "all" && Array.from(autorFilter).length !== autores.length) {
       let arrayAutor =  new Set([...autorFilter].map(numero => {
-          const matchingItem = autores.find(item => item.id === parseInt(numero));
-          return matchingItem ? matchingItem.nombres : null;
-        }).filter(nombres => nombres !== null));
-      
-      filteredDocumentos = filteredDocumentos.filter((documento) =>
-        Array.from(arrayAutor).includes(documento.direccion),
+        const matchingItem = autores.find(item => item.id === parseInt(numero));
+        return matchingItem ? [matchingItem.nombres + " " + matchingItem.apellidos]: null;
+      }).filter(nombres => nombres !== null));
+      filteredDocumentos = filteredDocumentos.filter((fila) =>
+        Array.from(arrayAutor).some(item=>JSON.stringify(item) === JSON.stringify([fila.autor]))
       );
     }
     return filteredDocumentos;
   }, [documentos, estadoFilter,filterNumero, filterMateria,filterRut,tipoFilter,direccionFilter,autorFilter,filterFecha]);
 
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
   const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -167,6 +192,17 @@ const GestionDocumentos = ({auth}) => {
     console.log("se limpia rut")
     setPage(1)
   },[])
+
+  const limpiarFiltros = () =>{
+    setFilterRut('')
+    setFilterFecha('')
+    setFilterMateria('')
+    setFilterNumero('')
+    setTipoFilter("all")
+    setAutorFilter("all")
+    setDireccionFilter('all')
+    setEstadoFilter('all')
+  }
    
 
   const columnas = [
@@ -183,199 +219,236 @@ const GestionDocumentos = ({auth}) => {
     {name: "Archivo", uid: "name_file", sortable: true},
     {name: "Acciones", uid: "actions"},
   ];
-  
-  const download = (documento) => {
-    const link=`data:${documento.mime_file};base64,${documento.file}`
-    const filename = documento.name_file+".pdf"
-    const downloadlink = createElement("a",{href:link,download:filename,click:true})
-    
-    //QUEDE AQUI FALTA VER COMO DESCARGAR DOCUMENTO CON EL BOTON 
-  }
-
-  const base64toBlob = (data) => {
-    // Cut the prefix `data:application/pdf;base64` from the raw base 64
-    const base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
-
-    const bytes = atob(base64WithoutPrefix);
-    let length = bytes.length;
-    let out = new Uint8Array(length);
-
-    while (length--) {
-        out[length] = bytes.charCodeAt(length);
-    }
-
-    return new Blob([out], { type: 'application/pdf' });
-  };
 
   const descargarSeleccionados = () => {
-    const respSinArchivos = DescargarDocumento(seleccion,documentos);
-    if (respSinArchivos.length!==0){
-      setSinArchivos(respSinArchivos)
-      onOpen()
+    if (seleccion.length!=0){
+      const respSinArchivos = DescargarDocumento(seleccion,documentos);
+      if (respSinArchivos.length!==0){
+        setSinArchivos(respSinArchivos)
+        onOpen()
+      }
+    }else{
+      showMsg("No seleccionaste datos",severity.error,summary.error)
     }
   }
   
-  const anularSeleccionados = () => {
-    console.log("Falta anular seleccionados, se debe comprobar los que si realmente estan habilitador")
-    let datos=[]
-    if (seleccion=="all"){
-      datos = documentos;
+  //UPDATE ESTADOS
+  const anularSeleccionados = (e) => {
+    if (seleccion.length!=0){
+      let datos=[]
+      if (seleccion=="all"){
+        datos = documentos.filter(item=>{item.estado === estados[0].nombre;return item.id})
+        datos = datos.map(doc=>doc.id)
+        dataEstado.opcion=2 //opcion de anular
+      }else{
+        const arraySeleccion = Array.from(seleccion)
+        datos = arraySeleccion.map( doc_id => {
+          const match = documentos.find( item => item.id == Number(doc_id) && item.estado === estados[0].nombre); //filtro que debe estar habilitado para cambiar el estado
+          return match?match.id:undefined
+        }).filter(id => id !== undefined);
+        dataEstado.opcion=2 //opcion de anular
+      }
+      dataEstado.id_docs=datos
+      patchEstado(route('gestion-documento.update-collection',0),{
+        onSuccess:(msg)=>{getDocumentos();showMsg("Exito",severity.success,summary.success)},
+        onError:()=>{showMsg("Falló",severity.error,summary.error)}
+      })
     }else{
-      const arraySeleccion = Array.from(seleccion)
+      showMsg("No seleccionaste datos",severity.error,summary.error)
     }
+    
   }
   //no se si esto se necesario
-  const habilitarSeleccionados = () => {
-    console.log("Falta habilitar seleccionados")
-    let datos=[]
-    if (seleccion=="all"){
-      datos = documentos;
+  const habilitarSeleccionados = (e) => {
+    if (seleccion.length!=0){
+      let datos=[]
+      if (seleccion=="all"){
+        datos = documentos.filter(item=>{item.estado === estados[1].nombre;return item.id})
+        datos = datos.map(doc=>doc.id)
+        dataEstado.opcion=1
+      }else{
+        const arraySeleccion = Array.from(seleccion)
+        datos = arraySeleccion.map( doc_id => {
+          const match = documentos.find( item => item.id == Number(doc_id) && item.estado === estados[1].nombre); //filtro que debe estar anulado para cambiar el estado
+          return match?match.id:undefined
+        }).filter(id => id !== undefined);
+        dataEstado.opcion=1
+      }
+      dataEstado.id_docs=datos
+      patchEstado(route('gestion-documento.update-collection',0),{
+        onSuccess:(msg)=>{getDocumentos();showMsg("Exito",severity.success,summary.success)},
+        onError:()=>{showMsg("Error",severity.error,summary.error)}
+      })
     }else{
-      const arraySeleccion = Array.from(seleccion)
+      showMsg("No seleccionaste datos",severity.error,summary.error)
     }
+    
   }
 
   return (
     <AuthenticatedLayout 
       user={auth.user}
-      header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Gestion de Documentos</h2>}>
+      header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Gestión de Documentos</h2>}>
       <div>
-        <TitleTemplate>Gestion de Documentos</TitleTemplate>
+        <Head title="Gestión de Documentos" />
+        <TitleTemplate>Gestión de Documentos</TitleTemplate>
+        <Toast ref={toast_global}></Toast>
         <FilterTemplate>
-        <div className="flex flex-col gap-4">
-          <div className="flex justify-center gap-4 items-end">
-            <Input isClearable classNames={{input:["border-none"]}} type='text'
-              className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
-              startContent={<Icon path={mdiMagnify} size={1} />} value={filterNumero}
-              onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
+          <div className="xl:flex xl:flex-col gap-4">
+            <div className="lg:flex mb-2">
+              <div className='md:flex w-full gap-4 items-center justify-center mb-1 me-1'>
+                <div className='md:flex'>
+                  <Input isClearable classNames={{input:["border-none", "placeholder:none",]}} type='text'
+                    className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
+                    startContent={<Icon path={mdiMagnify} size={1} />} value={filterNumero}
+                    onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
 
-            <Input isClearable classNames={{input:["border-none"]}}
-              className="w-full" size='sm' placeholder="Buscar por materia..."
-              startContent={<Icon path={mdiMagnify} size={1} />} value={filterMateria}
-              onClear={() => onClearMateria()} onValueChange={onSearchChangeMateria} />
-
-            <Input isClearable classNames={{input:["border-none"]}}
-              className="w-full" size='sm'  placeholder="Buscar por rut..."
-              startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
-              onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
-
-            <div className='w-full card'>
-              <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="yy//mm/dd" showIcon value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
+                  <Input isClearable classNames={{input:["border-none"]}}
+                    className="w-full" size='sm' placeholder="Buscar por materia..."
+                    startContent={<Icon path={mdiMagnify} size={1} />} value={filterMateria}
+                    onClear={() => onClearMateria()} onValueChange={onSearchChangeMateria} />
+                </div>
+                <div className='md:flex'>
+                  <Input isClearable classNames={{input:["border-none"]}}
+                    className="w-full" size='sm'  placeholder="Buscar por rut..."
+                    startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
+                    onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
+                  <div className='w-full card'>
+                    <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="yy//mm/dd" showIcon value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
+                  </div>
+                </div>
+              </div>
+              <div className="lg:flex gap-3">
+                <div className='flex'>
+                  <div className='w-full'>
+                    {/* FILTRO TIPO */}
+                    <Dropdown >
+                      <DropdownTrigger className="text-tiny md:text-small">
+                        <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
+                          Tipo
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
+                        closeOnSelect={false} selectedKeys={tipoFilter} selectionMode="multiple"
+                        onSelectionChange={setTipoFilter} >
+                        {tipos.map( (tipo) => (
+                          <DropdownItem key={tipo.id}>{tipo.nombre}</DropdownItem>
+                        ) )}
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
+                  <div className='w-full'>
+                    {/* FILTRO AUTOR */}
+                    <Dropdown>
+                      <DropdownTrigger className="text-tiny md:text-small">
+                        <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
+                          Autor
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu  disallowEmptySelection aria-label="Table Columns" id='autor' selectedKeys={autorFilter}
+                        onSelectionChange={setAutorFilter} closeOnSelect={false} selectionMode="multiple" items={autores}>
+                        {
+                          (autor)=>(
+                            <DropdownItem key={autor.id}>{autor.nombres}</DropdownItem>
+                          )
+                        }
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
+                  </div>
+                <div className='flex'>
+                  <div className='w-full'>
+                    {/* FILTRO DIRECCION */}
+                    <Dropdown>
+                      <DropdownTrigger className="text-tiny md:text-small">
+                        <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
+                          Direccion
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu  disallowEmptySelection aria-label="Table Columns" selectedKeys={direccionFilter}
+                        onSelectionChange={setDireccionFilter} closeOnSelect={false} selectionMode="multiple">
+                        {direcciones.map( (direccion) => (
+                          <DropdownItem key={direccion.id}>{direccion.nombre}</DropdownItem>
+                        ) )}
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
+                  <div className='w-full'>
+                    <Dropdown >
+                      <DropdownTrigger className="text-tiny md:text-small">
+                        <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
+                          Estado
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
+                        closeOnSelect={false} selectedKeys={estadoFilter} selectionMode="multiple"
+                        onSelectionChange={setEstadoFilter} >
+                        {estados.map( (estado) => (
+                          <DropdownItem key={estado.id}>{estado.nombre}</DropdownItem>
+                        ) )}
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
+                </div>
+                
+               
+              </div>
             </div>
-            
-            <div className="flex gap-3">
+            <div className="flex justify-between items-center">
               <div>
-                {/* FILTRO TIPO */}
-                <Dropdown >
-                  <DropdownTrigger className="hidden sm:flex">
-                    <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                      Tipo
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
-                    closeOnSelect={false} selectedKeys={tipoFilter} selectionMode="multiple"
-                    onSelectionChange={setTipoFilter} >
-                    {tipos.map( (tipo) => (
-                      <DropdownItem key={tipo.id}>{tipo.nombre}</DropdownItem>
-                    ) )}
-                  </DropdownMenu>
-                </Dropdown>
+                <span className="text-default-400 text-small">Total {documentos.length} documentos</span>
               </div>
-              <div>
-                {/* FILTRO AUTOR */}
-                <Dropdown>
-                  <DropdownTrigger className="hidden sm:flex">
-                    <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                      Autor
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu  disallowEmptySelection aria-label="Table Columns" id='autor' selectedKeys={autorFilter}
-                    onSelectionChange={setAutorFilter} closeOnSelect={false} selectionMode="multiple" items={autores}>
-                    {
-                      (autor)=>(
-                        <DropdownItem key={autor.id}>{autor.nombres}</DropdownItem>
-                      )
-                    }
-                  </DropdownMenu>
-                </Dropdown>
+              <div className='flex gap-5'>
+                <Button color='warning'  onPress={()=>limpiarFiltros()}>
+                    <Icon path={mdiVacuumOutline} size={1} />
+                    <p className='hidden lg:flex'>
+                    Limpiar filtros
+                    </p>
+                </Button>
+                <label className="flex items-center text-default-400 text-small">
+                  Filas por pagina:
+                  <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
+                  </Select>
+                </label>
               </div>
-              <div>
-                {/* FILTRO DIRECCION */}
-                <Dropdown>
-                  <DropdownTrigger className="hidden sm:flex">
-                    <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                      Direccion
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu  disallowEmptySelection aria-label="Table Columns" selectedKeys={direccionFilter}
-                    onSelectionChange={setDireccionFilter} closeOnSelect={false} selectionMode="multiple">
-                    {direcciones.map( (direccion) => (
-                      <DropdownItem key={direccion.id}>{direccion.nombre}</DropdownItem>
-                    ) )}
-                  </DropdownMenu>
-                </Dropdown>
-              </div>
-              <div>
-                <Dropdown >
-                  <DropdownTrigger className="hidden sm:flex">
-                    <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                      Estado
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
-                    closeOnSelect={false} selectedKeys={estadoFilter} selectionMode="multiple"
-                    onSelectionChange={setEstadoFilter} >
-                    {estados.map( (estado) => (
-                      <DropdownItem key={estado.id}>{estado.nombre}</DropdownItem>
-                    ) )}
-                  </DropdownMenu>
-                </Dropdown>
-              </div>
-              {/* <Button color="primary" endContent={<PlusIcon />}>
-                Add New
-              </Button> */}
             </div>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-default-400 text-small">Total {documentos.length} documentos</span>
-            <label className="flex items-center text-default-400 text-small">
-              Filas por pagina:
-              <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:10,nombre:10},{id:15,nombre:15}]}>
-              </Select>
-            </label>
-          </div>
-        </div>
         </FilterTemplate>
         <ContentTemplate>
-          <div className='flex justify-between mb-3'>
-            <div>
+          <div className='flex justify-between mb-3 gap-4'>
+            <div >
               <h1 className='text-2xl'>Resultados</h1>
             </div>
-            <div className='flex gap-3'>
+            <div className='flex md:gap-3'>
               {
                 hasPermission('Gestion-Crear documento')?
                 <>
                   <Link href={route('gestion-documento.create')}>
                     <Button color="success" variant="solid" endContent={<Icon path={mdiPlus} size={1} />}>
-                      Agregar documento
+                      <div className='hidden text-tiny xl:flex xl:text-small'>
+                        Agregar documento
+                      </div>
                     </Button>
                   </Link>
                 </>:<></>
               }{
                 hasPermission('Gestion-Anular documento')?
                 <>
-                  <Link href={route('gestion-documento.create')}>
-                    <Button color="danger" variant="solid" endContent={<Icon path={mdiCancel} size={1} />}>
+                  <Button color="danger" variant="solid" onPress={()=>anularSeleccionados()}
+                  endContent={<Icon path={mdiCancel} size={1} />}>
+                    <div className='hidden text-tiny xl:flex xl:text-small'>
                       Anular seleccionados
-                    </Button>
-                  </Link>
+                    </div>
+                  </Button>
                 </>:<></>
               }{
                 hasPermission('Gestion-Habilitar documento')?
                 <>
-                  <Button color="secondary" variant="solid" onPress={anularSeleccionados}
+                  <Button color="secondary" variant="solid" onPress={habilitarSeleccionados}
                   endContent={<Icon path={mdiCheckUnderline} size={1} />}>
+                    <div className='hidden text-tiny xl:flex xl:text-small'>
                     Habilitar seleccionados
+                    </div>
                   </Button>
                 </>:<></>
               }{
@@ -383,7 +456,9 @@ const GestionDocumentos = ({auth}) => {
                 <>
                     <Button color="primary" variant="solid" onClick={descargarSeleccionados}
                     endContent={<Icon path={mdiFileDownloadOutline} size={1} />}>
+                      <div className='hidden text-tiny xl:flex xl:text-small'>
                       Descargar seleccionados
+                    </div>
                     </Button>
                 </>:<></>
               }
@@ -414,7 +489,27 @@ const GestionDocumentos = ({auth}) => {
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.autor}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.fecha}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.tipo}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.materia}</TableCell>
+                      <TableCell>
+                        {
+                          documento.materia?
+                          <>
+                             <Dropdown  type='listbox'> 
+                              <DropdownTrigger>
+                                  <Button variant="bordered" size='sm'>
+                                      Ver materia
+                                  </Button>
+                              </DropdownTrigger>
+                              <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
+                                <DropdownItem key={documento.materia} >{documento.materia}</DropdownItem>   
+                              </DropdownMenu>
+                            </Dropdown>
+                          </>
+                          :<>
+                          <Chip>No posee</Chip>
+                          </>
+                        }
+                       
+                      </TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.rut}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.direccion}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
@@ -427,16 +522,16 @@ const GestionDocumentos = ({auth}) => {
                                       Ver Anexos
                                   </Button>
                               </DropdownTrigger>
-                              <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions" onScroll={true} emptyContent={'No posee'}>
+                              <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
                                   {
                                       documento.anexos.map((doc_anexo) => (
-                                          <DropdownItem key={doc_anexo.documento_id_anexo}>Número: {doc_anexo.datos_anexo.id}</DropdownItem>
+                                          <DropdownItem key={doc_anexo.documento_id_anexo} textValue={`Número: ${doc_anexo.datos_anexo.numero}`}>Número: {doc_anexo.datos_anexo.numero}</DropdownItem>
                                       ))
                                   }
                               </DropdownMenu>
                           </Dropdown>
                           </>:
-                          <><p className=''>No posee</p></>
+                          <><Chip>No posee</Chip></>
                         }
                         
                       </TableCell>
@@ -459,7 +554,7 @@ const GestionDocumentos = ({auth}) => {
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                         <>
                         {
-                          hasPermission('Visualizar documento') && documento.file?
+                          hasPermission('Visualizar documento') && documento.file && documento.estado=="Habilitado"?
                           <>
                             <Tooltip content={"Visualizar"} color='secondary'>
                               <Link href={route('documento.visualizar',documento.id)} >
@@ -473,7 +568,7 @@ const GestionDocumentos = ({auth}) => {
                           </>:
                           <></>
                         }{
-                          hasPermission('Descargar documento') && documento.file?
+                          hasPermission('Descargar documento') && documento.file && documento.estado=="Habilitado"?
                           <>
                             <Tooltip content={"Descargar"} color='primary'>
                               <a download={documento.name_file+".pdf"} href={`data:${documento.mime_file};base64,${documento.file}`}>

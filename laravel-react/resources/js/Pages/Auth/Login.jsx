@@ -23,12 +23,14 @@ export default function Login({ status, canResetPassword }) {
     const submit = (e) => {
         e.preventDefault();
         //console.log("intenta ir")
-        post(route('login'));
+        post(route('login'),{
+            onError: () => console.log("error")
+        });
     };
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="Inicio sesión" />
 
             {status && <div className="mb-4 font-medium text-sm text-green-600">{status}</div>}
 

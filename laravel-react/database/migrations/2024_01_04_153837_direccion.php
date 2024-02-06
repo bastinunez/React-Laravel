@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('direccion', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 15);
+            $table->string('nombre', 25)->unique();
         });
     }
 

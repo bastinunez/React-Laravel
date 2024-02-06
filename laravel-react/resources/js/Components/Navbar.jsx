@@ -5,28 +5,24 @@ import { Button as BtnPrime } from 'primereact/button';
 import { useSidebarStore } from '@/Store/useStore';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import Icon from '@mdi/react';
-import { mdiLogout } from '@mdi/js';
+import { mdiLogout,mdiMenu } from '@mdi/js';
+import { useForm } from "@inertiajs/react";
 
 export default function NavbarComponent() {
-    const menuItems = [
-        "Profile",
-        "Dashboard",
-        "Activity",
-        "Analytics",
-        "System",
-        "Deployments",
-        "My Settings",
-        "Team Settings",
-        "Help & Feedback",
-        "Log Out",
-      ];
+    const {post} = useForm()
+    const {resetSidebar} = useSidebarStore()
+    
+    const setVariables = () => {
+        resetSidebar()
+        post(route('logout'))
+    }
     const { sidebar,changeState} = useSidebarStore();
     return (
         <Navbar maxWidth="full" position="sticky">
             <NavbarBrand>
-                    <BtnPrime onClick={() => changeState()} className='align-middle'>
-                        <i className="pi pi-bars" ></i>
-                    </BtnPrime>
+                <Button onClick={() => changeState()} className='align-middle bg-indigo-400 text-white'>
+                    <Icon path={mdiMenu}></Icon>
+                </Button>
             </NavbarBrand>
             {/* <NavbarContent className="hidden sm:flex gap-4" justify="center">
                 <NavbarItem>
@@ -47,10 +43,14 @@ export default function NavbarComponent() {
             </NavbarContent> */}
             <NavbarContent justify="end">
                 <NavbarItem>
-                    <ResponsiveNavLink method="post" href={route('logout')} as="button">
+                    {/* <ResponsiveNavLink method="post" href={route('logout')} as="button"> */}
+                    <Button onPress={()=>setVariables()} className="bg-indigo-400 text-white">
+                            <Icon path={mdiLogout} size={1} />
+                    </Button>
+                    {/* <ResponsiveNavLink method="post" href={route('logout')} as="button">                 
                         <Icon path={mdiLogout} size={1} className="me-2" />
                         Salir
-                    </ResponsiveNavLink>
+                    </ResponsiveNavLink> */}
                 </NavbarItem>
             </NavbarContent>
         </Navbar>

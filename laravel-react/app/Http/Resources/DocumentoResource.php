@@ -27,6 +27,7 @@ class DocumentoResource extends JsonResource
             'autor' => $this->autorRelacion->nombres.' '.$this->autorRelacion->apellidos,
             'autor_abreviacion' => $this->autorRelacion->abreviacion,
             'name_file'=>$this->name_file,
+            'mime_file'=>$this->mime_file,
             'file' => $this->file,
             'anexos' =>  $this->obtenerDatosAnexos($this->docAnexos)
         ];

@@ -24,7 +24,7 @@ const Select = ({opciones,onChange,value, required}) => {
                 <option className="text-gray-500" value={"DEFAULT"} disabled>Selecciona una opcion</option>
                 {
                     opciones.map((opcion)=>(
-                        <option className="w-100 rounded-md" key={opcion.id?opcion.id:opcion.value} value={opcion.id?opcion.id:opcion.value}>{opcion.nombre?opcion.nombre:opcion.nombres?opcion.nombres:""} {opcion.apellidos?opcion.apellidos:""}</option>
+                        <option className="w-100 rounded-md" key={opcion.id?opcion.id:opcion.value} value={opcion.id?opcion.id:opcion.value}>{opcion.nombre?opcion.nombre:opcion.nombres?opcion.nombres:opcion.name} {opcion.apellidos?opcion.apellidos:""}</option>
                     ))
                 }
         </select>

@@ -26,6 +26,7 @@
         "@radix-ui/react-popover": "1.0.7",
         "@react-pdf-viewer/core": "^3.12.0",
         "@react-pdf-viewer/get-file": "^3.12.0",
+        "@react-pdf-viewer/zoom": "^3.12.0",
         "@react-pdf/renderer": "^3.2.1",
         "file-saver": "^2.0.5",
         "framer-motion": "^10.18.0",
@@ -34,6 +35,7 @@
         "primeicons": "^6.0.1",
         "primereact": "^10.3.2",
         "save-as": "^0.1.8",
+        "xlsx": "^0.18.5",
         "zustand": "^4.4.7"
     }
 }

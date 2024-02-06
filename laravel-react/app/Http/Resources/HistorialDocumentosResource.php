@@ -14,6 +14,17 @@ class HistorialDocumentosResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'responsable'=>$this->responsableRelacion,
+            'accion'=>$this->accionRelacion,
+            'detalles'=>$this->detalles,
+            'created_at'=>$this->created_at,
+            'doc_id' => $this->documentoRelacion->id,
+            'doc_fecha' => $this->documentoRelacion->fecha,
+            'doc_numero' => $this->documentoRelacion->numero,
+            'doc_fecha' => $this->documentoRelacion->fecha,
+            'doc_tipo' => $this->documentoRelacion->tipoRelacion->nombre,
+            'doc_autor' => $this->documentoRelacion->autorRelacion->nombres . " " . $this->documentoRelacion->autorRelacion->apellidos, 
+        ];
     }
 }

@@ -15,15 +15,11 @@ class RolSeeder extends Seeder
      */
     public function run(): void
     {
-        // DB::table('roles')->insert([
-        //     ['name' => 'Usuario'],
-        //     ['name' => 'Digitador'],
-        //     ['name' => 'Administrador'],
-        // ]);
         
         $roleUsuario = Role::create(['name'=>'Usuario']);
         $roleDigitador = Role::create(['name'=>'Digitador']);
         $roleAdministrador = Role::create(['name'=>'Administrador']);
+
         //assignRole sirve para asignar solo a un rol, syncRoles permite añadir varios Roles a un permiso
 
         //ESTE QUIZÁS NO SE PUEDA IMPLEMENTAR
@@ -71,18 +67,32 @@ class RolSeeder extends Seeder
         //GESTION DE USUARIOS
         Permission::create(['name'=>'Ver todos usuarios'])->syncRoles([$roleAdministrador]);
         Permission::create(['name'=>'Editar usuario'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Habilitar usuario'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Anular usuario'])->syncRoles([$roleAdministrador]);
         Permission::create(['name'=>'Crear usuario'])->syncRoles([$roleAdministrador]);
         Permission::create(['name'=>'Cargar usuarios xlsx'])->syncRoles([$roleAdministrador]);
         Permission::create(['name'=>'Cambiar estado usuario'])->syncRoles([$roleAdministrador]);
         Permission::create(['name'=>'Restaurar contraseña'])->syncRoles([$roleAdministrador]);
 
 
-        //GESTION FORMULARIO DOCUMENTO
-        Permission::create(['name'=>'Gestion-Editar formulario'])->syncRoles([$roleAdministrador]);
+        //GESTION DIRECCION
+        Permission::create(['name'=>'Gestion-Direcciones'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Crear direccion'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Editar direccion'])->syncRoles([$roleAdministrador]);
+
 
         //GESTION FUNCIONARIO
         Permission::create(['name'=>'Gestion-Funcionarios'])->syncRoles([$roleAdministrador]);
         Permission::create(['name'=>'Gestion-Crear funcionario'])->syncRoles([$roleAdministrador]);
         Permission::create(['name'=>'Gestion-Editar funcionario'])->syncRoles([$roleAdministrador]);
+
+
+        //GESTION ROLES Y PERMISOS
+        Permission::create(['name'=>'Gestion-Roles'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Crear rol'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Editar rol'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Permisos'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Crear permiso'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Editar permiso'])->syncRoles([$roleAdministrador]);
     }
 }
