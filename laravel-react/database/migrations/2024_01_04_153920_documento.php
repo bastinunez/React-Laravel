@@ -16,7 +16,7 @@ return new class extends Migration
             $table->date('fecha');
             $table->integer('anno');
             $table->string('rut', 30)->nullable();
-            $table->string('materia', 255)->nullable();
+            $table->longText('materia')->nullable();
             $table->foreignId('estado')->constrained('estado')->onUpdate('cascade');
             $table->foreignId('direccion')->nullable()->constrained('direccion')->onUpdate('cascade');
             $table->foreignId('autor')->constrained('funcionario')->onUpdate('cascade');

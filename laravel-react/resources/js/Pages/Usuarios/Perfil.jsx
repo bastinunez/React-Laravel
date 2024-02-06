@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,useRef } from 'react'
 import Authenticated from '@/Layouts/AuthenticatedLayout'
 import TitleTemplate from '@/Components/TitleTemplate'
 import ContentTemplate from '@/Components/ContentTemplate'
@@ -6,10 +6,20 @@ import { usePage,useForm } from '@inertiajs/react'
 import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError'
 import TextInput from '@/Components/TextInput'
+import { Toast } from 'primereact/toast';        
 import { usePermission } from '@/Composables/Permission';
 import { Dropdown, DropdownMenu, DropdownTrigger, DropdownItem, Button, Tooltip} from '@nextui-org/react'
 
 const Perfil = ({auth}) => {
+    //toast
+    const toast_global = useRef(null);
+    //mensaje formulario
+    const severity = { success:'success',error:'error'}
+    const summary = { success:'Exito',error:'Error'}
+    const showMsg = (msg,sev,sum) => {
+        toast_global.current.show({severity:sev, summary:sum, detail:msg, life: 3000});
+    }
+
     const [isDisabled,setIsDisabled] = useState(true);
     const [cambiarPwd,setCambiarPwd] = useState(false);
 
@@ -34,15 +44,16 @@ const Perfil = ({auth}) => {
     const editarDatos = (e) => {
         e.preventDefault()
         postEdit(route('usuario.edit_data'),{
-            onSuccess: setIsDisabled(!isDisabled),
-            onError: resetEdit('nombres','apellidos')
+            onSuccess: ()=>setIsDisabled(!isDisabled),
+            onError: () => resetEdit('nombres','apellidos')
         })
         
     }
     const changePwd = (e) => {
         e.preventDefault()
         postPwd(route('usuario.update_pwd'),{
-            // onSuccess:setCambiarPwd(!cambiarPwd)
+            onSuccess: (msg)=> {showMsg(msg.update,severity.success,summary.success)},
+            onError: (msg) => {showMsg(msg.update,severity.error,summary.error)},
         })
         
     }
@@ -54,6 +65,7 @@ const Perfil = ({auth}) => {
             <TitleTemplate>
                 Mi Perfil
             </TitleTemplate>
+            <Toast ref={toast_global}></Toast>
             <ContentTemplate>
                 <div>
                     <form onSubmit={editarDatos}>

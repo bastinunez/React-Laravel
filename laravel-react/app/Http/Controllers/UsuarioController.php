@@ -238,14 +238,14 @@ class UsuarioController extends Controller
             'current_password' => ['required', 'string', 'current_password:web'],
             'nueva_pwd' => ['required','string','regex:/[a-zA-Z@0-9]/'],
         ],[
-            'current_password.current_password' => 'Las contraseñas no coinciden.',
+            'current_password.current_password' => 'Las contraseñas es igual a la que existe.',
             'nueva_pwd.regex'=>'La contraseña admite letras, números y @.',
         ])->validate();
         $user=User::find(Auth::user()->id);
         $user->forceFill([
             'password' => Hash::make($input['nueva_pwd']),
         ])->save();
-        return back()->with("success_form_pwd","Se guardó correctamente la contraseña");
+        return back()->with("update","Se guardó correctamente la contraseña");
     }
 
     /**

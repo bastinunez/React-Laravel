@@ -4,7 +4,7 @@ import Authenticated from '@/Layouts/AuthenticatedLayout'
 import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
-import { Head ,usePage,useForm} from '@inertiajs/react'
+import { Head ,usePage,useForm,Link} from '@inertiajs/react'
 import { usePermission } from '@/Composables/Permission';
 import { Button } from '@nextui-org/react'
 import { Toast } from 'primereact/toast';       
@@ -62,7 +62,10 @@ const EditarDireccion = ({auth}) => {
                                     <InputError message={errors.nombre} className="mt-2" />
                                 </div>
                             </div>
-                            <div>
+                            <div className='w-full md:flex gap-10'>
+                                <Link href={route("direccion.index")} className='w-full'>
+                                <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                                </Link>
                                 <Button className='w-full' color='primary' variant='ghost' type='submit'>Guardar cambios</Button>
                             </div>
                         </form>

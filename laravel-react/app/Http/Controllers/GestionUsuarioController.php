@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class GestionUsuarioController extends Controller
 {
@@ -51,7 +52,7 @@ class GestionUsuarioController extends Controller
         $current_user=Auth::user();
         if ($current_user->hasPermissionTo('Crear usuario')){
             return Inertia::render('Usuarios/AgregarUsuario',[
-                'roles'=>RoleResource::collection(Rol::all())
+                'roles'=>RoleResource::collection(Role::all())
             ]);
         }else{
             return back();
@@ -74,8 +75,8 @@ class GestionUsuarioController extends Controller
     {
         $input=$request->all();
         Validator::make($input, [
-            'nombres' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+)+$/'],
-            'apellidos' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+)+$/'],
+            'nombres' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+$/'],
+            'apellidos' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+$/'],
             'rut' => ['required', 'regex:/^[0-9]{1,2}\.[0-9]{3}\.[0-9]{3}-[0-9kK]{1}$/'],
             'rol' => ['required']
         ],[
@@ -91,84 +92,94 @@ class GestionUsuarioController extends Controller
 
         
         if ($this->validarRutChileno($input['rut'])) {
-            //iniciales
-            $nombreArray = explode(' ', $input['nombres']);
-            $inicialesNombres = '';
-            foreach ($nombreArray as $nombre) {
-                $inicialesNombres .= ucfirst(strtoupper(substr($nombre, 0, 1)));
-            }
-            $apellidoArray = explode(' ', $input['apellidos']);
-            $inicialesApellidos = '';
-            foreach ($apellidoArray as $apellido) {
-                $inicialesApellidos .= ucfirst(strtoupper(substr($apellido, 0, 1)));
-            }
-            $iniciales = $inicialesNombres . $inicialesApellidos;
+            try {
+                //iniciales
+                $nombreArray = explode(' ', $input['nombres']);
+                $inicialesNombres = '';
+                foreach ($nombreArray as $nombre) {
+                    $inicialesNombres .= ucfirst(strtoupper(substr($nombre, 0, 1)));
+                }
+                $apellidoArray = explode(' ', $input['apellidos']);
+                $inicialesApellidos = '';
+                foreach ($apellidoArray as $apellido) {
+                    $inicialesApellidos .= ucfirst(strtoupper(substr($apellido, 0, 1)));
+                }
+                $iniciales = $inicialesNombres . $inicialesApellidos;
 
-            //rol (no es necesario)
-            $rol="";
-            if ((int)$input['rol']==1){
-                $rol='Usuario';
-            }
-            elseif ((int)$input['rol']==2){
-                $rol='Digitador';
-            }
-            else{
-                $rol='Administrador';
-            }
+                //rol (no es necesario)
+                $rol="";
+                if ((int)$input['rol']==1){
+                    $rol='Usuario';
+                }
+                elseif ((int)$input['rol']==2){
+                    $rol='Digitador';
+                }
+                else{
+                    $rol='Administrador';
+                }
 
-            //correo
-            $nombres = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ñ'], ['a', 'e', 'i', 'o', 'u', 'n'], $input["nombres"]);
-            $apellidos = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ñ'], ['a', 'e', 'i', 'o', 'u', 'n'], $input["apellidos"]);
-            $nombresArray = explode(" ", $nombres);
-            $primerNombre = strtolower(substr($nombresArray[0], 0, 1));
-            $apellidosArray = explode(" ", $apellidos);
-            $apellidosCompletos = strtolower(implode("", $apellidosArray));
-            $resultado = $primerNombre . $apellidosCompletos;
-            $dominio="@gdoc.cl";
-            $correo=$resultado . $dominio;
-
-            $validacion_correo=User::where('correo',$correo)->get();
-            if (sizeof($validacion_correo)!=0){
-                $primerNombre = strtolower(substr($nombresArray[0], 0, 2));
+                //correo
+                $nombres = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ñ'], ['a', 'e', 'i', 'o', 'u', 'n'], $input["nombres"]);
+                $apellidos = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ñ'], ['a', 'e', 'i', 'o', 'u', 'n'], $input["apellidos"]);
+                $nombresArray = explode(" ", $nombres);
+                $primerNombre = strtolower(substr($nombresArray[0], 0, 1));
                 $apellidosArray = explode(" ", $apellidos);
                 $apellidosCompletos = strtolower(implode("", $apellidosArray));
                 $resultado = $primerNombre . $apellidosCompletos;
+                $dominio="@gdoc.cl";
                 $correo=$resultado . $dominio;
+
                 $validacion_correo=User::where('correo',$correo)->get();
                 if (sizeof($validacion_correo)!=0){
-                    $primerNombre = strtolower(substr($nombresArray[0], 0, 3));
+                    $primerNombre = strtolower(substr($nombresArray[0], 0, 2));
                     $apellidosArray = explode(" ", $apellidos);
                     $apellidosCompletos = strtolower(implode("", $apellidosArray));
                     $resultado = $primerNombre . $apellidosCompletos;
                     $correo=$resultado . $dominio;
+                    $validacion_correo=User::where('correo',$correo)->get();
+                    if (sizeof($validacion_correo)!=0){
+                        $primerNombre = strtolower(substr($nombresArray[0], 0, 3));
+                        $apellidosArray = explode(" ", $apellidos);
+                        $apellidosCompletos = strtolower(implode("", $apellidosArray));
+                        $resultado = $primerNombre . $apellidosCompletos;
+                        $correo=$resultado . $dominio;
+                    }
+                }
+                
+
+                $usuario=User::create([
+                    'nombres' => $input['nombres'],
+                    'apellidos' => $input['apellidos'],
+                    'rut' => $input['rut'],
+                    'iniciales' => $iniciales,
+                    'correo' => $correo,
+                    'rol'=> $input['rol'],
+                    'estado' => true,
+                    'change_pwd' => true,
+                    'password' => 12345678
+                ])->assignRole($rol);
+
+                $user_id=Auth::id();
+                HistorialUsuario::create([
+                    'usuario_id'=>$usuario->id,
+                    'responsable'=>$user_id,
+                    'accion'=>2,
+                    'detalles'=>"Crea manualmente el usuario"
+                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                ]);
+                return redirect()->back()->with(["create"=>"Usuario agregado exitosamente"]);
+            }catch (\Illuminate\Database\QueryException $e) {
+                // Manejo específico para errores de duplicidad
+                if ($e->errorInfo[1] == 1062) {
+                    return redirect()->back()->withErrors(["create"=>"Ya existe el usuario"]);
+                } else {
+                    // Otros errores de la base de datos
+                    throw $e;
                 }
             }
             
-
-            $usuario=User::create([
-                'nombres' => $input['nombres'],
-                'apellidos' => $input['apellidos'],
-                'rut' => $input['rut'],
-                'iniciales' => $iniciales,
-                'correo' => $correo,
-                'rol'=> $input['rol'],
-                'estado' => true,
-                'change_pwd' => true,
-                'password' => 12345678
-            ])->assignRole($rol);
-
-            $user_id=Auth::id();
-            HistorialUsuario::create([
-                'usuario_id'=>$usuario->id,
-                'responsable'=>$user_id,
-                'accion'=>2,
-                'detalles'=>"Crea manualmente el usuario"
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-            ]);
-
-            return redirect()->back()->with(["create"=>"Usuario agregado exitosamente"]);
         }else{
-            return redirect()->back()->withErrors(["create"=>"Usuario no pudo ser agregado"]);
+            return redirect()->back()->withErrors(["create"=>"Rut no válido"]);
         }
     }
 
@@ -225,7 +236,7 @@ class GestionUsuarioController extends Controller
     
             return Inertia::render("Usuarios/EditarUsuario",[
                 "usuario"=> new UserSharedResource($usuario),
-                'roles'=>RoleResource::collection(Rol::all()),
+                'roles'=>RoleResource::collection(Role::all()),
                 'permisos'=>PermissionResource::collection(Permission::all())
             ]);
         }else{
@@ -237,8 +248,8 @@ class GestionUsuarioController extends Controller
     public function edit_user_metadata(Request $request,string $id){
         $input=$request->all();
         Validator::make($input, [
-            'nombres' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+)+$/'],
-            'apellidos' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+)+$/'],
+            'nombres' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+$/'],
+            'apellidos' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+$/'],
         ],[
             'nombres.regex'=>'Ingresa los nombres correctamente: Nombre Nombre',
             'nombres.string'=>'Ingresa cadena de carácteres',
@@ -357,6 +368,13 @@ class GestionUsuarioController extends Controller
         }
         $usuario= new UserSharedResource($user);
         return redirect()->back()->with(['update'=>'Se pudo cambiar los permisos seleccionados','usuario'=>$usuario]);
+    }
+
+    public function updateRol(Request $request,string $id){
+        $user=User::find($id);
+        $role=Rol::find($request->rol);
+        $user->syncRoles($role->name);
+        return redirect()->back()->with(['update'=>'Se pudo cambiar el rol']);
     }
 
 

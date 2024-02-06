@@ -53,7 +53,7 @@ const AgregarDireccion = ({auth}) => {
                                 <InputError message={errors.nombre} className="mt-2" />
                             </div>
                         </div>
-                        <div className='w-full flex gap-10'>
+                        <div className='w-full md:flex gap-10'>
                             <Link href={route("direccion.index")} className='w-full'>
                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                             </Link>

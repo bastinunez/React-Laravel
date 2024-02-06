@@ -85,22 +85,30 @@ export const Sidebar = ({user}) => {
                         </>:<></>
                     }
                     {
-                         <NavLink href={route('rol.index')}
-                         active={route().current('rol.index')} className="py-2 px-2 mb-3" >
-                              <div className="me-3">
-                                 <Icon path={mdiAccountSettingsOutline} size={1} />
-                             </div>
-                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Roles</span>
-                         </NavLink>
+                        hasPermission('Gestion-Roles')?
+                        <>
+                             <NavLink href={route('rol.index')}
+                            active={route().current('rol.index')} className="py-2 px-2 mb-3" >
+                                <div className="me-3">
+                                    <Icon path={mdiAccountSettingsOutline} size={1} />
+                                </div>
+                                <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Roles</span>
+                            </NavLink>
+                        </>
+                        :<></>
                     }
                     {
-                         <NavLink href={route('permiso.index')}
-                         active={route().current('permiso.index')} className="py-2 px-2 mb-3" >
-                              <div className="me-3">
-                                 <Icon path={mdiShieldAccountVariantOutline} size={1} />
-                             </div>
-                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Permisos</span>
-                         </NavLink>
+                        hasPermission('Gestion-Permisos')?
+                        <>
+                            <NavLink href={route('permiso.index')}
+                            active={route().current('permiso.index')} className="py-2 px-2 mb-3" >
+                                <div className="me-3">
+                                    <Icon path={mdiShieldAccountVariantOutline} size={1} />
+                                </div>
+                                <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Permisos</span>
+                            </NavLink>
+                        </>
+                        :<></>
                     }
                     {
                         hasPermission('Ver perfil')? 
@@ -168,16 +176,16 @@ export const Sidebar = ({user}) => {
                                         </NavLink>
                                         </>:<></>
                                     }{
-                                        hasPermission('Ver historial documento anexo')? 
-                                        <>
-                                        <NavLink href={route('historial-documentos-anexos.index')}
-                                        active={route().current('historial-documentos-anexos.index')} className="py-2 px-2 mb-3">
-                                            <div className="me-2">
-                                            <Icon path={mdiHistory} size={1} />
-                                            </div>
-                                            <span className="text-medium">Documentos anexos</span>
-                                        </NavLink>
-                                        </>:<></>
+                                        // hasPermission('Ver historial documento anexo')? 
+                                        // <>
+                                        // <NavLink href={route('historial-documentos-anexos.index')}
+                                        // active={route().current('historial-documentos-anexos.index')} className="py-2 px-2 mb-3">
+                                        //     <div className="me-2">
+                                        //     <Icon path={mdiHistory} size={1} />
+                                        //     </div>
+                                        //     <span className="text-medium">Documentos anexos</span>
+                                        // </NavLink>
+                                        // </>:<></>
                                     }{
                                         hasPermission('Ver historial accion usuario')? 
                                         <>

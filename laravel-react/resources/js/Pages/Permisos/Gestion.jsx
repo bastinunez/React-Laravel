@@ -87,17 +87,17 @@ const Gestion = ({auth}) => {
                         className="w-full input-next border-none" size='sm' placeholder="Buscar por nombre..."
                         startContent={<Icon path={mdiMagnify} size={1} />} value={filterNombre}
                         onClear={() => onClearNombre()} onValueChange={onSearchChangeNombre} />
-                        <div className="flex w-full mt-2">
-                            <div className='w-full flex items-center'>
+                        <div className="flex w-full mt-2 gap-1 md:gap-2">
+                            <div className='flex items-center'>
                                 <span className="text-default-400 text-small">Total {permisos.length} permisos</span>
                             </div>
                             <Button color='warning'  onPress={()=>limpiarFiltros()}>
                                 <Icon path={mdiVacuumOutline} size={1} />
-                                <p className='hidden sm:flex'>
+                                <p className='hidden lg:flex'>
                                 Limpiar filtros
                                 </p>
                             </Button>
-                            <div className='w-full'>
+                            <div className=''>
                                 <label className="flex items-center text-default-400 text-small">
                                     Filas por pagina:
                                     <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>

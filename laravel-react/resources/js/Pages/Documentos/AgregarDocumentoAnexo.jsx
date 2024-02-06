@@ -243,22 +243,8 @@ const AgregarDocumentoAnexo = ({auth}) => {
                           <Checkbox value={data_mini.estado} onChange={(e) => setData_mini('estado',e.target.checked)}  color="danger">Anulado</Checkbox>
                         </div>
                     </div>
-                    {
-                        flash.FormDocMini?
-                        <>
-                        {
-                            flash.FormDocMini=="Error"?
-                            <>
-                            <div className='bg-success-500 text-white rounded-md p-1 text-center text-medium'>Hubo un error al guardar </div>
-                            </>
-                            :<>
-                            <div className='bg-success-500 text-white rounded-md p-2 text-center text-medium'>Se guardo correctamente</div>
-                            </>
-                        }
-                        </>:
-                        <></>
-                    }
-                    <div className='mt-3 w-full xl:flex gap-8'>
+                    
+                    <div className='mt-3 w-full md:flex gap-8'>
                         <Link href={route("gestion-documento.index")} className='w-full'>
                         <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                         </Link>
@@ -289,7 +275,7 @@ const AgregarDocumentoAnexo = ({auth}) => {
                                 }
                             </NextSelect>
                         </div>
-                        <div className='xl:flex items-center xl:gap-5'>
+                        <div className='md:flex items-center xl:gap-5'>
                             <Button type='text' size='lg' className="w-full" color='primary' variant='ghost'>Anexar documentos</Button>
                             <Link href={route("gestion-documento.index")} className='w-full'>
                                 <Button className='w-full text-large' size='lg' color='warning' variant='ghost' >Volver atrás</Button>

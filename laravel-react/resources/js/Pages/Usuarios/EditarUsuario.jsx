@@ -45,6 +45,9 @@ const EditarUsuario = ({auth}) => {
       toast_global.current.show({severity:sev, summary:sum, detail:msg, life: 3000});
   }
 
+  const {data:dataRol,setData:setDataRol,patch:patchRol,errors:errorsRol}=useForm({
+    rol: rol_filter[0].id
+  });
   const { data:dataEdit, setData:setDataEdit, patch:patchEdit, processing, errors:errorsEdit, reset: resetEdit } = useForm({
     nombres: usuario.nombres,
     apellidos: usuario.apellidos,
@@ -145,8 +148,12 @@ const EditarUsuario = ({auth}) => {
       onError: (msg) => {showMsg(msg.update,severity.error,summary.error);console.log(msg)}
     })
   }
-
-  //QUEDE AQUI, X ALGUNA RAZON LOS PERMISOS NO SE ACTUALIZAN DE UNA PERSONA
+  const submitRol = (e) => {
+    patchRol(route('gestion-usuarios.update-rol',String(usuario.id)),{
+      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);console.log(msg)},
+      onError: (msg) => {showMsg(msg.update,severity.error,summary.error);console.log(msg)}
+    })
+  }
 
   return (
     <Authenticated user={auth.user}>
@@ -169,7 +176,7 @@ const EditarUsuario = ({auth}) => {
                             setBtnRolesPermisos(!btnRolesPermisos);setBtnMetadato(!btnMetadato)
                         }
                         }} >
-                        Roles
+                        Roles y permisos
                     </Button>
                 </div>
               </div>
@@ -212,17 +219,24 @@ const EditarUsuario = ({auth}) => {
                   <div>
                     <div className='w-full lg:flex justify-between mb-6 '>
                       <div className='w-full lg:me-12'>
-                        
-                        <div className='w-full mb-8'>
-                          <InputLabel value={"Rol"}></InputLabel>
-                          <RadioGroup color="secondary" defaultValue={rol_filter[0].id}>
-                            {
-                              roles.map((rol)=>(
-                                <Radio key={rol.id} value={rol.id}>{rol.name}</Radio>
-                              ))
-                            }
-                          </RadioGroup>
-                        </div>
+                        <form onSubmit={submitRol} className='flex items-center gap-4'>
+                          <div>
+                            <div className='w-full mb-8'>
+                              <InputLabel value={"Rol"}></InputLabel>
+                              <RadioGroup value={dataRol.rol} onChange={(e)=>setDataRol('rol',Number(event.target.value))} color="secondary" defaultValue={rol_filter[0].id}>
+                                {
+                                  roles.map((rol)=>(
+                                    <Radio key={rol.id} value={rol.id}>{rol.name}</Radio>
+                                  ))
+                                }
+                              </RadioGroup>
+                            </div>
+                          </div>
+                          <div>
+                            <Button type='submit' onPress={()=>submitRol()}>Guardar cambios</Button>
+                          </div>
+                        </form>
+                       
                         <div className='w-full mb-8'>
                             <InputLabel value={"Seleccionar permisos para agregar: "} className='flex items-center me-5'></InputLabel>
                             <div className='w-full flex gap-8'>

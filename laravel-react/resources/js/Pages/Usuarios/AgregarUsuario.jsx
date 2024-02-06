@@ -92,12 +92,12 @@ const AgregarUsuario = ({auth}) => {
                   try {
                     const response = await axios.get(`/api/find-user/${usuario.rut}`);
                     if (response.data.filas.length!=0) {
-                        setDataModal("El usuario con rut: ",usuario.rut ," ya se encuentra registrado, modifica para seguir")
+                        setDataModal(`El usuario con rut: ${usuario.rut} ya se encuentra registrado, modifica para seguir`)
                         onOpen()
                         cargarUsuarios = false;
                         return;
                     }else{
-                        console.log("No se encuentra puede seguir")
+                        //console.log("No se encuentra puede seguir")
                     }
                   } catch (error) {
                     console.error(error);
@@ -115,13 +115,19 @@ const AgregarUsuario = ({auth}) => {
                         dataExcel.rol=1
                     }else if (usuario.role=="Digitador"){
                         dataExcel.rol=2
-                    }else{
+                    }else if (usuario.role=="Administrador"){
                         dataExcel.rol=3
                     }
-                    postExcel(route('gestion-usuarios.store'),{
-                        onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success)},
-                        onError: (msg) => {showMsg(msg.create,severity.error,summary.error)},
-                    })
+                    else{
+                        setDataModal(`Nombre incorrecto de rol: ${dataExcel.nombres} ${dataExcel.apellidos}`)
+                        onOpen()
+                    }
+                    if (dataExcel.rol==1 || dataExcel.rol==2 || dataExcel.rol==3){
+                        postExcel(route('gestion-usuarios.store'),{
+                            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success)},
+                            onError: (msg) => {showMsg(msg.create,severity.error,summary.error)},
+                        })
+                    }
                   });
                 } catch (error) {
                     
@@ -231,26 +237,24 @@ const AgregarUsuario = ({auth}) => {
                             //se muestra plantilla para cargar masivamente usuarios
                             <>
                                 <form onSubmit={submitExcel}>
-                                    <div className='justify-between flex'>
+                                    <div className='justify-between flex mb-4'>
                                         <div className='w-full justify-center xl:flex mx-auto'>
-                                            <div className='me-3'>
+                                            <div className='xl:me-2 mb-3 md:mb-0'>
                                                 <InputLabel value={"Subir archivo"}></InputLabel>
                                                 <Input type='file' accept='.xls, .xlsx' onChange ={(e) => setDataExcel('archivo',e.target.files[0])} >
                                                 </Input>
                                                 <InputError message={errors.archivo} className="mt-2" />
-                                            </div>
-                                            <div className='flex items-end xl:me-2'>
-                                                <Button className='w-full' color='primary' size='lg' type='submit'>Subir archivo</Button>
                                             </div>
                                             <div className='flex items-end'>
                                                 <Button className='w-full' color='secondary' size='lg' onPress={()=>getTemplate()}>Descargar plantilla</Button>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='mt-3'>
+                                    <div className='mt-3 md:flex gap-3'>
                                         <Link href={route("gestion-usuarios.index")} className='w-full'>
                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                         </Link>
+                                        <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Subir archivo</Button>
                                     </div>
                                 </form>
                                 <Modal isOpen={isOpen} placement={modalPlacement} onOpenChange={onOpenChange} size="md" >

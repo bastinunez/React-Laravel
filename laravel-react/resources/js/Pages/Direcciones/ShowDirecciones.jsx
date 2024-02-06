@@ -101,7 +101,7 @@ const ShowDirecciones = ({auth}) => {
                             <div className='w-full flex items-center'>
                                 <Button color='warning'  onPress={()=>limpiarFiltros()}>
                                     <Icon path={mdiVacuumOutline} size={1} />
-                                    <p className='hidden sm:flex'>
+                                    <p className='hidden lg:flex'>
                                     Limpiar filtros
                                     </p>
                                 </Button>

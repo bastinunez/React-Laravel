@@ -10,8 +10,7 @@ import React,{useState,useEffect,useRef,useMemo,useCallback} from 'react'
 import Icon from '@mdi/react';
 import { Calendar } from 'primereact/calendar';
 import Select from '@/Components/Select';
-import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,
-  mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline, mdiVanityLight} from '@mdi/js';
+import { mdiVacuumOutline,mdiMagnify,mdiChevronDown} from '@mdi/js';
 import FilterTemplate from '@/Components/FilterTemplate'
 
 const Usuario = ({auth}) => {
@@ -172,27 +171,27 @@ const Usuario = ({auth}) => {
       </TitleTemplate>
       <FilterTemplate>
           <div className="flex flex-col gap-4">
-            <div className="xl:flex">
+            <div className="xl:flex md:gap-2">
               <div className='md:flex gap-4 justify-center items-end'>
                 <Input isClearable classNames={{input:["border-none"]}} type='text'
-                  className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
+                  className="w-full mb-1" size='sm' placeholder="Buscar por numero..."
                   startContent={<Icon path={mdiMagnify} size={1} />} value={filterNumero}
                   onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
                 <Input isClearable classNames={{input:["border-none"]}} type='text'
-                  className="w-full input-next border-none" size='sm' placeholder="Buscar por responsable..."
+                  className="w-full mb-1" size='sm' placeholder="Buscar por responsable..."
                   startContent={<Icon path={mdiMagnify} size={1} />} value={filterResponsable}
                   onClear={() => onClearResponsable()} onValueChange={onSearchChangeResponsable} />
                 <Input isClearable classNames={{input:["border-none"]}} type='text'
-                  className="w-full input-next border-none" size='sm' placeholder="Buscar por detalles..."
+                  className="w-full mb-1" size='sm' placeholder="Buscar por detalles..."
                   startContent={<Icon path={mdiMagnify} size={1} />} value={filterDetalles}
                   onClear={() => onClearDetalles()} onValueChange={onSearchChangeDetalles} />
               </div>
               <div className='md:flex gap-4 justify-center items-end'>
-                <div className='w-full card'>
-                  <Calendar className='max-h-12 border-0 flex p-0' placeholder='Rango de fecha documento' dateFormat="yy//mm/dd" showIcon value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
+                <div className='w-full card mb-1'>
+                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Rango de fecha documento' dateFormat="yy//mm/dd" showIcon value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
                 </div>
-                <div className='w-full card'>
-                  <Calendar className='max-h-12 border-0 flex p-0' placeholder='Rango de fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
+                <div className='w-full card mb-1'>
+                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Rango de fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
                 </div>
                 <div className="flex gap-3">
                   <div>
@@ -222,7 +221,12 @@ const Usuario = ({auth}) => {
                 <span className="text-default-400 text-small">Total {historial.length} filas</span>
               </div>
               <div className='flex gap-5'>
-                <Button color='warning'  onPress={()=>limpiarFiltros()}>Limpiar filtros</Button>
+                <Button color='warning'  onPress={()=>limpiarFiltros()}>
+                    <Icon path={mdiVacuumOutline} size={1} />
+                    <p className='hidden lg:flex'>
+                    Limpiar filtros
+                    </p>
+                </Button>
                 <label className="flex items-center text-default-400 text-small">
                   Filas por pagina:
                   <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>

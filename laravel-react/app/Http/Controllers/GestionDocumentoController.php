@@ -77,12 +77,14 @@ class GestionDocumentoController extends Controller
             'archivo' => ['file', 'mimes:png,jpg,pdf', 'max:2048']
         ],[
             'tipo_documento.required'=>'Debe ingresar el tipo de documento',
+            'tipo_documento.numeric'=>'Debe seleccionar un tipo',
             'numero_documento.required'=>'Debe ingresar el número de documento',
             'numero_documento.numeric'=>'Debe ingresar un número',
             'numero_documento.gt'=>'Debe ingresar un número mayor que 0',
             'autor_documento.required'=>'Debe ingresar un autor',
+            'autor_documento.numeric'=>'Debe seleccionar autor',
             'direccion_documento.required'=>'Debe ingresar dirección',
-            'direccion_documento.numeric'=>'Debe ingresar un número',
+            'direccion_documento.numeric'=>'Debe seleccionar direccion',
             'rut_documento.regex'=>'Debe ingresar un formato rut',
             'fecha_documento.required'=>'Debe ingresar la fecha',
             'fecha_documento.date'=>'Debe ingresar una fecha',
@@ -274,9 +276,10 @@ class GestionDocumentoController extends Controller
     public function update(Request $request, string $id)
     {
         $input = $request->all();
-
+        dd($request->replace($request->all()));
         $input['fecha_documento'] = new DateTime($input['fecha_documento']);
         $input['fecha_documento'] = $input['fecha_documento']->format('Y-m-d');
+        
         $boolean=false;
         if (base64_encode(base64_decode($request->archivo, true)) === $request->archivo){
             $boolean=true;
@@ -306,6 +309,7 @@ class GestionDocumentoController extends Controller
             'archivo.mimes' => 'El archivo debe ser de tipo: png, jpg, pdf',
             'archivo.max' => 'El tamaño máximo permitido es 2 MB',
         ])->validate();
+        
         try{
             $documento = Documento::find($id);
             //dd($documento);
@@ -314,23 +318,30 @@ class GestionDocumentoController extends Controller
                 $year = $year->format('Y');
                 $documento->fecha= $input['fecha_documento'];
                 $documento->anno=$year;
+                $documento->save();
             }
             if ($request->tipo_documento!==null) {
                 $documento->tipo=$request->tipo_documento;
+                $documento->save();
             }if ($request->rut_documento!==null) {
                 $documento->rut=$request->rut_documento;
+                $documento->save();
             }
             if ($request->numero_documento!==null) {
                 $documento->numero=$request->numero_documento;
+                $documento->save();
             }
             if ($request->materia!==null) {
                 $documento->materia=$request->materia_documento;
+                $documento->save();
             }
             if ($request->autor_documento!==null) {
                 $documento->autor=$request->autor_documento;
+                $documento->save();
             }
             if ($request->direccion_documento!==null) {
                 $documento->direccion=$request->direccion_documento;
+                $documento->save();
             }
             if ($request->archivo!==null && !$boolean) {
                 if ($request->fecha_documento!==null){
@@ -349,11 +360,12 @@ class GestionDocumentoController extends Controller
                 $documento->file=$base64;
                 $documento->mime_file=$mime;
                 $documento->name_file=$nombre_file.'.'.$ext;
+                $documento->save();
             }
             if ($request->estado!==null) {
                 $documento->estado=$request->estado == 0 ? 1 : 2;
+                $documento->save();
             }
-            $documento->save();
            
             $user_id=Auth::user();
             HistorialDocumento::create([
@@ -369,6 +381,114 @@ class GestionDocumentoController extends Controller
             return redirect()->back()->withErrors(['update'=>'No se pudo actualizar el documento','documento'=>$documento]);
         }
         
+    }
+
+    public function prueba(Request $request, string $id){
+        $input = $request->all();
+        //dd($request->replace($request->all()));
+        $input['fecha_documento'] = new DateTime($input['fecha_documento']);
+        $input['fecha_documento'] = $input['fecha_documento']->format('Y-m-d');
+        
+        $boolean=false;
+        if (base64_encode(base64_decode($request->archivo, true)) === $request->archivo){
+            $boolean=true;
+        }   
+
+        Validator::make($input,[
+            'tipo_documento'=> ['required','numeric'],
+            'numero_documento'=> ['required','numeric','gt:0'],
+            'autor_documento'=> ['required','numeric'],
+            'fecha_documento'=>['required','date'],
+            'direccion_documento'=> ['numeric'],
+            'rut_documento'=>'sometimes|nullable|regex:/[0-9\.-]+/',
+            'archivo' => ['sometimes','nullable', 
+                $boolean?null:'file', 
+                $boolean?null:'mimes:png,jpg,pdf', 
+                $boolean?null:'max:2048'],
+            'tipo_documento.required'=>'Debe ingresar el tipo de documento',
+            'numero_documento.required'=>'Debe ingresar el número de documento',
+            'numero_documento.numeric'=>'Debe ingresar un número',
+            'numero_documento.gt'=>'Debe ingresar un número mayor que 0',
+            'autor_documento.required'=>'Debe ingresar un autor',
+            'direccion_documento.numeric'=>'Debe ingresar un número',
+            'rut_documento.regex'=>'Debe ingresar un formato rut',
+            'fecha_documento.required'=>'Debe ingresar la fecha',
+            'fecha_documento.date'=>'Debe ingresar una fecha',
+            'archivo.file' => 'Debe ingresar un archivo',
+            'archivo.mimes' => 'El archivo debe ser de tipo: png, jpg, pdf',
+            'archivo.max' => 'El tamaño máximo permitido es 2 MB',
+        ])->validate();
+        
+        try{
+            $documento = Documento::find($id);
+            //dd($documento);
+            if ($request->fecha_documento!==null) {
+                $year = new DateTime($input['fecha_documento']);
+                $year = $year->format('Y');
+                $documento->fecha= $input['fecha_documento'];
+                $documento->anno=$year;
+                $documento->save();
+            }
+            if ($request->tipo_documento!==null) {
+                $documento->tipo=$request->tipo_documento;
+                $documento->save();
+            }if ($request->rut_documento!==null) {
+                $documento->rut=$request->rut_documento;
+                $documento->save();
+            }
+            if ($request->numero_documento!==null) {
+                $documento->numero=$request->numero_documento;
+                $documento->save();
+            }
+            if ($request->materia!==null) {
+                $documento->materia=$request->materia_documento;
+                $documento->save();
+            }
+            if ($request->autor_documento!==null) {
+                $documento->autor=$request->autor_documento;
+                $documento->save();
+            }
+            if ($request->direccion_documento!==null) {
+                $documento->direccion=$request->direccion_documento;
+                $documento->save();
+            }
+            if ($request->archivo!==null && !$boolean) {
+                if ($request->fecha_documento!==null){
+                    $year = new DateTime($input['fecha_documento']);
+                    $year = $year->format('Y');
+                }else{
+                    $year=$documento->anno;
+                }
+                $path = $request->file('archivo')->getRealPath();
+                $ext = $request->file('archivo')->extension();
+                $doc = file_get_contents($path);
+                $base64 = base64_encode($doc);
+                $mime = $request->file('archivo')->getClientMimeType();
+                $nombre_file=($input['numero_documento']).'-'.($year).'-'.($input['autor_documento']).'-'.($input['tipo_documento']);
+                
+                $documento->file=$base64;
+                $documento->mime_file=$mime;
+                $documento->name_file=$nombre_file.'.'.$ext;
+                $documento->save();
+            }
+            if ($request->estado!==null) {
+                $documento->estado=$request->estado == 0 ? 1 : 2;
+                $documento->save();
+            }
+           
+            $user_id=Auth::user();
+            HistorialDocumento::create([
+                'documento_id'=>$documento->id,
+                'responsable'=>$user_id->id,
+                'accion'=>3,
+                'detalles'=>"Actualiza metadatos"
+                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            ]);
+
+            return redirect()->back()->with(['update'=>'Se pudo actualizar el documento','documento'=>$documento]);
+        }catch(\Throwable $th){
+            return redirect()->back()->withErrors(['update'=>'No se pudo actualizar el documento','documento'=>$documento]);
+        }
     }
 
     public function updateCollection(Request $request, string $id)

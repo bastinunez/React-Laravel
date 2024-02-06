@@ -294,99 +294,104 @@ const GestionDocumentos = ({auth}) => {
         <TitleTemplate>Gestión de Documentos</TitleTemplate>
         <Toast ref={toast_global}></Toast>
         <FilterTemplate>
-          <div className="block xl:flex xl:flex-col gap-4">
-            <div className="xl:flex mb-2">
-              <div className='flex w-full gap-4 items-center justify-center mb-1 me-1'>
-                <Input isClearable classNames={{input:["border-none", "placeholder:none",]}} type='text'
-                  className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
-                  startContent={<Icon path={mdiMagnify} size={1} />} value={filterNumero}
-                  onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
+          <div className="xl:flex xl:flex-col gap-4">
+            <div className="lg:flex mb-2">
+              <div className='md:flex w-full gap-4 items-center justify-center mb-1 me-1'>
+                <div className='md:flex'>
+                  <Input isClearable classNames={{input:["border-none", "placeholder:none",]}} type='text'
+                    className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
+                    startContent={<Icon path={mdiMagnify} size={1} />} value={filterNumero}
+                    onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
 
-                <Input isClearable classNames={{input:["border-none"]}}
-                  className="w-full" size='sm' placeholder="Buscar por materia..."
-                  startContent={<Icon path={mdiMagnify} size={1} />} value={filterMateria}
-                  onClear={() => onClearMateria()} onValueChange={onSearchChangeMateria} />
-
-                <Input isClearable classNames={{input:["border-none"]}}
-                  className="w-full" size='sm'  placeholder="Buscar por rut..."
-                  startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
-                  onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
-
-                <div className='w-full card'>
-                  <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="yy//mm/dd" showIcon value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
+                  <Input isClearable classNames={{input:["border-none"]}}
+                    className="w-full" size='sm' placeholder="Buscar por materia..."
+                    startContent={<Icon path={mdiMagnify} size={1} />} value={filterMateria}
+                    onClear={() => onClearMateria()} onValueChange={onSearchChangeMateria} />
+                </div>
+                <div className='md:flex'>
+                  <Input isClearable classNames={{input:["border-none"]}}
+                    className="w-full" size='sm'  placeholder="Buscar por rut..."
+                    startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
+                    onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
+                  <div className='w-full card'>
+                    <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="yy//mm/dd" showIcon value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
+                  </div>
                 </div>
               </div>
-              <div className="flex  gap-3">
-                <div className='w-full'>
-                  {/* FILTRO TIPO */}
-                  <Dropdown >
-                    <DropdownTrigger className="hidden sm:flex text-tiny md:text-small">
-                      <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                        Tipo
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
-                      closeOnSelect={false} selectedKeys={tipoFilter} selectionMode="multiple"
-                      onSelectionChange={setTipoFilter} >
-                      {tipos.map( (tipo) => (
-                        <DropdownItem key={tipo.id}>{tipo.nombre}</DropdownItem>
-                      ) )}
-                    </DropdownMenu>
-                  </Dropdown>
+              <div className="lg:flex gap-3">
+                <div className='flex'>
+                  <div className='w-full'>
+                    {/* FILTRO TIPO */}
+                    <Dropdown >
+                      <DropdownTrigger className="text-tiny md:text-small">
+                        <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
+                          Tipo
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
+                        closeOnSelect={false} selectedKeys={tipoFilter} selectionMode="multiple"
+                        onSelectionChange={setTipoFilter} >
+                        {tipos.map( (tipo) => (
+                          <DropdownItem key={tipo.id}>{tipo.nombre}</DropdownItem>
+                        ) )}
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
+                  <div className='w-full'>
+                    {/* FILTRO AUTOR */}
+                    <Dropdown>
+                      <DropdownTrigger className="text-tiny md:text-small">
+                        <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
+                          Autor
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu  disallowEmptySelection aria-label="Table Columns" id='autor' selectedKeys={autorFilter}
+                        onSelectionChange={setAutorFilter} closeOnSelect={false} selectionMode="multiple" items={autores}>
+                        {
+                          (autor)=>(
+                            <DropdownItem key={autor.id}>{autor.nombres}</DropdownItem>
+                          )
+                        }
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
+                  </div>
+                <div className='flex'>
+                  <div className='w-full'>
+                    {/* FILTRO DIRECCION */}
+                    <Dropdown>
+                      <DropdownTrigger className="text-tiny md:text-small">
+                        <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
+                          Direccion
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu  disallowEmptySelection aria-label="Table Columns" selectedKeys={direccionFilter}
+                        onSelectionChange={setDireccionFilter} closeOnSelect={false} selectionMode="multiple">
+                        {direcciones.map( (direccion) => (
+                          <DropdownItem key={direccion.id}>{direccion.nombre}</DropdownItem>
+                        ) )}
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
+                  <div className='w-full'>
+                    <Dropdown >
+                      <DropdownTrigger className="text-tiny md:text-small">
+                        <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
+                          Estado
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
+                        closeOnSelect={false} selectedKeys={estadoFilter} selectionMode="multiple"
+                        onSelectionChange={setEstadoFilter} >
+                        {estados.map( (estado) => (
+                          <DropdownItem key={estado.id}>{estado.nombre}</DropdownItem>
+                        ) )}
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
                 </div>
-                <div className='w-full'>
-                  {/* FILTRO AUTOR */}
-                  <Dropdown>
-                    <DropdownTrigger className="hidden sm:flex text-tiny md:text-small">
-                      <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                        Autor
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu  disallowEmptySelection aria-label="Table Columns" id='autor' selectedKeys={autorFilter}
-                      onSelectionChange={setAutorFilter} closeOnSelect={false} selectionMode="multiple" items={autores}>
-                      {
-                        (autor)=>(
-                          <DropdownItem key={autor.id}>{autor.nombres}</DropdownItem>
-                        )
-                      }
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-                <div className='w-full'>
-                  {/* FILTRO DIRECCION */}
-                  <Dropdown>
-                    <DropdownTrigger className="hidden sm:flex text-tiny md:text-small">
-                      <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                        Direccion
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu  disallowEmptySelection aria-label="Table Columns" selectedKeys={direccionFilter}
-                      onSelectionChange={setDireccionFilter} closeOnSelect={false} selectionMode="multiple">
-                      {direcciones.map( (direccion) => (
-                        <DropdownItem key={direccion.id}>{direccion.nombre}</DropdownItem>
-                      ) )}
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-                <div className='w-full'>
-                  <Dropdown >
-                    <DropdownTrigger className="hidden sm:flex text-tiny md:text-small">
-                      <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                        Estado
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu  disallowEmptySelection aria-label="Table Columns"
-                      closeOnSelect={false} selectedKeys={estadoFilter} selectionMode="multiple"
-                      onSelectionChange={setEstadoFilter} >
-                      {estados.map( (estado) => (
-                        <DropdownItem key={estado.id}>{estado.nombre}</DropdownItem>
-                      ) )}
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-                {/* <Button color="primary" endContent={<PlusIcon />}>
-                  Add New
-                </Button> */}
+                
+               
               </div>
             </div>
             <div className="flex justify-between items-center">
@@ -394,12 +399,12 @@ const GestionDocumentos = ({auth}) => {
                 <span className="text-default-400 text-small">Total {documentos.length} documentos</span>
               </div>
               <div className='flex gap-5'>
-              <Button color='warning'  onPress={()=>limpiarFiltros()}>
-                  <Icon path={mdiVacuumOutline} size={1} />
-                  <p className='hidden sm:flex'>
-                  Limpiar filtros
-                  </p>
-                  </Button>
+                <Button color='warning'  onPress={()=>limpiarFiltros()}>
+                    <Icon path={mdiVacuumOutline} size={1} />
+                    <p className='hidden lg:flex'>
+                    Limpiar filtros
+                    </p>
+                </Button>
                 <label className="flex items-center text-default-400 text-small">
                   Filas por pagina:
                   <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>

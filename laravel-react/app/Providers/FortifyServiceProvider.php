@@ -44,19 +44,28 @@ class FortifyServiceProvider extends ServiceProvider
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
-
+        
+        // Fortify::authenticateUsing(function (Request $request) {
+        //     $user = User::where('rut', $request->rut)->first();
+     
+        //     if ($user &&
+        //         Hash::check($request->password, $user->password)) {
+        //         return $user;
+        //     }
+        // });
         Fortify::authenticateUsing(function (Request $request) {
             $user = User::where('rut', $request->rut)->first();
-            //dd($user);
-            //dd('pasa por aqui');
-            if ($user->estado==1){
-                if ($user && Hash::check($request->password, $user->password)) {
+            if ($user && Hash::check($request->password, $user->password) && $user->estado == 1) {
+                //if ($user->estado == 1) {
                     return $user;
-                }
-            }else{
-                redirect()->back()->with('message', 'La cuenta no está habilitada');
+                //} else {
+                    // Usuario no habilitado, redirigir con mensaje de error
+                //    return back()->with(['error' => 'La cuenta no está habilitada']);
+                //}
             }
-            
+        
+            // Si no se encuentra el usuario o la contraseña es incorrecta, redirigir con mensaje de error
+            //return back()->with(['error' => 'Credenciales incorrectas']);
         });
     }
 }

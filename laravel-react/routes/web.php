@@ -69,6 +69,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('documento-descargar', [DocumentoController::class, 'descargar'])->name('documento.descargar');
 
     
+    Route::post('/gestion-documento/update-doc/{mensaje}',[GestionDocumentoController::class,'prueba'])->name('gestion-documento.update-doc');
     Route::patch('/gestion-documento/update-collection/{mensaje}',[GestionDocumentoController::class,'updateCollection'])->name('gestion-documento.update-collection');
     Route::resource('gestion-documento', GestionDocumentoController::class)->names('gestion-documento');
     Route::post('/documento-anexo/agregar-existente', [DocumentoAnexoController::class, 'store_existent'])->name('documento-anexo.agregar-existente');
@@ -91,6 +92,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::patch('/gestion-usuarios/update-metadata/{id}',[GestionUsuarioController::class,'edit_user_metadata'])->name('gestion-usuarios.update-metadata');
     Route::patch('/gestion-usuarios/update-collection/{mensaje}',[GestionUsuarioController::class,'updateCollection'])->name('gestion-usuarios.update-collection');
     Route::patch('/gestion-usuarios/update-permission/{mensaje}',[GestionUsuarioController::class,'updatePermission'])->name('gestion-usuarios.update-permission');
+    Route::patch('/gestion-usuarios/update-rol/{mensaje}',[GestionUsuarioController::class,'updateRol'])->name('gestion-usuarios.update-rol');
     Route::resource('/gestion-usuarios', GestionUsuarioController::class)->names('gestion-usuarios');
 
 

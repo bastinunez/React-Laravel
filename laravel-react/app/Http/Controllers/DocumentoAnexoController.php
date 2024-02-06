@@ -85,12 +85,12 @@ class DocumentoAnexoController extends Controller
                 ]);
 
                 $user_id=Auth::id();
-                HistorialDocumentoAnexo::create([
-                    'fk_documento_id'=>$documento_id,
-                    'fk_documento_id_anexo'=>$doc_id,
-                    'responsable'=>$user_id,
-                    'accion'=>5
-                ]);
+                // HistorialDocumentoAnexo::create([
+                //     'fk_documento_id'=>$documento_id,
+                //     'fk_documento_id_anexo'=>$doc_id,
+                //     'responsable'=>$user_id,
+                //     'accion'=>5
+                // ]);
             }
             return redirect()->back()->with(['add_anexo'=>'Se pudo anexar el documento']);
         }catch (\Throwable $th){
@@ -115,10 +115,12 @@ class DocumentoAnexoController extends Controller
             'id_doc'=>['required','numeric']
         ],[
             'tipo_documento.required'=>'Debe ingresar el tipo de documento',
+            'tipo_documento.numeric'=>'Debe seleccionar un tipo',
             'numero_documento.required'=>'Debe ingresar el número de documento',
             'numero_documento.numeric'=>'Debe ingresar un número',
             'numero_documento.gt'=>'Debe ingresar un número mayor que 0',
             'autor_documento.required'=>'Debe ingresar un autor',
+            'autor_documento.numeric'=>'Debe seleccionar un autor',
             'fecha_documento.required'=>'Debe ingresar la fecha',
             'fecha_documento.date'=>'Debe ingresar una fecha',
         ])->validate();
@@ -148,12 +150,12 @@ class DocumentoAnexoController extends Controller
                 'responsable'=>$user_id,
                 'accion'=>2
             ]);
-            HistorialDocumentoAnexo::create([
-                'fk_documento_id'=>$input['id_doc'],
-                'fk_documento_id_anexo'=>$id_documento,
-                'responsable'=>$user_id,
-                'accion'=>5
-            ]);
+            // HistorialDocumentoAnexo::create([
+            //     'fk_documento_id'=>$input['id_doc'],
+            //     'fk_documento_id_anexo'=>$id_documento,
+            //     'responsable'=>$user_id,
+            //     'accion'=>5
+            // ]);
 
             return redirect()->back()->with(["create"=>"Se pudo crear el documento anexo"]);
         }catch (\Illuminate\Database\QueryException $e) {
@@ -233,17 +235,17 @@ class DocumentoAnexoController extends Controller
                 'documento_id' => $documento_id,
                 'documento_id_anexo' => $anexo_id
             ])->delete();
-            if (!$eliminar){
+            if ($eliminar){
                 $user_id=Auth::id();
-                HistorialDocumentoAnexo::create([
-                    'fk_documento_id'=>$documento_id,
-                    'fk_documento_id'=>$anexo_id,
-                    'responsable'=>$user_id,
-                    'accion'=>6,
-                    'detalles'=>"Quita anexo del documento ID: " . $documento_id 
-                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-                ]);
-                return redirect()->back()->with(['destroy'=>'Se pudo eliminar el documento '.$anexo_id]);
+                // HistorialDocumentoAnexo::create([
+                //     'fk_documento_id'=>$documento_id,
+                //     'fk_documento_id_anexo'=>$anexo_id,
+                //     'responsable'=>$user_id,
+                //     'accion'=>6,
+                //     'detalles'=>"Quita anexo del documento ID: " . $documento_id 
+                //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                // ]);
+                //return redirect()->back()->with(['destroy'=>'Se pudo eliminar el documento '.$anexo_id]);
             }
         }
         return redirect()->back()->with(['destroy'=>'Se pudieron eliminar todos']);

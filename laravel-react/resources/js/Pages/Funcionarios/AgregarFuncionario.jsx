@@ -33,7 +33,7 @@ const AgregarFuncionario = ({auth}) => {
     const submit = (e) => {
         e.preventDefault()
         post(route('funcionario.store'),{
-            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);reset()},
+            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success)},
             onError: (msg) => {showMsg(msg.create,severity.error,summary.error)}
         })
     }
