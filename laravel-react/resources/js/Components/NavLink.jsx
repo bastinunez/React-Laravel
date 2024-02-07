@@ -1,7 +1,9 @@
 import { Link } from '@inertiajs/react';
+import { Tooltip } from '@nextui-org/react';
 
-export default function NavLink({ active = false, className = '', children, ...props }) {
+export default function NavLink({ active = false, className = '',tooltip='', children, ...props }) {
     return (
+        <Tooltip content={tooltip}>
         <Link
             {...props}
             className={
@@ -14,5 +16,7 @@ export default function NavLink({ active = false, className = '', children, ...p
         >
             {children}
         </Link>
+
+    </Tooltip>
     );
 }

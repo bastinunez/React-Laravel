@@ -401,11 +401,11 @@ const GestionDocumentos = ({auth}) => {
                 <span className="text-default-400 text-tiny lg:text-small">Total {documentos.length} documentos</span>
               </div>
               <div className='flex gap-5'>
-                <Button color='warning'  onPress={()=>limpiarFiltros()}>
-                    <Icon path={mdiVacuumOutline} size={1} />
-                    <p className='hidden lg:flex'>
-                    Limpiar filtros
-                    </p>
+                <Button color='warning' className='min-w-0 min-h-0' onPress={()=>limpiarFiltros()}>
+                  <Icon path={mdiVacuumOutline} size={1} />
+                  <p className='hidden sm:flex'>
+                  Limpiar filtros
+                  </p>
                 </Button>
                 <label className="flex items-center text-default-400 text-tiny lg:text-small">
                   Filas por pagina:
@@ -419,7 +419,7 @@ const GestionDocumentos = ({auth}) => {
         <ContentTemplate>
           <div className='flex justify-between mb-3 gap-4'>
             <div >
-              <h1 className='text-2xl'>Resultados</h1>
+              <h1 className='text-large md:text-2xl'>Resultados</h1>
             </div>
             <div className='flex gap-3'>
               {
@@ -427,10 +427,12 @@ const GestionDocumentos = ({auth}) => {
                 <>
                   <Link href={route('gestion-documento.create')}>
                     <Tooltip content={"Crear documento"} color='success'>
-                      <Button color="success" variant="solid" size='sm' isIconOnly endContent={<Icon path={mdiPlus} size={1} />}>
-                        {/* <div className='hidden text-tiny xl:flex xl:text-small'>
+                      <Button color="success" variant="solid" size='sm'  className='min-w-0 min-h-0'
+                      //isIconOnly 
+                      endContent={<Icon path={mdiPlus} size={1} />}>
+                        <div className='hidden text-tiny md:flex xl:text-small'>
                           Agregar documento
-                        </div> */}
+                        </div>
                       </Button>
                     </Tooltip>
                   </Link>
@@ -439,14 +441,16 @@ const GestionDocumentos = ({auth}) => {
                 hasPermission('Gestion-Anular documento')?
                 <>
                 <Tooltip content={"Anular documentos"} color='danger'>
-                  <Button color="danger" variant="solid" size='sm' isIconOnly onPress={()=>{
+                  <Button color="danger" variant="solid" size='sm' className='min-w-0 min-h-0' 
+                  //isIconOnly 
+                  onPress={()=>{
                     setFunctionName(() => () => anularSeleccionados());setTitleModal('Anular documentos seleccionados');
                     setContentModal('¿Está seguro de anular los documentos?');onOpenEstado();}} 
                   //onPress={()=>anularSeleccionados()}
                   endContent={<Icon path={mdiCancel} size={1} />}>
-                    {/* <div className='hidden text-tiny xl:flex xl:text-small'>
+                    <div className='hidden text-tiny md:flex xl:text-small'>
                       Anular seleccionados
-                    </div> */}
+                    </div>
                   </Button>
                 </Tooltip>
                 </>:<></>
@@ -454,14 +458,16 @@ const GestionDocumentos = ({auth}) => {
                 hasPermission('Gestion-Habilitar documento')?
                 <>
                 <Tooltip content={"Habilitar documentos"} color='secondary'>
-                  <Button color="secondary" variant="solid" size='sm' isIconOnly onPress={()=>{
+                  <Button color="secondary" variant="solid" size='sm' className='min-w-0 min-h-0' 
+                  //isIconOnly 
+                  onPress={()=>{
                     setFunctionName(() => () => habilitarSeleccionados());setTitleModal('Habilitar documentos seleccionados');
                     setContentModal('¿Está seguro de habilitar los documentos?');onOpenEstado();}} 
                   //onPress={habilitarSeleccionados}
                   endContent={<Icon path={mdiCheckUnderline} size={1} />}>
-                    {/* <div className='hidden text-tiny xl:flex xl:text-small'>
+                    <div className='hidden text-tiny md:flex xl:text-small'>
                     Habilitar seleccionados
-                    </div> */}
+                    </div>
                   </Button>
                   </Tooltip>
                 </>:<></>
@@ -469,11 +475,13 @@ const GestionDocumentos = ({auth}) => {
                 hasPermission('Gestion-Descargar documento')?
                 <>
                   <Tooltip content={"Descargar documentos"} color='primary'>
-                    <Button color="primary" variant="solid" size='sm' isIconOnly onClick={descargarSeleccionados}
+                    <Button color="primary" variant="solid" size='sm' className='min-w-0 min-h-0' 
+                    //isIconOnly 
+                    onClick={descargarSeleccionados}
                     endContent={<Icon path={mdiFileDownloadOutline} size={1} />}>
-                      {/* <div className='hidden text-tiny xl:flex xl:text-small'>
+                      <div className='hidden text-tiny md:flex xl:text-small'>
                       Descargar seleccionados
-                    </div> */}
+                    </div>
                     </Button>
                   </Tooltip>
                 </>:<></>

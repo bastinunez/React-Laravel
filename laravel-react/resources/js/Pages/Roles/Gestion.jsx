@@ -97,7 +97,7 @@ const Gestion = ({auth}) => {
                             <div className='flex items-center'>
                                 <span className="text-default-400 text-tiny lg:text-small">Total {roles.length} roles</span>
                             </div>
-                            <Button color='warning'  onPress={()=>limpiarFiltros()}>
+                            <Button color='warning' className='min-w-0 min-h-0' onPress={()=>limpiarFiltros()}>
                                 <Icon path={mdiVacuumOutline} size={1} />
                                 <p className='hidden sm:flex'>
                                 Limpiar filtros
@@ -119,7 +119,7 @@ const Gestion = ({auth}) => {
             <ContentTemplate>
                 <div className='flex justify-between mb-3'>
                     <div>
-                        <h1 className='text-2xl'>Resultados</h1>
+                        <h1 className='text-large md:text-2xl'>Resultados</h1>
                     </div>
                     <div className='flex '>
                         {
@@ -127,8 +127,11 @@ const Gestion = ({auth}) => {
                             <>
                             <Link href={route('rol.create')}>
                                 <Tooltip content={"Agregar rol"} color='success'>
-                                    <Button color="success" variant="solid" is endContent={<Icon path={mdiPlus} size={1} />}>
-                                    {/* Agregar rol */}
+                                    <Button color="success" variant="solid" size='sm' className='min-w-0 min-h-0'
+                                     endContent={<Icon path={mdiPlus} size={1} />}>
+                                        <div className='hidden text-tiny md:flex md:text-small'>
+                                            Agregar rol
+                                        </div>
                                     </Button>
                                 </Tooltip>
                             </Link>

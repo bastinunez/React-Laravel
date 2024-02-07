@@ -293,7 +293,7 @@ const ShowUsers = ({auth}) => {
                 <span className="text-default-400 text-tiny lg:text-small">Total {usuarios.length} usuarios</span>
               </div>
               <div className='flex gap-5'>
-                <Button color='warning'  onPress={()=>limpiarFiltros()}>
+                <Button color='warning' className='min-w-0 min-h-0' onPress={()=>limpiarFiltros()}>
                   <Icon path={mdiVacuumOutline} size={1} />
                   <p className='hidden sm:flex'>
                   Limpiar filtros
@@ -311,7 +311,7 @@ const ShowUsers = ({auth}) => {
         <ContentTemplate>
         <div className='flex justify-between mb-3'>
             <div>
-              <h1 className='text-2xl'>Resultados</h1>
+              <h1 className='text-large md:text-2xl'>Resultados</h1>
             </div>
             <div className='flex gap-3 md:gap-3'>
               {
@@ -319,10 +319,12 @@ const ShowUsers = ({auth}) => {
                 <>
                   <Link href={route('gestion-usuarios.create')}>
                   <Tooltip content={"Crear usuario"} color='success'>
-                    <Button color="success" variant="solid" isIconOnly endContent={<Icon path={mdiPlus} size={1} />}>
-                      {/* <div className='hidden text-tiny xl:flex xl:text-small'>
+                    <Button color="success" variant="solid" size='sm' className='min-w-0 min-h-0'
+                    //isIconOnly 
+                    endContent={<Icon path={mdiPlus} size={1} />}>
+                      <div className='hidden text-tiny md:flex xl:text-small'>
                         Agregar usuario
-                      </div> */}
+                      </div>
                     </Button>
                   </Tooltip>
                   </Link>
@@ -331,14 +333,16 @@ const ShowUsers = ({auth}) => {
                 hasPermission('Anular usuario')?
                 <>
                 <Tooltip content={"Anular usuario"} color='danger'>
-                  <Button color="danger" variant="solid" isIconOnly onPress={()=>{
+                  <Button color="danger" variant="solid" size='sm' className='min-w-0 min-h-0'
+                  //isIconOnly
+                   onPress={()=>{
                     setFunctionName(() => () => anularSeleccionados());setTitleModal('Anular usuarios seleccionados');
                     setContentModal('¿Está seguro de anular los usuarios?');onOpenEstado();}} 
                   //onPress={()=>anularSeleccionados()}
                   endContent={<Icon path={mdiCancel} size={1} />}>
-                    {/* <div className='hidden text-tiny xl:flex xl:text-small'>
+                    <div className='hidden text-tiny md:flex xl:text-small'>
                       Anular seleccionados
-                    </div> */}
+                    </div>
                   </Button>
                   </Tooltip>
                 </>:<></>
@@ -346,14 +350,16 @@ const ShowUsers = ({auth}) => {
                 hasPermission('Habilitar usuario')?
                 <>
                 <Tooltip content={"Habilitar usuario"} color='secondary'>
-                  <Button color="secondary" variant="solid" isIconOnly onPress={()=>{
+                  <Button color="secondary" variant="solid" size='sm' className='min-w-0 min-h-0'
+                  //isIconOnly 
+                  onPress={()=>{
                     setFunctionName(() => () => habilitarSeleccionados());setTitleModal('Habilitar usuarios seleccionados');
                     setContentModal('¿Está seguro de habilitar los usuarios?');onOpenEstado();}} 
                   //onPress={habilitarSeleccionados}
                   endContent={<Icon path={mdiCheckUnderline} size={1} />}>
-                    {/* <div className='hidden text-tiny xl:flex xl:text-small'>
+                    <div className='hidden text-tiny md:flex xl:text-small'>
                       Habilitar seleccionados
-                    </div> */}
+                    </div>
                   </Button>
                   </Tooltip>
                 </>:<></>

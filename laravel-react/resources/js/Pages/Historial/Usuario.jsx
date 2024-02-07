@@ -221,11 +221,11 @@ const Usuario = ({auth}) => {
                 <span className="text-default-400 text-tiny lg:text-small">Total {historial.length} filas</span>
               </div>
               <div className='flex gap-5'>
-                <Button color='warning'  onPress={()=>limpiarFiltros()}>
-                    <Icon path={mdiVacuumOutline} size={1} />
-                    <p className='hidden lg:flex'>
-                    Limpiar filtros
-                    </p>
+                <Button color='warning' className='min-w-0 min-h-0' onPress={()=>limpiarFiltros()}>
+                  <Icon path={mdiVacuumOutline} size={1} />
+                  <p className='hidden sm:flex'>
+                  Limpiar filtros
+                  </p>
                 </Button>
                 <label className="flex items-center text-default-400 text-tiny lg:text-small">
                   Filas por pagina:

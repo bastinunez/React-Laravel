@@ -18,7 +18,7 @@ export default function NavbarComponent() {
     }
     const { sidebar,changeState} = useSidebarStore();
     return (
-        <Navbar maxWidth="full" position="sticky" className="">
+        <Navbar maxWidth="full" position="sticky" className="border-b-2 border-b-indigo-500">
             <NavbarBrand>
                 <Button onClick={() => changeState()} variant="ghost" isIconOnly className='align-middle border-indigo-500  bg-transparent text-indigo-500'>
                     <Icon path={mdiMenu}></Icon>

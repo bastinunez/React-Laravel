@@ -98,9 +98,9 @@ const ShowDirecciones = ({auth}) => {
                             <div className='flex items-center'>
                                 <span className="text-default-400 text-tiny lg:text-small">Total {direcciones.length} direcciones</span>
                             </div>
-                            <Button color='warning'  onPress={()=>limpiarFiltros()}>
+                            <Button color='warning' className='min-w-0 min-h-0' onPress={()=>limpiarFiltros()}>
                                 <Icon path={mdiVacuumOutline} size={1} />
-                                <p className='hidden lg:flex'>
+                                <p className='hidden sm:flex'>
                                 Limpiar filtros
                                 </p>
                             </Button>
@@ -121,15 +121,17 @@ const ShowDirecciones = ({auth}) => {
             <ContentTemplate>
                 <div className='flex justify-between mb-3'>
                     <div>
-                        <h1 className='text-2xl'>Resultados</h1>
+                        <h1 className='text-large md:text-2xl'>Resultados</h1>
                     </div>
                     <div className='flex gap-3'>
                         {
                             hasPermission('Gestion-Crear funcionario')?
                             <>
                             <Link href={route('direccion.create')}>
-                                <Button color="success" variant="solid" endContent={<Icon path={mdiPlus} size={1} />}>
-                                Agregar direccion
+                                <Button color="success" variant="solid" size='sm' className='min-w-0 min-h-0' endContent={<Icon path={mdiPlus} size={1} />}>
+                                <div className='hidden text-tiny md:flex md:text-small'>
+                                    Agregar direccion
+                                </div>
                                 </Button>
                             </Link>
                             </>:<></>

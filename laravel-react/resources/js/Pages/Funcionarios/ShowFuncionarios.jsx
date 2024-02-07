@@ -94,9 +94,9 @@ const ShowFuncionarios = ({auth}) => {
                             <div className='flex items-center '>
                                 <span className="text-default-400 text-tiny lg:text-small">Total {funcionarios.length} funcionarios</span>
                             </div>
-                            <Button color='warning'  onPress={()=>limpiarFiltros()} className='' startContent={
-                                <Icon path={mdiVacuumOutline} size={1} />}>
-                                <p className='hidden lg:flex'>
+                            <Button color='warning' className='min-w-0 min-h-0' onPress={()=>limpiarFiltros()}>
+                                <Icon path={mdiVacuumOutline} size={1} />
+                                <p className='hidden sm:flex'>
                                 Limpiar filtros
                                 </p>
                             </Button>
@@ -115,7 +115,7 @@ const ShowFuncionarios = ({auth}) => {
             <ContentTemplate>
                 <div className='flex justify-between mb-3'>
                     <div>
-                        <h1 className='text-2xl'>Resultados</h1>
+                        <h1 className='text-large md:text-2xl'>Resultados</h1>
                     </div>
                     <div className='flex gap-3'>
                         {
@@ -123,8 +123,12 @@ const ShowFuncionarios = ({auth}) => {
                             <>
                             <Tooltip content={"Agregar funcionario"} color='primary'>
                                 <Link href={route('funcionario.create')}>
-                                    <Button color="success" variant="solid" isIconOnly endContent={<Icon path={mdiPlus} size={1} />}>
-                                    {/* Agregar funcionario */}
+                                    <Button color="success" variant="solid" size='sm' className='min-w-0 min-h-0'
+                                    //isIconOnly 
+                                    endContent={<Icon path={mdiPlus} size={1} />}>
+                                        <div className='hidden text-tiny md:flex md:text-small'>
+                                            Agregar funcionario
+                                        </div>
                                     </Button>
                                 </Link>
                             </Tooltip>

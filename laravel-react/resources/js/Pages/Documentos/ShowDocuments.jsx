@@ -343,12 +343,12 @@ const GestionDocumentos = ({auth}) => {
                 <span className="text-default-400 text-tiny lg:text-small">Total {documentos.length} documentos</span>
               </div>
               <div className='flex gap-5'>
-                <Button color='warning'  onPress={()=>limpiarFiltros()}>
-                  <Icon path={mdiVacuumOutline} size={1} />
-                  <p className='hidden sm:flex'>
-                  Limpiar filtros
-                  </p>
-                  </Button>
+                <Button color='warning' className='min-w-0 min-h-0' onPress={()=>limpiarFiltros()}>
+                    <Icon path={mdiVacuumOutline} size={1} />
+                    <p className='hidden sm:flex'>
+                    Limpiar filtros
+                    </p>
+                </Button>
                 <label className="flex items-center text-default-400 text-tiny lg:text-small">
                   Filas por pagina:
                   <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
@@ -361,18 +361,20 @@ const GestionDocumentos = ({auth}) => {
         <ContentTemplate>
           <div className='flex justify-between mb-3'>
             <div>
-              <h1 className='text-2xl'>Resultados</h1>
+              <h1 className='text-large md:text-2xl'>Resultados</h1>
             </div>
             <div className='flex gap-3'>
               {
                 hasPermission('Gestion-Descargar documento')?
                 <>
                     <Tooltip content={"Descargar documentos"} color='primary'>
-                    <Button color="primary" variant="solid" size='sm' isIconOnly onClick={descargarSeleccionados}
+                    <Button color="primary" variant="solid" size='sm' className='min-w-0 min-h-0'
+                    //isIconOnly 
+                    onClick={descargarSeleccionados}
                     endContent={<Icon path={mdiFileDownloadOutline} size={1} />}>
-                      {/* <div className='hidden text-tiny xl:flex xl:text-small'>
+                    <div className='hidden text-tiny md:flex md:text-small'>
                       Descargar seleccionados
-                    </div> */}
+                    </div>
                     </Button>
                   </Tooltip>
                 </>:<></>
