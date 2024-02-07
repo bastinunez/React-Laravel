@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('historial_accion_documento_anexo', function (Blueprint $table) {
-            $table->foreignId('fk_documento_id')->constrained('documento_anexo', 'documento_id')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('fk_documento_id_anexo')->constrained('documento_anexo', 'documento_id_anexo')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('fk_documento_id')->constrained('documento')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('fk_documento_id_anexo')->constrained('documento')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('accion')->constrained('accion')->onUpdate('cascade');
             $table->string('detalles',255)->nullable();
             $table->foreignId('responsable')->constrained('usuario')->onUpdate('cascade')->onDelete('cascade');

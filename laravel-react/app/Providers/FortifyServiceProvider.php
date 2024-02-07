@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -53,6 +54,9 @@ class FortifyServiceProvider extends ServiceProvider
         //         return $user;
         //     }
         // });
+        Fortify::loginView(function(){
+            return Inertia::render('Auth/Login');
+        });
         Fortify::authenticateUsing(function (Request $request) {
             $user = User::where('rut', $request->rut)->first();
             if ($user && Hash::check($request->password, $user->password) && $user->estado == 1) {

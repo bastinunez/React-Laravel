@@ -1,7 +1,7 @@
-import React,{useRef} from "react";
+import React,{useRef, useState} from "react";
 import { Link } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
-import {Divider,Accordion, AccordionItem} from "@nextui-org/react";
+import {Divider,Accordion, AccordionItem,Tooltip} from "@nextui-org/react";
 import { usePermission } from '@/Composables/Permission';
 import { useSidebarStore,useActiveLinkStore } from '@/Store/useStore';
 import {User} from "@nextui-org/react";
@@ -13,10 +13,12 @@ export const Sidebar = ({user}) => {
     //console.log(visible)
     const { sidebar,changeState} = useSidebarStore();
     const {hasRoles,hasPermission} = usePermission();
+    const [variable,setVariable]=useState('')
+    const [selectedKeys, setSelectedKeys] = React.useState(new Set(["1"]));
     return(
         <>
-            <div className={`bg-slate-100 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
-                <div className="text-black">
+            <div className={`bg-indigo-500 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
+                <div className="text-white">
                     <User name={  <span className=" ps-3">{user.nombres}</span>} 
                         classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis ${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}
                         description={(
@@ -25,12 +27,25 @@ export const Sidebar = ({user}) => {
                         avatarProps={null}
                     />
                 </div>
-                <Divider className="my-4" />
+                <Divider className="mt-2 mb-1 bg-white" />
                 <nav className="flex flex-col items-start text-gray-500 ">
+                    {
+                        hasPermission('Ver perfil')? 
+                        <>
+                        <NavLink href={route('usuario.index',user.id)} tooltip={"Perfil"}
+                        active={route().current('usuario.index')} className="py-2 px-2 my-1" >
+                             <div className="me-3">
+                                <Icon path={mdiAccountCircleOutline} size={1} />
+                            </div>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Perfil</span>
+                        </NavLink>
+                        </>:<></>
+                    }
+                    <Divider className="my-1 bg-white" />
                     {
                         hasPermission('Ver todos documentos')? 
                         <>
-                        <NavLink className="py-2 px-2 mb-3" href={route('documento.index')} 
+                        <NavLink className="py-2 px-2 my-1" href={route('documento.index')} tooltip={"Documentos"}
                         active={route().current('documento.index')}>
                             <div className="me-3">
                                 <Icon path={mdiFileDocument} size={1} />
@@ -38,11 +53,13 @@ export const Sidebar = ({user}) => {
                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Documentos</span>
                         </NavLink>
                         </>:<></>
-                    }{
+                    }
+                    <Divider className="my-2 bg-white" />
+                    {
                         hasPermission('Gestion-Ver documentos')? 
                         <>
-                        <NavLink href={route('gestion-documento.index')} 
-                        active={route().current('gestion-documento.index')} className="py-2 px-2 mb-3" >
+                        <NavLink href={route('gestion-documento.index')} tooltip={"Gestion de documentos"}
+                        active={route().current('gestion-documento.index')} className="py-2 px-2 my-1" >
                              <div className="me-3">
                                 <Icon path={mdiFileMultiple} size={1} />
                             </div>
@@ -53,8 +70,8 @@ export const Sidebar = ({user}) => {
                     {
                         hasPermission('Ver todos usuarios')? 
                         <>
-                        <NavLink href={route('gestion-usuarios.index')}
-                        active={route().current('gestion-usuarios.index')} className="py-2 px-2 mb-3" >
+                        <NavLink href={route('gestion-usuarios.index')} tooltip={"Gestion de usuarios"}
+                        active={route().current('gestion-usuarios.index')} className="py-2 px-2 my-1" >
                              <div className="me-3">
                                 <Icon path={mdiAccountGroup} size={1} />
                             </div>
@@ -64,8 +81,8 @@ export const Sidebar = ({user}) => {
                     }{
                         hasPermission('Gestion-Funcionarios')? 
                         <>
-                        <NavLink href={route('funcionario.index')}
-                        active={route().current('funcionario.index')} className="py-2 px-2 mb-3" >
+                        <NavLink href={route('funcionario.index')} tooltip={"Gestion de funcionarios"}
+                        active={route().current('funcionario.index')} className="py-2 px-2 my-1" >
                              <div className="me-3">
                                 <Icon path={mdiBadgeAccount} size={1} />
                             </div>
@@ -75,8 +92,8 @@ export const Sidebar = ({user}) => {
                     }{
                         hasPermission('Gestion-Direcciones')? 
                         <>
-                        <NavLink href={route('direccion.index')}
-                        active={route().current('direccion.index')} className="py-2 px-2 mb-3" >
+                        <NavLink href={route('direccion.index')} tooltip={"Gestion de direcciones"}
+                        active={route().current('direccion.index')} className="py-2 px-2 my-1" >
                              <div className="me-3">
                                 <Icon path={mdiOfficeBuildingOutline} size={1} />
                             </div>
@@ -84,11 +101,12 @@ export const Sidebar = ({user}) => {
                         </NavLink>
                         </>:<></>
                     }
+                    <Divider className="my-2 bg-white" />
                     {
                         hasPermission('Gestion-Roles')?
                         <>
-                             <NavLink href={route('rol.index')}
-                            active={route().current('rol.index')} className="py-2 px-2 mb-3" >
+                             <NavLink href={route('rol.index')} tooltip={"Roles"}
+                            active={route().current('rol.index')} className="py-2 px-2 my-1" >
                                 <div className="me-3">
                                     <Icon path={mdiAccountSettingsOutline} size={1} />
                                 </div>
@@ -98,10 +116,10 @@ export const Sidebar = ({user}) => {
                         :<></>
                     }
                     {
-                        hasPermission('Gestion-Permisos')?
+                        hasPermission('Gestion-Permisos')? 
                         <>
-                            <NavLink href={route('permiso.index')}
-                            active={route().current('permiso.index')} className="py-2 px-2 mb-3" >
+                            <NavLink href={route('permiso.index')} tooltip={"Permisos"}
+                            active={route().current('permiso.index')} className="py-2 px-2 my-1" >
                                 <div className="me-3">
                                     <Icon path={mdiShieldAccountVariantOutline} size={1} />
                                 </div>
@@ -110,24 +128,15 @@ export const Sidebar = ({user}) => {
                         </>
                         :<></>
                     }
-                    {
-                        hasPermission('Ver perfil')? 
-                        <>
-                        <NavLink href={route('usuario.index',user.id)}
-                        active={route().current('usuario.index')} className="py-2 px-2 mb-3" >
-                             <div className="me-3">
-                                <Icon path={mdiAccountCircleOutline} size={1} />
-                            </div>
-                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Perfil</span>
-                        </NavLink>
-                        </>:<></>
-                    }
+                    <Divider className="my-2 bg-white" />
+                    
                     {
                         hasPermission('Ver historial documento') || hasPermission('Ver historial documento anexo') || 
                         hasPermission('Ver historial accion usuario') || hasPermission('Ver historial accion formulario')?
                         <>  
-                            <Accordion itemClasses={{title:"text-gray-500"}}
-                    motionProps={{ variants: {
+                            <Accordion itemClasses={{title:"text-white py-0"}} defaultExpandedKeys={"1"}
+                            //selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys}
+                            motionProps={{ variants: {
                             enter: {
                                 y: 0,
                                 opacity: 1,
@@ -162,51 +171,52 @@ export const Sidebar = ({user}) => {
                             },
                             },
                         }}>
-                            <AccordionItem key="1" aria-label="Accordion 1" title="Historial" className="text-gray-500"
+                            <AccordionItem key="1" aria-label="Accordion 1" title="Historial" 
+                            className="text-white rounded-md"
                                 startContent={<Icon path={mdiHistory} size={1} />} style={{ overflow: 'hidden', transition: 'width 0.3s'}}>
                                     {
                                         hasPermission('Ver historial documento')? 
                                         <>
-                                        <NavLink href={route('historial-documentos.index')}
+                                        <NavLink href={route('historial-documentos.index')} tooltip={"Documentos"}
                                         active={route().current('historial-documentos.index')} className="py-2 px-2 mb-3">
                                             <div className="me-2">
                                             <Icon path={mdiHistory} size={1} />
                                             </div>
-                                            <span className="text-medium">Documentos</span>
+                                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Documentos</span>
                                         </NavLink>
                                         </>:<></>
                                     }{
-                                        // hasPermission('Ver historial documento anexo')? 
-                                        // <>
-                                        // <NavLink href={route('historial-documentos-anexos.index')}
-                                        // active={route().current('historial-documentos-anexos.index')} className="py-2 px-2 mb-3">
-                                        //     <div className="me-2">
-                                        //     <Icon path={mdiHistory} size={1} />
-                                        //     </div>
-                                        //     <span className="text-medium">Documentos anexos</span>
-                                        // </NavLink>
-                                        // </>:<></>
+                                        hasPermission('Ver historial documento anexo')? 
+                                        <>
+                                        <NavLink href={route('historial-documentos-anexos.index')} tooltip={"Documentos anexos"}
+                                        active={route().current('historial-documentos-anexos.index')} className="py-2 px-2 mb-3">
+                                            <div className="me-2">
+                                            <Icon path={mdiHistory} size={1} />
+                                            </div>
+                                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Documentos anexos</span>
+                                        </NavLink>
+                                        </>:<></>
                                     }{
                                         hasPermission('Ver historial accion usuario')? 
                                         <>
-                                        <NavLink href={route('historial-accion-usuario.index')}
+                                        <NavLink href={route('historial-accion-usuario.index')} tooltip={"Acción sobre usuario"}
                                         active={route().current('historial-accion-usuario.index')} className="py-2 px-2 mb-3">
                                             <div className="me-2">
                                             <Icon path={mdiHistory} size={1} />
                                             </div>
-                                            <span className="text-medium">Acción usuario</span>
+                                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Acción sobre usuario</span>
                                         </NavLink>
                                         </>:<></>
                                     }
                                     {
                                         hasPermission('Ver historial accion formulario')? 
                                         <>
-                                        <NavLink href={route('historial-accion-formulario.index')}
+                                        <NavLink href={route('historial-accion-formulario.index')} tooltip={"Acción sobre formulario"}
                                         active={route().current('historial-accion-formulario.index')} className="py-2 px-2 mb-3">
                                             <div className="me-2">
                                             <Icon path={mdiFileDocument} size={1} />
                                             </div>
-                                            <span className="text-medium">Acción formulario</span>
+                                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Acción sobre formulario</span>
                                         </NavLink>
                                         </>:<></>
                                     } 
@@ -215,7 +225,6 @@ export const Sidebar = ({user}) => {
                         </>
                         :<></>
                     }
-                    
                     
                 </nav>
             </div>

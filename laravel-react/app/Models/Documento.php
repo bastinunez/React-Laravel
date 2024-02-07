@@ -23,6 +23,7 @@ class Documento extends Model
         'estado',
         'direccion',
         'autor',
+        'mime_file',
         'name_file',
         'file'
     ];

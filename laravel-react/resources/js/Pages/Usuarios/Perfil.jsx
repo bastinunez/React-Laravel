@@ -151,23 +151,23 @@ const Perfil = ({auth}) => {
                         {
                             cambiarPwd?
                             <>
-                                <div className='flex w-full justify-center mb-7'>
-                                    <div className='mx-10 w-full'>
+                                <div className='md:flex w-full justify-center mb-7'>
+                                    <div className='md:mx-10 w-full'>
                                         <InputLabel value={"Antigua contraseña"}></InputLabel>
                                         <TextInput className="w-full" type={'password'} value={dataPwd.current_password} onChange={(e) => setDataPwd('current_password',e.target.value)} ></TextInput>
                                         <InputError message={errorsPwd.current_password} className="mt-2" />
                                     </div>
-                                    <div className='mx-10 w-full'>
+                                    <div className='md:mx-10 w-full'>
                                         <InputLabel value={"Nueva contraseña"}></InputLabel>
                                         <TextInput className="w-full" type={'password'} value={dataPwd.nueva_pwd} onChange={(e) => setDataPwd('nueva_pwd',e.target.value)} ></TextInput>
                                         <InputError message={errorsPwd.nueva_pwd} className="mt-2" />
                                     </div>
                                 </div>
-                                <div className='flex w-full '>
+                                <div className='flex w-full gap-1'>
                                     <Tooltip content="Borrarás los cambios" color={"warning"}>
-                                        <Button variant='ghost' color='warning' className='w-full mx-8' onClick={(e) => {setCambiarPwd(!cambiarPwd)}}>Cancelar</Button>
+                                        <Button variant='ghost' color='warning' className='w-full md:mx-8' onClick={(e) => {setCambiarPwd(!cambiarPwd)}}>Cancelar</Button>
                                     </Tooltip>
-                                    <Button variant='ghost' color='success' className='w-full mx-8' type='submit'>Guardar cambios</Button>
+                                    <Button variant='ghost' color='success' className='w-full md:mx-8' type='submit'>Guardar cambios</Button>
                                 </div>
                             </>:
                             <>

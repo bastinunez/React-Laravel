@@ -87,27 +87,26 @@ const ShowFuncionarios = ({auth}) => {
                 <div className="flex flex-col gap-4">
                     <div className="md:flex justify-center gap-4 items-end">
                         <Input isClearable classNames={{input:["border-none"]}} type='text'
-                        className="w-full input-next border-none" size='sm' placeholder="Buscar por nombre..."
+                        className="w-full mb-1" size='sm' placeholder="Buscar por nombre..."
                         startContent={<Icon path={mdiMagnify} size={1} />} value={filterNombre}
                         onClear={() => onClearNombre()} onValueChange={onSearchChangeNombre} />
                         <div className="flex justify-between items-center w-full gap-1 md:gap-3">
                             <div className='flex items-center '>
-                                <span className="text-default-400 text-small">Total {funcionarios.length} funcionarios</span>
+                                <span className="text-default-400 text-tiny lg:text-small">Total {funcionarios.length} funcionarios</span>
                             </div>
-                            <Button color='warning'  onPress={()=>limpiarFiltros()} className='' startContent={
-                                <Icon path={mdiVacuumOutline} size={1} />}>
-                                <p className='hidden lg:flex'>
+                            <Button color='warning' className='min-w-0 min-h-0' onPress={()=>limpiarFiltros()}>
+                                <Icon path={mdiVacuumOutline} size={1} />
+                                <p className='hidden sm:flex'>
                                 Limpiar filtros
                                 </p>
                             </Button>
                             <div className=''>
-                                <label className="flex items-center text-default-400 text-small">
+                                <label className="flex items-center text-default-400 text-tiny lg:text-small">
                                     Filas por pagina:
                                     <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
                                     </Select>
                                 </label>
                             </div>
-                           
                         </div>
                     </div>
                     
@@ -116,17 +115,23 @@ const ShowFuncionarios = ({auth}) => {
             <ContentTemplate>
                 <div className='flex justify-between mb-3'>
                     <div>
-                        <h1 className='text-2xl'>Resultados</h1>
+                        <h1 className='text-large md:text-2xl'>Resultados</h1>
                     </div>
                     <div className='flex gap-3'>
                         {
                             hasPermission('Gestion-Crear funcionario')?
                             <>
-                            <Link href={route('funcionario.create')}>
-                                <Button color="success" variant="solid" endContent={<Icon path={mdiPlus} size={1} />}>
-                                Agregar funcionario
-                                </Button>
-                            </Link>
+                            <Tooltip content={"Agregar funcionario"} color='primary'>
+                                <Link href={route('funcionario.create')}>
+                                    <Button color="success" variant="solid" size='sm' className='min-w-0 min-h-0'
+                                    //isIconOnly 
+                                    endContent={<Icon path={mdiPlus} size={1} />}>
+                                        <div className='hidden text-tiny md:flex md:text-small'>
+                                            Agregar funcionario
+                                        </div>
+                                    </Button>
+                                </Link>
+                            </Tooltip>
                             </>:<></>
                         }
                     </div>

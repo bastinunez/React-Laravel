@@ -8,7 +8,7 @@ export default function Authenticated({ user, header, children }) {
     const { sidebar,changeState} = useSidebarStore();
     
     return (
-        <div className=" flex h-screen">
+        <div className=" flex h-screen bg-slate-200">
             {/* SIDEBAR */}
             <div>
                 <Sidebar user={user} visible={sidebar}>
@@ -21,7 +21,7 @@ export default function Authenticated({ user, header, children }) {
                 <NavbarComponent></NavbarComponent>
                 
                 <main>
-                    <div className="align-center justify-center full-width h-full flex-col min-h-screen bg-slate-200">
+                    <div className="align-center justify-center full-width h-full flex-col bg-slate-200">
                         <div className="d-flex w-100 justify-center pt-6 container mx-auto">
                             <div>
                              {children}
