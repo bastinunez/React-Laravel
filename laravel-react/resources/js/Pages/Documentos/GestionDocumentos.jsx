@@ -46,8 +46,12 @@ const GestionDocumentos = ({auth}) => {
 
   //MODAL
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const {isOpen:isOpenEstado, onOpen:onOpenEstado, onOpenChange:onOpenChangeEstado} = useDisclosure();
   const [modalPlacement, setModalPlacement] = useState("auto");
   const [sinArchivos,setSinArchivos] = useState([])
+  const [functionName,setFunctionName] = useState('')
+  const [titleModal,setTitleModal]=useState('')
+  const [contentModal,setContentModal]=useState('')
 
   //formulario
   const { data:dataEstado, setData:setDataEstado, post:postEstado, processing:processingEstado, 
@@ -296,21 +300,21 @@ const GestionDocumentos = ({auth}) => {
         <FilterTemplate>
           <div className="xl:flex xl:flex-col gap-4">
             <div className="lg:flex mb-2">
-              <div className='md:flex w-full gap-4 items-center justify-center mb-1 me-1'>
-                <div className='md:flex'>
+              <div className='md:flex w-full gap-2 items-center justify-center mb-1 me-1'>
+                <div className='md:flex gap-2'>
                   <Input isClearable classNames={{input:["border-none", "placeholder:none",]}} type='text'
-                    className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
+                    className="w-full mb-1"  size='sm' placeholder="Buscar por numero..."
                     startContent={<Icon path={mdiMagnify} size={1} />} value={filterNumero}
                     onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
 
                   <Input isClearable classNames={{input:["border-none"]}}
-                    className="w-full" size='sm' placeholder="Buscar por materia..."
+                    className="w-full mb-1"  size='sm' placeholder="Buscar por materia..."
                     startContent={<Icon path={mdiMagnify} size={1} />} value={filterMateria}
                     onClear={() => onClearMateria()} onValueChange={onSearchChangeMateria} />
                 </div>
-                <div className='md:flex'>
+                <div className='md:flex gap-2'>
                   <Input isClearable classNames={{input:["border-none"]}}
-                    className="w-full" size='sm'  placeholder="Buscar por rut..."
+                    className="w-full mb-1"  size='sm'  placeholder="Buscar por rut..."
                     startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
                     onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
                   <div className='w-full card'>
@@ -318,8 +322,8 @@ const GestionDocumentos = ({auth}) => {
                   </div>
                 </div>
               </div>
-              <div className="lg:flex gap-3">
-                <div className='flex'>
+              <div className="lg:flex gap-1">
+                <div className='flex mb-1 gap-1'>
                   <div className='w-full'>
                     {/* FILTRO TIPO */}
                     <Dropdown >
@@ -356,7 +360,7 @@ const GestionDocumentos = ({auth}) => {
                     </Dropdown>
                   </div>
                   </div>
-                <div className='flex'>
+                <div className='flex mb-1 gap-1'>
                   <div className='w-full'>
                     {/* FILTRO DIRECCION */}
                     <Dropdown>
@@ -390,13 +394,11 @@ const GestionDocumentos = ({auth}) => {
                     </Dropdown>
                   </div>
                 </div>
-                
-               
               </div>
             </div>
             <div className="flex justify-between items-center">
               <div>
-                <span className="text-default-400 text-small">Total {documentos.length} documentos</span>
+                <span className="text-default-400 text-tiny lg:text-small">Total {documentos.length} documentos</span>
               </div>
               <div className='flex gap-5'>
                 <Button color='warning'  onPress={()=>limpiarFiltros()}>
@@ -405,7 +407,7 @@ const GestionDocumentos = ({auth}) => {
                     Limpiar filtros
                     </p>
                 </Button>
-                <label className="flex items-center text-default-400 text-small">
+                <label className="flex items-center text-default-400 text-tiny lg:text-small">
                   Filas por pagina:
                   <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
                   </Select>
@@ -419,47 +421,61 @@ const GestionDocumentos = ({auth}) => {
             <div >
               <h1 className='text-2xl'>Resultados</h1>
             </div>
-            <div className='flex md:gap-3'>
+            <div className='flex gap-3'>
               {
                 hasPermission('Gestion-Crear documento')?
                 <>
                   <Link href={route('gestion-documento.create')}>
-                    <Button color="success" variant="solid" endContent={<Icon path={mdiPlus} size={1} />}>
-                      <div className='hidden text-tiny xl:flex xl:text-small'>
-                        Agregar documento
-                      </div>
-                    </Button>
+                    <Tooltip content={"Crear documento"} color='success'>
+                      <Button color="success" variant="solid" size='sm' isIconOnly endContent={<Icon path={mdiPlus} size={1} />}>
+                        {/* <div className='hidden text-tiny xl:flex xl:text-small'>
+                          Agregar documento
+                        </div> */}
+                      </Button>
+                    </Tooltip>
                   </Link>
                 </>:<></>
               }{
                 hasPermission('Gestion-Anular documento')?
                 <>
-                  <Button color="danger" variant="solid" onPress={()=>anularSeleccionados()}
+                <Tooltip content={"Anular documentos"} color='danger'>
+                  <Button color="danger" variant="solid" size='sm' isIconOnly onPress={()=>{
+                    setFunctionName(() => () => anularSeleccionados());setTitleModal('Anular documentos seleccionados');
+                    setContentModal('¿Está seguro de anular los documentos?');onOpenEstado();}} 
+                  //onPress={()=>anularSeleccionados()}
                   endContent={<Icon path={mdiCancel} size={1} />}>
-                    <div className='hidden text-tiny xl:flex xl:text-small'>
+                    {/* <div className='hidden text-tiny xl:flex xl:text-small'>
                       Anular seleccionados
-                    </div>
+                    </div> */}
                   </Button>
+                </Tooltip>
                 </>:<></>
               }{
                 hasPermission('Gestion-Habilitar documento')?
                 <>
-                  <Button color="secondary" variant="solid" onPress={habilitarSeleccionados}
+                <Tooltip content={"Habilitar documentos"} color='secondary'>
+                  <Button color="secondary" variant="solid" size='sm' isIconOnly onPress={()=>{
+                    setFunctionName(() => () => habilitarSeleccionados());setTitleModal('Habilitar documentos seleccionados');
+                    setContentModal('¿Está seguro de habilitar los documentos?');onOpenEstado();}} 
+                  //onPress={habilitarSeleccionados}
                   endContent={<Icon path={mdiCheckUnderline} size={1} />}>
-                    <div className='hidden text-tiny xl:flex xl:text-small'>
+                    {/* <div className='hidden text-tiny xl:flex xl:text-small'>
                     Habilitar seleccionados
-                    </div>
+                    </div> */}
                   </Button>
+                  </Tooltip>
                 </>:<></>
               }{
                 hasPermission('Gestion-Descargar documento')?
                 <>
-                    <Button color="primary" variant="solid" onClick={descargarSeleccionados}
+                  <Tooltip content={"Descargar documentos"} color='primary'>
+                    <Button color="primary" variant="solid" size='sm' isIconOnly onClick={descargarSeleccionados}
                     endContent={<Icon path={mdiFileDownloadOutline} size={1} />}>
-                      <div className='hidden text-tiny xl:flex xl:text-small'>
+                      {/* <div className='hidden text-tiny xl:flex xl:text-small'>
                       Descargar seleccionados
-                    </div>
+                    </div> */}
                     </Button>
+                  </Tooltip>
                 </>:<></>
               }
             
@@ -554,6 +570,21 @@ const GestionDocumentos = ({auth}) => {
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                         <>
                         {
+                          hasPermission('Gestion-Editar documento')?
+                          <>
+                            <Tooltip content={"Editar"} color='warning'>
+                              <Link href={route('gestion-documento.edit',String(documento.id))} >
+                                <Button className="me-1" size='sm' color='warning' variant='flat'> 
+                                  {/* active={route().current('documento.visualizar')} */}
+                                <Icon path={mdiPencilBoxOutline} size={1}/>
+                                  
+                                </Button>
+                              </Link>
+                            </Tooltip>
+                          </>:
+                          <></>
+                        }
+                        {
                           hasPermission('Visualizar documento') && documento.file && documento.estado=="Habilitado"?
                           <>
                             <Tooltip content={"Visualizar"} color='secondary'>
@@ -578,20 +609,6 @@ const GestionDocumentos = ({auth}) => {
                                     
                                   </Button>
                                 </a>
-                            </Tooltip>
-                          </>:
-                          <></>
-                        }{
-                          hasPermission('Gestion-Editar documento')?
-                          <>
-                            <Tooltip content={"Editar"} color='warning'>
-                              <Link href={route('gestion-documento.edit',String(documento.id))} >
-                                <Button className="me-1" size='sm' color='warning' variant='flat'> 
-                                  {/* active={route().current('documento.visualizar')} */}
-                                <Icon path={mdiPencilBoxOutline} size={1}/>
-                                  
-                                </Button>
-                              </Link>
                             </Tooltip>
                           </>:
                           <></>
@@ -647,6 +664,31 @@ const GestionDocumentos = ({auth}) => {
                   <ModalFooter>
                     <Button color="danger" variant="light" onPress={onClose}>
                       Cerrar
+                    </Button>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
+        </div>
+        {/* MODAL HABILITAR/ANULAR */}
+        <div>
+          <Modal isOpen={isOpenEstado} placement={modalPlacement} onOpenChange={onOpenChangeEstado} size="md" >
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">{titleModal}</ModalHeader>
+                  <ModalBody>
+                    {
+                      contentModal
+                    }
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color="danger" variant="light" onPress={onClose} >
+                      Cerrar
+                    </Button>
+                    <Button color="primary" onPress={onClose} onClick={()=>functionName()}>
+                        Confirmar
                     </Button>
                   </ModalFooter>
                 </>

@@ -216,6 +216,9 @@ class DocumentoController extends Controller
                 'anno' => $doc->anno,
                 'autor_nombre' => $doc->autorRelacion->nombres,
                 'autor_apellido' => $doc->autorRelacion->apellidos,
+                'name_file'=>$doc->name_file,
+                'mime_file'=>$doc->mime_file,
+                'file' => $doc->file,
             ];
         }
 

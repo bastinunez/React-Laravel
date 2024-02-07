@@ -47,7 +47,6 @@ const AgregarDocumento = ({auth}) => {
     tipo_documento: 'DEFAULT',
     estado:false
   });
-  console.log(data)
   //recibo los datos desde el controlador
   const { direcciones,all_docs, tipos,autores,flash } = usePage().props;
   const [documentos,setDocumentos] = useState([])
@@ -92,7 +91,6 @@ const AgregarDocumento = ({auth}) => {
   //post
   const submit = async (e) => {
     e.preventDefault();
-    console.log(data)
     post(route('gestion-documento.store'),{
       onSuccess: (msg) => { 
         reset('materia_documento'); showMsg(msg.success,severity.success,summary.success)},

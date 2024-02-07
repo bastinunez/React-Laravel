@@ -87,12 +87,12 @@ const ShowFuncionarios = ({auth}) => {
                 <div className="flex flex-col gap-4">
                     <div className="md:flex justify-center gap-4 items-end">
                         <Input isClearable classNames={{input:["border-none"]}} type='text'
-                        className="w-full input-next border-none" size='sm' placeholder="Buscar por nombre..."
+                        className="w-full mb-1" size='sm' placeholder="Buscar por nombre..."
                         startContent={<Icon path={mdiMagnify} size={1} />} value={filterNombre}
                         onClear={() => onClearNombre()} onValueChange={onSearchChangeNombre} />
                         <div className="flex justify-between items-center w-full gap-1 md:gap-3">
                             <div className='flex items-center '>
-                                <span className="text-default-400 text-small">Total {funcionarios.length} funcionarios</span>
+                                <span className="text-default-400 text-tiny lg:text-small">Total {funcionarios.length} funcionarios</span>
                             </div>
                             <Button color='warning'  onPress={()=>limpiarFiltros()} className='' startContent={
                                 <Icon path={mdiVacuumOutline} size={1} />}>
@@ -101,13 +101,12 @@ const ShowFuncionarios = ({auth}) => {
                                 </p>
                             </Button>
                             <div className=''>
-                                <label className="flex items-center text-default-400 text-small">
+                                <label className="flex items-center text-default-400 text-tiny lg:text-small">
                                     Filas por pagina:
                                     <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
                                     </Select>
                                 </label>
                             </div>
-                           
                         </div>
                     </div>
                     
@@ -122,11 +121,13 @@ const ShowFuncionarios = ({auth}) => {
                         {
                             hasPermission('Gestion-Crear funcionario')?
                             <>
-                            <Link href={route('funcionario.create')}>
-                                <Button color="success" variant="solid" endContent={<Icon path={mdiPlus} size={1} />}>
-                                Agregar funcionario
-                                </Button>
-                            </Link>
+                            <Tooltip content={"Agregar funcionario"} color='primary'>
+                                <Link href={route('funcionario.create')}>
+                                    <Button color="success" variant="solid" isIconOnly endContent={<Icon path={mdiPlus} size={1} />}>
+                                    {/* Agregar funcionario */}
+                                    </Button>
+                                </Link>
+                            </Tooltip>
                             </>:<></>
                         }
                     </div>

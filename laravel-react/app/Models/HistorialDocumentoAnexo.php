@@ -18,14 +18,7 @@ class HistorialDocumentoAnexo extends Model
         'detalles',
         'created_at'
     ];
-    // public function documentoRelacion()
-    // {
-    //     return $this->belongsTo(DocumentoAnexo::class, 'fk_documento_id');
-    // }
-    // public function documentoAnexoRelacion()
-    // {
-    //     return $this->belongsTo(DocumentoAnexo::class, 'fk_documento_id_anexo');
-    // }
+    
     public function documentoRelacion()
     {
         return $this->belongsTo(Documento::class, 'fk_documento_id');

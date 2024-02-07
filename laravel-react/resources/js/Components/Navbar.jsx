@@ -18,9 +18,9 @@ export default function NavbarComponent() {
     }
     const { sidebar,changeState} = useSidebarStore();
     return (
-        <Navbar maxWidth="full" position="sticky">
+        <Navbar maxWidth="full" position="sticky" className="">
             <NavbarBrand>
-                <Button onClick={() => changeState()} className='align-middle bg-indigo-400 text-white'>
+                <Button onClick={() => changeState()} variant="ghost" isIconOnly className='align-middle border-indigo-500  bg-transparent text-indigo-500'>
                     <Icon path={mdiMenu}></Icon>
                 </Button>
             </NavbarBrand>
@@ -44,7 +44,7 @@ export default function NavbarComponent() {
             <NavbarContent justify="end">
                 <NavbarItem>
                     {/* <ResponsiveNavLink method="post" href={route('logout')} as="button"> */}
-                    <Button onPress={()=>setVariables()} className="bg-indigo-400 text-white">
+                    <Button onPress={()=>setVariables()} isIconOnly className="bg-indigo-500 text-white">
                             <Icon path={mdiLogout} size={1} />
                     </Button>
                     {/* <ResponsiveNavLink method="post" href={route('logout')} as="button">                 

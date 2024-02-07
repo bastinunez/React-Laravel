@@ -356,9 +356,26 @@ class GestionUsuarioController extends Controller
             foreach($permisos as $permiso){
                 $user->revokePermissionTo($permiso);
                 $user->save();
+                $user_id=Auth::id();
+                HistorialUsuario::create([
+                    'usuario_id'=>$user->id,
+                    'responsable'=>$user_id,
+                    'accion'=>2,
+                    'detalles'=>"Se le quita el  permiso: ".$permiso
+                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                ]);
             }
+            
         }else{
             $user->syncPermissions($permisos);
+            $user_id=Auth::id();
+            HistorialUsuario::create([
+                'usuario_id'=>$user->id,
+                'responsable'=>$user_id,
+                'accion'=>2,
+                'detalles'=>"Se le otorgan permisos: " .implode(', ', $permisos)
+                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            ]);
             // foreach($permisos as $permiso){
             //     $permision_name=Permission::find($permiso);
             //     //$user->syncPermissions($permision_name->name);
@@ -374,6 +391,14 @@ class GestionUsuarioController extends Controller
         $user=User::find($id);
         $role=Rol::find($request->rol);
         $user->syncRoles($role->name);
+        $user_id=Auth::id();
+        HistorialUsuario::create([
+            'usuario_id'=>$user->id,
+            'responsable'=>$user_id,
+            'accion'=>2,
+            'detalles'=>"Nuevo rol: ".$role->name
+            //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+        ]);
         return redirect()->back()->with(['update'=>'Se pudo cambiar el rol']);
     }
 

@@ -1,4 +1,4 @@
-import React,{useRef} from "react";
+import React,{useRef, useState} from "react";
 import { Link } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 import {Divider,Accordion, AccordionItem} from "@nextui-org/react";
@@ -13,10 +13,12 @@ export const Sidebar = ({user}) => {
     //console.log(visible)
     const { sidebar,changeState} = useSidebarStore();
     const {hasRoles,hasPermission} = usePermission();
+    const [variable,setVariable]=useState('')
+    const [selectedKeys, setSelectedKeys] = React.useState(new Set(["1"]));
     return(
         <>
-            <div className={`bg-slate-100 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
-                <div className="text-black">
+            <div className={`bg-indigo-500 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
+                <div className="text-white">
                     <User name={  <span className=" ps-3">{user.nombres}</span>} 
                         classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis ${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}
                         description={(
@@ -25,7 +27,7 @@ export const Sidebar = ({user}) => {
                         avatarProps={null}
                     />
                 </div>
-                <Divider className="my-4" />
+                <Divider className="my-4 bg-white" />
                 <nav className="flex flex-col items-start text-gray-500 ">
                     {
                         hasPermission('Ver todos documentos')? 
@@ -126,8 +128,9 @@ export const Sidebar = ({user}) => {
                         hasPermission('Ver historial documento') || hasPermission('Ver historial documento anexo') || 
                         hasPermission('Ver historial accion usuario') || hasPermission('Ver historial accion formulario')?
                         <>  
-                            <Accordion itemClasses={{title:"text-gray-500"}}
-                    motionProps={{ variants: {
+                            <Accordion itemClasses={{title:"text-white py-0"}} defaultExpandedKeys={"1"}
+                            //selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys}
+                            motionProps={{ variants: {
                             enter: {
                                 y: 0,
                                 opacity: 1,
@@ -162,7 +165,8 @@ export const Sidebar = ({user}) => {
                             },
                             },
                         }}>
-                            <AccordionItem key="1" aria-label="Accordion 1" title="Historial" className="text-gray-500"
+                            <AccordionItem key="1" aria-label="Accordion 1" title="Historial" 
+                            className="text-white rounded-md"
                                 startContent={<Icon path={mdiHistory} size={1} />} style={{ overflow: 'hidden', transition: 'width 0.3s'}}>
                                     {
                                         hasPermission('Ver historial documento')? 
@@ -176,16 +180,16 @@ export const Sidebar = ({user}) => {
                                         </NavLink>
                                         </>:<></>
                                     }{
-                                        // hasPermission('Ver historial documento anexo')? 
-                                        // <>
-                                        // <NavLink href={route('historial-documentos-anexos.index')}
-                                        // active={route().current('historial-documentos-anexos.index')} className="py-2 px-2 mb-3">
-                                        //     <div className="me-2">
-                                        //     <Icon path={mdiHistory} size={1} />
-                                        //     </div>
-                                        //     <span className="text-medium">Documentos anexos</span>
-                                        // </NavLink>
-                                        // </>:<></>
+                                        hasPermission('Ver historial documento anexo')? 
+                                        <>
+                                        <NavLink href={route('historial-documentos-anexos.index')}
+                                        active={route().current('historial-documentos-anexos.index')} className="py-2 px-2 mb-3">
+                                            <div className="me-2">
+                                            <Icon path={mdiHistory} size={1} />
+                                            </div>
+                                            <span className="text-medium">Documentos anexos</span>
+                                        </NavLink>
+                                        </>:<></>
                                     }{
                                         hasPermission('Ver historial accion usuario')? 
                                         <>

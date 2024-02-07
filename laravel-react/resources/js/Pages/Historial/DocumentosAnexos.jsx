@@ -204,7 +204,7 @@ const DocumentosAnexos = ({auth}) => {
                   <div>
                     {/* FILTRO ACCION */}
                     <Dropdown >
-                      <DropdownTrigger className="hidden sm:flex">
+                      <DropdownTrigger className="text-tiny lg:text-small">
                         <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
                           Accion
                         </Button>
@@ -221,7 +221,7 @@ const DocumentosAnexos = ({auth}) => {
                   <div>
                     {/* FILTRO TIPO */}
                     <Dropdown >
-                      <DropdownTrigger className="hidden sm:flex">
+                      <DropdownTrigger className="text-tiny lg:text-small">
                         <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
                           Tipo
                         </Button>
@@ -238,7 +238,7 @@ const DocumentosAnexos = ({auth}) => {
                   <div>
                     {/* FILTRO AUTOR */}
                     <Dropdown>
-                      <DropdownTrigger className="hidden sm:flex">
+                      <DropdownTrigger className="text-tiny lg:text-small">
                         <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
                           Autor
                         </Button>
@@ -260,7 +260,7 @@ const DocumentosAnexos = ({auth}) => {
             </div>
             <div className="flex justify-between items-center">
               <div>
-                <span className="text-default-400 text-small">Total {historial.length} filas</span>
+                <span className="text-default-400 text-tiny lg:text-small">Total {historial.length} filas</span>
               </div>
               <div className='flex gap-5'>
                 <Button color='warning'  onPress={()=>limpiarFiltros()}>
@@ -269,7 +269,7 @@ const DocumentosAnexos = ({auth}) => {
                     Limpiar filtros
                     </p>
                 </Button>
-                <label className="flex items-center text-default-400 text-small">
+                <label className="flex items-center text-default-400 text-tiny lg:text-small">
                   Filas por pagina:
                   <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
                   </Select>

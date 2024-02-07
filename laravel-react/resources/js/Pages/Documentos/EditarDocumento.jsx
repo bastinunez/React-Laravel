@@ -38,7 +38,9 @@ const EditarDocumento = ({auth}) => {
     //modal
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
     const [modalPlacement, setModalPlacement] = useState("auto");
-    const [sinArchivos,setSinArchivos] = useState([])
+    const [titleModal,setTitleModal] = useState('')
+    const [contentModal,setContentModal] = useState('')
+    const [functionName,setFunctionName] = useState('')
 
     //PERMISOS
     const {hasRoles,hasPermission} = usePermission()
@@ -201,7 +203,7 @@ const EditarDocumento = ({auth}) => {
     const quitarDocAnexoButton = (id_anexo) => {
         dataDelete.anexos=[id_anexo]
         deleteAnexo(route('documento-anexo.destroy',id_anexo),{
-            onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.error,summary.error)},
+            onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success)},
             onError: (msg) => { showMsg(msg.destroy,severity.error,summary.error)}
         })
 
@@ -321,28 +323,7 @@ const EditarDocumento = ({auth}) => {
                                             <Tooltip content="Confirmar cambios y agregar" color='success'>
                                                 <Button onPress={onOpen} color='success' variant='ghost' className='w-full text-large' size='md'>Guardar cambios</Button>
                                             </Tooltip>
-                                            <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-                                                <ModalContent>
-                                                {(onClose) => (
-                                                    <>
-                                                    <ModalHeader className="flex flex-col gap-1">Confirmar cambios</ModalHeader>
-                                                    <ModalBody>
-                                                        <p> 
-                                                            ¿Está seguro de aplicar los cambios?
-                                                        </p>
-                                                    </ModalBody>
-                                                    <ModalFooter>
-                                                        <Button color="danger" variant="light" onPress={onClose}>
-                                                            Cancelar
-                                                        </Button>
-                                                        <Button color="primary" onPress={onClose} onClick={submit}>
-                                                            Confirmar
-                                                        </Button>
-                                                    </ModalFooter>
-                                                    </>
-                                                )}
-                                                </ModalContent>
-                                            </Modal>
+                                            
                                         </div>
                                     </form>
                                 </>
@@ -442,7 +423,7 @@ const EditarDocumento = ({auth}) => {
                                                         </NextSelect>
                                                     </div>
                                                     <div className='flex items-center '>
-                                                        <Button type='text' className="w-full me-2" color='primary' variant='ghost'>Anexar documentos</Button>
+                                                        <Button type='submit' className="w-full me-2" color='primary' variant='ghost'>Anexar documentos</Button>
                                                         <Link href={route("gestion-documento.index")} className='w-full'>
                                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                                         </Link>
@@ -460,7 +441,10 @@ const EditarDocumento = ({auth}) => {
                                                     <h1 className='text-xl'></h1>
                                                 </div>
                                                 <div className='gap-4 flex'>
-                                                    <Button color='danger' variant='solid' onPress={quitarDocAnexoSeleccion} 
+                                                    <Button color='danger' variant='solid' onPress={()=>{
+                                                                            setFunctionName(() => () => quitarDocAnexoSeleccion());setTitleModal('Eliminar documentos anexos');
+                                                                            setContentModal('¿Está seguro de eliminar los documentos?');onOpen();}} 
+                                                    //onPress={quitarDocAnexoSeleccion} 
                                                     startContent={<Icon path={mdiTrashCanOutline} size={1} />}>
                                                         <p className='md:flex hidden'>Quitar seleccionados</p> </Button>
                                                     <Button color='primary' variant='solid' onPress={descargarDocAnexoSeleccion}
@@ -497,7 +481,11 @@ const EditarDocumento = ({auth}) => {
                                                                 <TableCell>{doc_anexo.fecha}</TableCell>
                                                                 <TableCell>
                                                                     <Tooltip content={"Quitar"} color='danger'>
-                                                                        <Button onPress={() => quitarDocAnexoButton(doc_anexo.id)} className="" size='sm' color='danger' variant='flat'> 
+                                                                        <Button onPress={()=>{
+                                                                            setFunctionName(() => () => quitarDocAnexoButton(doc_anexo.id));setTitleModal('Eliminar documentos anexos');
+                                                                            setContentModal('¿Está seguro de eliminar los documentos?');onOpen();}} 
+                                                                            // onPress={() => quitarDocAnexoButton(doc_anexo.id)} 
+                                                                            className="" size='sm' color='danger' variant='flat'> 
                                                                             <Icon path={mdiTrashCanOutline} size={1}/>
                                                                         </Button>
                                                                     </Tooltip>
@@ -517,10 +505,28 @@ const EditarDocumento = ({auth}) => {
                         
                     </div>
                 </ContentTemplate>
-                {/* MODAL DESCARGA */}
-                <div>
-                
-                </div>
+                <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+                    <ModalContent>
+                    {(onClose) => (
+                        <>
+                        <ModalHeader className="flex flex-col gap-1">{titleModal}</ModalHeader>
+                        <ModalBody>
+                            {
+                                <p>{contentModal}</p>
+                            }
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="danger" variant="light" onPress={onClose}>
+                                Cancelar
+                            </Button>
+                            <Button color="primary" onPress={onClose} onClick={()=>functionName()}>
+                                Confirmar
+                            </Button>
+                        </ModalFooter>
+                        </>
+                    )}
+                    </ModalContent>
+                </Modal>
             </div>
         </Authenticated>
     )

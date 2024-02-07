@@ -31,12 +31,14 @@ const ShowUsers = ({auth}) => {
 
   //VARIABLES QUE ENTREGA EL CONTROLADOR
   const { usuarios,estados } = usePage().props;
-  console.log(usuarios)
+  //console.log(usuarios)
 
   //MODAL
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const {isOpen:isOpenEstado, onOpen:onOpenEstado, onOpenChange:onOpenChangeEstado} = useDisclosure();
   const [modalPlacement, setModalPlacement] = useState("auto");
-  const [sinArchivos,setSinArchivos] = useState([])
+  const [functionName,setFunctionName] = useState('')
+  const [titleModal,setTitleModal]=useState('')
+  const [contentModal,setContentModal]=useState('')
 
   //formulario
   const { data:dataEstado, setData:setDataEstado, post:postEstado, processing:processingEstado, 
@@ -243,24 +245,24 @@ const ShowUsers = ({auth}) => {
         <Toast ref={toast_global}></Toast>
         <FilterTemplate>
         <div className="flex flex-col gap-4">
-            <div className="flex justify-center gap-4 items-end">
+            <div className="md:flex justify-center gap-4 items-end">
               <Input isClearable classNames={{input:["border-none"]}} type='text'
-                className="w-full input-next border-none" size='sm' placeholder="Buscar por numero..."
+                className="w-full mb-1" size='sm' placeholder="Buscar por numero..."
                 startContent={<Icon path={mdiMagnify} size={1} />} value={filterNombre}
                 onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
 
               <Input isClearable classNames={{input:["border-none"]}}
-                className="w-full" size='sm' placeholder="Buscar por apellido..."
+                className="w-full mb-1" size='sm' placeholder="Buscar por apellido..."
                 startContent={<Icon path={mdiMagnify} size={1} />} value={filterApellido}
                 onClear={() => onClearApellido()} onValueChange={onSearchChangeApellido} />
 
               <Input isClearable classNames={{input:["border-none"]}}
-                className="w-full" size='sm'  placeholder="Buscar por rut..."
+                className="w-full mb-1" size='sm'  placeholder="Buscar por rut..."
                 startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
                 onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
               
               <Input isClearable classNames={{input:["border-none"]}}
-                className="w-full" size='sm'  placeholder="Buscar por correo..."
+                className="w-full mb-1" size='sm'  placeholder="Buscar por correo..."
                 startContent={<Icon path={mdiMagnify} size={1} />} value={filterCorreo}
                 onClear={() => onClearCorreo()} onValueChange={onSearchChangeCorreo} />
               
@@ -288,7 +290,7 @@ const ShowUsers = ({auth}) => {
             </div>
             <div className="flex justify-between items-center">
               <div>
-                <span className="text-default-400 text-small">Total {usuarios.length} usuarios</span>
+                <span className="text-default-400 text-tiny lg:text-small">Total {usuarios.length} usuarios</span>
               </div>
               <div className='flex gap-5'>
                 <Button color='warning'  onPress={()=>limpiarFiltros()}>
@@ -297,7 +299,7 @@ const ShowUsers = ({auth}) => {
                   Limpiar filtros
                   </p>
                 </Button>
-                <label className="flex items-center text-default-400 text-small">
+                <label className="flex items-center text-default-400 text-tiny lg:text-small">
                   Filas por pagina:
                   <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
                   </Select>
@@ -316,32 +318,44 @@ const ShowUsers = ({auth}) => {
                 hasPermission('Crear usuario') || hasPermission('Cargar usuarios xlsx')?
                 <>
                   <Link href={route('gestion-usuarios.create')}>
-                    <Button color="success" variant="solid" endContent={<Icon path={mdiPlus} size={1} />}>
-                      <div className='hidden text-tiny xl:flex xl:text-small'>
+                  <Tooltip content={"Crear usuario"} color='success'>
+                    <Button color="success" variant="solid" isIconOnly endContent={<Icon path={mdiPlus} size={1} />}>
+                      {/* <div className='hidden text-tiny xl:flex xl:text-small'>
                         Agregar usuario
-                      </div>
+                      </div> */}
                     </Button>
+                  </Tooltip>
                   </Link>
                 </>:<></>
               }{
                 hasPermission('Anular usuario')?
                 <>
-                  <Button color="danger" variant="solid" onPress={()=>anularSeleccionados()}
+                <Tooltip content={"Anular usuario"} color='danger'>
+                  <Button color="danger" variant="solid" isIconOnly onPress={()=>{
+                    setFunctionName(() => () => anularSeleccionados());setTitleModal('Anular usuarios seleccionados');
+                    setContentModal('¿Está seguro de anular los usuarios?');onOpenEstado();}} 
+                  //onPress={()=>anularSeleccionados()}
                   endContent={<Icon path={mdiCancel} size={1} />}>
-                    <div className='hidden text-tiny xl:flex xl:text-small'>
+                    {/* <div className='hidden text-tiny xl:flex xl:text-small'>
                       Anular seleccionados
-                    </div>
+                    </div> */}
                   </Button>
+                  </Tooltip>
                 </>:<></>
               }{
                 hasPermission('Habilitar usuario')?
                 <>
-                  <Button color="secondary" variant="solid" onPress={habilitarSeleccionados}
+                <Tooltip content={"Habilitar usuario"} color='secondary'>
+                  <Button color="secondary" variant="solid" isIconOnly onPress={()=>{
+                    setFunctionName(() => () => habilitarSeleccionados());setTitleModal('Habilitar usuarios seleccionados');
+                    setContentModal('¿Está seguro de habilitar los usuarios?');onOpenEstado();}} 
+                  //onPress={habilitarSeleccionados}
                   endContent={<Icon path={mdiCheckUnderline} size={1} />}>
-                    <div className='hidden text-tiny xl:flex xl:text-small'>
+                    {/* <div className='hidden text-tiny xl:flex xl:text-small'>
                       Habilitar seleccionados
-                    </div>
+                    </div> */}
                   </Button>
+                  </Tooltip>
                 </>:<></>
               }
             
@@ -434,6 +448,28 @@ const ShowUsers = ({auth}) => {
             </Table>
           </div>
         </ContentTemplate>
+        <Modal isOpen={isOpenEstado} placement={modalPlacement} onOpenChange={onOpenChangeEstado} size="md" >
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">{titleModal}</ModalHeader>
+                  <ModalBody>
+                    {
+                      contentModal
+                    }
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color="danger" variant="light" onPress={onClose} >
+                      Cerrar
+                    </Button>
+                    <Button color="primary" onPress={onClose} onClick={()=>functionName()}>
+                        Confirmar
+                    </Button>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
     </Authenticated>
   )
 }

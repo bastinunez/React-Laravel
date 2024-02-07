@@ -89,22 +89,23 @@ const ShowDirecciones = ({auth}) => {
             <TitleTemplate>Direcciones</TitleTemplate>
             <FilterTemplate>
                 <div className="flex flex-col gap-4">
-                    <div className="xl:flex justify-center gap-4 items-end">
+                    <div className="md:flex justify-center gap-4 items-end">
                         <Input isClearable classNames={{input:["border-none"]}} type='text'
-                        className="w-full input-next border-none" size='sm' placeholder="Buscar por nombre..."
+                        className="w-full mb-1" size='sm' placeholder="Buscar por nombre..."
                         startContent={<Icon path={mdiMagnify} size={1} />} value={filterNombre}
                         onClear={() => onClearNombre()} onValueChange={onSearchChangeNombre} />
-                        <div className="flex w-full">
-                            <div className='w-full flex items-center'>
+                        <div className="flex justify-between items-center w-full gap-1 md:gap-3">
+                            <div className='flex items-center'>
                                 <span className="text-default-400 text-tiny lg:text-small">Total {direcciones.length} direcciones</span>
                             </div>
-                            <div className='w-full flex items-center'>
-                                <Button color='warning'  onPress={()=>limpiarFiltros()}>
-                                    <Icon path={mdiVacuumOutline} size={1} />
-                                    <p className='hidden lg:flex'>
-                                    Limpiar filtros
-                                    </p>
-                                </Button>
+                            <Button color='warning'  onPress={()=>limpiarFiltros()}>
+                                <Icon path={mdiVacuumOutline} size={1} />
+                                <p className='hidden lg:flex'>
+                                Limpiar filtros
+                                </p>
+                            </Button>
+                            <div className=''>
+
                                 <label className="flex items-center text-default-400 text-tiny lg:text-small">
                                     Filas por pagina:
                                     <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>

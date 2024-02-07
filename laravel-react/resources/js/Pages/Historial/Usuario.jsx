@@ -41,7 +41,7 @@ const Usuario = ({auth}) => {
   });
 
   const columnas = [
-    {name: "ID", uid: "id", sortable: true},
+    // {name: "ID", uid: "id", sortable: true},
     {name: "Nombre", uid: "nombre", sortable: true},
     {name: "Responsable", uid: "responsable", sortable: true},
     {name: "Acción", uid: "accion", sortable: true},
@@ -197,7 +197,7 @@ const Usuario = ({auth}) => {
                   <div>
                     {/* FILTRO ACCION */}
                     <Dropdown >
-                      <DropdownTrigger className="sm:flex">
+                      <DropdownTrigger className="sm:flex text-tiny lg:text-small">
                         <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
                           Accion
                         </Button>
@@ -218,7 +218,7 @@ const Usuario = ({auth}) => {
             </div>
             <div className="flex justify-between items-center">
               <div>
-                <span className="text-default-400 text-small">Total {historial.length} filas</span>
+                <span className="text-default-400 text-tiny lg:text-small">Total {historial.length} filas</span>
               </div>
               <div className='flex gap-5'>
                 <Button color='warning'  onPress={()=>limpiarFiltros()}>
@@ -227,7 +227,7 @@ const Usuario = ({auth}) => {
                     Limpiar filtros
                     </p>
                 </Button>
-                <label className="flex items-center text-default-400 text-small">
+                <label className="flex items-center text-default-400 text-tiny lg:text-small">
                   Filas por pagina:
                   <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
                   </Select>
@@ -258,7 +258,7 @@ const Usuario = ({auth}) => {
                 {
                     sortedItems.map((fila,index)=>(
                         <TableRow key={index} className='text-start'>
-                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.user_id}</TableCell>
+                        {/* <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.user_id}</TableCell> */}
                         <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.user_nombre}</TableCell>
                         <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.responsable.nombres} {fila.responsable.apellidos}</TableCell>
                         <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.accion.nombre}</TableCell>

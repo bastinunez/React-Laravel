@@ -9,8 +9,8 @@ import { usePage ,Link, useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import Select from '@/Components/Select';
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
-    Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
-    Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip,}  from "@nextui-org/react";
+    Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Tooltip,
+    Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure}  from "@nextui-org/react";
 import Icon from '@mdi/react';
 import { mdiFileEyeOutline, mdiVacuumOutline, 
     mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline} from '@mdi/js';
@@ -90,12 +90,12 @@ const Gestion = ({auth}) => {
                 <div className="flex flex-col">
                     <div className="md:flex justify-center md:gap-4 items-end">
                         <Input isClearable classNames={{input:["border-none"]}} type='text'
-                        className="w-full input-next border-none" size='sm' placeholder="Buscar por nombre..."
+                        className="w-full mb-1" size='sm' placeholder="Buscar por nombre..."
                         startContent={<Icon path={mdiMagnify} size={1} />} value={filterNombre}
                         onClear={() => onClearNombre()} onValueChange={onSearchChangeNombre} />
-                        <div className="flex w-full mt-2">
+                        <div className="flex justify-between items-center w-full gap-1 md:gap-3">
                             <div className='flex items-center'>
-                                <span className="text-default-400 text-small">Total {roles.length} roles</span>
+                                <span className="text-default-400 text-tiny lg:text-small">Total {roles.length} roles</span>
                             </div>
                             <Button color='warning'  onPress={()=>limpiarFiltros()}>
                                 <Icon path={mdiVacuumOutline} size={1} />
@@ -103,8 +103,8 @@ const Gestion = ({auth}) => {
                                 Limpiar filtros
                                 </p>
                             </Button>
-                            <div className='w-full'>
-                                <label className="flex items-center text-default-400 text-small">
+                            <div className=''>
+                                <label className="flex items-center text-default-400 text-tiny lg:text-small">
                                     Filas por pagina:
                                     <Select onChange={(value) => {setRowsPerPage(value);setPage(1)}} value={rowsPerPage} opciones={[{id:5,nombre:5},{id:8,nombre:8},{id:12,nombre:12}]}>
                                     </Select>
@@ -126,9 +126,11 @@ const Gestion = ({auth}) => {
                             hasPermission('Gestion-Crear rol')?
                             <>
                             <Link href={route('rol.create')}>
-                                <Button color="success" variant="solid" endContent={<Icon path={mdiPlus} size={1} />}>
-                                Agregar rol
-                                </Button>
+                                <Tooltip content={"Agregar rol"} color='success'>
+                                    <Button color="success" variant="solid" is endContent={<Icon path={mdiPlus} size={1} />}>
+                                    {/* Agregar rol */}
+                                    </Button>
+                                </Tooltip>
                             </Link>
                             </>:<></>
                         }
