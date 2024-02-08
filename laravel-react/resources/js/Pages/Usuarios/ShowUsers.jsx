@@ -266,7 +266,7 @@ const ShowUsers = ({auth}) => {
                 startContent={<Icon path={mdiMagnify} size={1} />} value={filterCorreo}
                 onClear={() => onClearCorreo()} onValueChange={onSearchChangeCorreo} />
               
-              <div className="flex gap-3">
+              <div className="flex gap-3 mb-1">
                 <div className='flex items-center'>
                   <Dropdown >
                     <DropdownTrigger className="hidden sm:flex">

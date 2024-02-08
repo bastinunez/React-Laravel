@@ -90,7 +90,7 @@ const Gestion = ({auth}) => {
                 <div className="flex flex-col">
                     <div className="md:flex justify-center md:gap-4 items-end">
                         <Input isClearable classNames={{input:["border-none"]}} type='text'
-                        className="w-full mb-1" size='sm' placeholder="Buscar por nombre..."
+                        className="w-full lg:w-80 mb-1" size='sm' placeholder="Buscar por nombre..."
                         startContent={<Icon path={mdiMagnify} size={1} />} value={filterNombre}
                         onClear={() => onClearNombre()} onValueChange={onSearchChangeNombre} />
                         <div className="flex justify-between items-center w-full gap-1 md:gap-3">
@@ -99,7 +99,7 @@ const Gestion = ({auth}) => {
                             </div>
                             <Button color='warning' className='min-w-0 min-h-0' onPress={()=>limpiarFiltros()}>
                                 <Icon path={mdiVacuumOutline} size={1} />
-                                <p className='hidden sm:flex'>
+                                <p className='hidden lg:flex'>
                                 Limpiar filtros
                                 </p>
                             </Button>

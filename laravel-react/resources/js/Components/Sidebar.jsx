@@ -1,9 +1,9 @@
-import React,{useRef, useState} from "react";
+import React,{useEffect, useRef, useState} from "react";
 import { Link } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 import {Divider,Accordion, AccordionItem,Tooltip} from "@nextui-org/react";
 import { usePermission } from '@/Composables/Permission';
-import { useSidebarStore,useActiveLinkStore } from '@/Store/useStore';
+import { useSidebarStore,useAccordionStore } from '@/Store/useStore';
 import {User} from "@nextui-org/react";
 import Icon from '@mdi/react';
 import { mdiFileMultiple,mdiAccountCircleOutline, mdiFileDocument,mdiShieldAccountVariantOutline,mdiAccountSettingsOutline,mdiHistory,mdiWrenchCogOutline,mdiAccountGroup,mdiBadgeAccount,mdiOfficeBuildingOutline} from '@mdi/js';
@@ -12,12 +12,15 @@ import { mdiFileMultiple,mdiAccountCircleOutline, mdiFileDocument,mdiShieldAccou
 export const Sidebar = ({user}) => {
     //console.log(visible)
     const { sidebar,changeState} = useSidebarStore();
+    const { accordion, changeStateAccordion, resetAccordion} = useAccordionStore();
     const {hasRoles,hasPermission} = usePermission();
-    const [variable,setVariable]=useState('')
-    const [selectedKeys, setSelectedKeys] = React.useState(new Set(["1"]));
+    const [selectedKeys, setSelectedKeys] = useState(new Set([accordion]));
+    useEffect(()=>{
+        changeStateAccordion(Array.from(selectedKeys)[0])
+    },[selectedKeys])
     return(
         <>
-            <div className={`bg-indigo-500 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
+            <div className={`bg-indigo-900 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
                 <div className="text-white">
                     <User name={  <span className=" ps-3">{user.nombres}</span>} 
                         classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis ${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}
@@ -134,8 +137,8 @@ export const Sidebar = ({user}) => {
                         hasPermission('Ver historial documento') || hasPermission('Ver historial documento anexo') || 
                         hasPermission('Ver historial accion usuario') || hasPermission('Ver historial accion formulario')?
                         <>  
-                            <Accordion itemClasses={{title:"text-white py-0"}} defaultExpandedKeys={"1"}
-                            //selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys}
+                            <Accordion itemClasses={{title:"text-white py-0"}} //defaultExpandedKeys={0}
+                            selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys}
                             motionProps={{ variants: {
                             enter: {
                                 y: 0,
@@ -171,7 +174,7 @@ export const Sidebar = ({user}) => {
                             },
                             },
                         }}>
-                            <AccordionItem key="1" aria-label="Accordion 1" title="Historial" 
+                            <AccordionItem key={1} aria-label="Accordion 1" title="Historial" isCompact={true}
                             className="text-white rounded-md"
                                 startContent={<Icon path={mdiHistory} size={1} />} style={{ overflow: 'hidden', transition: 'width 0.3s'}}>
                                     {

@@ -181,7 +181,7 @@ const Documentos = ({auth}) => {
         Historial de documentos
       </TitleTemplate>
       <FilterTemplate>
-          <div className="flex flex-col gap-">
+          <div className="flex flex-col gap-4">
             <div className="md:flex justify-center gap-2 items-end">
               <div className='md:flex w-full gap-2'>
                 <Input isClearable classNames={{input:["border-none"]}} type='text'
@@ -206,7 +206,7 @@ const Documentos = ({auth}) => {
                   <Calendar className='max-h-10 border-0 flex p-0' placeholder='Fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
                 </div>
               </div>
-              <div className="flex gap-1 mb-1">
+              <div className="flex gap-2 mb-1">
                 <div>
                   {/* FILTRO ACCION */}
                   <Dropdown >

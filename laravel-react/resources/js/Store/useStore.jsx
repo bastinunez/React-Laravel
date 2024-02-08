@@ -25,6 +25,20 @@ export const useSidebarStore = create(
     )
 )
 
+export const useAccordionStore = create( 
+    persist(
+        (set,get)=>({
+            accordion: 0,
+            changeStateAccordion: (value) => set({ accordion: value }),
+            resetAccordion: () => set({ accordion: 0 }),
+        }),
+        {
+            name: 'accordion-storage', // name of the item in the storage (must be unique)
+            storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
+        }
+    )
+)
+
 
 export const useActiveLinkStore = create(
     persist(
