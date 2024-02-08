@@ -471,6 +471,12 @@ class GestionDocumentoController extends Controller
                 $documento->name_file=$nombre_file.'.'.$ext;
                 $documento->save();
             }
+            if ($request->archivo == null){
+                $documento->file=null;
+                $documento->mime_file=null;
+                $documento->name_file=null;
+                $documento->save();
+            }
             if ($request->estado!==null) {
                 $documento->estado=$request->estado == 0 ? 1 : 2;
                 $documento->save();

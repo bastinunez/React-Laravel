@@ -179,7 +179,6 @@ const GestionDocumentos = ({auth}) => {
   }, []);
   const onClearMateria = useCallback(()=>{
     setFilterMateria("")
-    console.log("se limpia materia")
     setPage(1)
   },[])
 
@@ -193,7 +192,6 @@ const GestionDocumentos = ({auth}) => {
   }, []);
   const onClearRut = useCallback(()=>{
     setFilterRut("")
-    console.log("se limpia rut")
     setPage(1)
   },[])
 
@@ -652,7 +650,7 @@ const GestionDocumentos = ({auth}) => {
                         <TableHeader>
                             <TableColumn>Numero de documento</TableColumn>
                             <TableColumn>Tipo de documento</TableColumn>
-                            <TableColumn>Nombre archivo</TableColumn>
+                            <TableColumn>Fecha</TableColumn>
                         </TableHeader>
                         <TableBody emptyContent={"No existen documentos"}>
                           {
@@ -660,7 +658,7 @@ const GestionDocumentos = ({auth}) => {
                               <TableRow key={documento.numero} className='text-start'>
                                 <TableCell>{documento.numero}</TableCell>
                                 <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.tipo}</TableCell>
-                                <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.file}</TableCell>
+                                <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.fecha}</TableCell>
                                 
                               </TableRow>
                             ))

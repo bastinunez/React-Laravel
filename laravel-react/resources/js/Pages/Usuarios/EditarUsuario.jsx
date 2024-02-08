@@ -26,7 +26,10 @@ const EditarUsuario = ({auth}) => {
   //modal
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const [modalPlacement, setModalPlacement] = useState("auto");
-  const [sinArchivos,setSinArchivos] = useState([])
+  const [titleModal,setTitleModal] = useState('')
+  const [contentModal,setContentModal] = useState('')
+  const [functionName,setFunctionName] = useState('')
+
 
   //VARIABLES QUE ENTREGA EL CONTROLADOR
   const { usuario,roles,permisos} = usePage().props;
@@ -99,7 +102,7 @@ const EditarUsuario = ({auth}) => {
       dataPermission.opcion=1
       dataPermission.permisos=datos
       patchPermission(route('gestion-usuarios.update-permission',String(usuario.id)),{
-        onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
+        onSuccess: () => {showMsg("Exito",severity.success,summary.success);setPermissionSelect('')},
         onError: () => {showMsg("Falló",severity.error,summary.error)}
       })
     }else{
@@ -111,7 +114,7 @@ const EditarUsuario = ({auth}) => {
     dataPermission.permisos = [nombre]
     dataPermission.opcion = 0
     patchPermission(route('gestion-usuarios.update-permission',String(usuario.id)),{
-      onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
+      onSuccess: () => {showMsg("Exito",severity.success,summary.success);setSeleccion('')},
       onError: () => {showMsg("Falló",severity.error,summary.error)}
     })
   }
@@ -127,7 +130,7 @@ const EditarUsuario = ({auth}) => {
       dataPermission.permisos=datos
       dataPermission.opcion = 0
       patchPermission(route('gestion-usuarios.update-permission',String(usuario.id)),{
-        onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
+        onSuccess: () => {showMsg("Exito",severity.success,summary.success);setSeleccion('')},
         onError: () => {showMsg("Falló",severity.error,summary.error)}
       })
     }else{
@@ -136,22 +139,21 @@ const EditarUsuario = ({auth}) => {
     
   }
   const submitUpdateData = (e) => {
-    e.preventDefault()
     patchEdit(route("gestion-usuarios.update-metadata",String(usuario.id)),{
-      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);console.log(msg)},
-      onError: (msg) => {showMsg(msg.update,severity.error,summary.error);console.log(msg)}
+      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
+      onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
     })
   }
   const submitRestaurarPwd = (e) => {
     patchPwd(route('gestion-usuarios.update',usuario.id),{
-      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);console.log(msg)},
-      onError: (msg) => {showMsg(msg.update,severity.error,summary.error);console.log(msg)}
+      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
+      onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
     })
   }
   const submitRol = (e) => {
     patchRol(route('gestion-usuarios.update-rol',String(usuario.id)),{
-      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);console.log(msg)},
-      onError: (msg) => {showMsg(msg.update,severity.error,summary.error);console.log(msg)}
+      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
+      onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
     })
   }
 
@@ -185,7 +187,7 @@ const EditarUsuario = ({auth}) => {
                 {
                   btnMetadato?
                   <>
-                    <form onSubmit={submitUpdateData}>
+                    <form >
                       <div className='lg:flex w-full gap-10'>
                         <div className='w-full mb-5'>
                             <InputLabel value={"Nombres"}></InputLabel>
@@ -210,7 +212,10 @@ const EditarUsuario = ({auth}) => {
                         <Link href={route("gestion-usuarios.index")} className='w-full'>
                           <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                         </Link>
-                        <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Guardar cambios</Button>
+                        <Button className='w-full text-large' color='primary' variant='ghost' onPress={()=>{
+                                        setFunctionName(() => () => submitUpdateData());setTitleModal('Guardar cambios');
+                                        setContentModal('¿Está seguro de guardar los cambios?');onOpen();}} 
+                        >Guardar cambios</Button>
                       </div>
                     </form>
                   </>
@@ -219,7 +224,7 @@ const EditarUsuario = ({auth}) => {
                   <div>
                     <div className='w-full lg:flex justify-between mb-6 '>
                       <div className='w-full lg:me-12'>
-                        <form onSubmit={submitRol} className='flex items-center gap-4'>
+                        <form className='flex items-center gap-4'>
                           <div>
                             <div className='w-full mb-8'>
                               <InputLabel value={"Rol"}></InputLabel>
@@ -233,7 +238,10 @@ const EditarUsuario = ({auth}) => {
                             </div>
                           </div>
                           <div>
-                            <Button type='submit' onPress={()=>submitRol()}>Guardar cambios</Button>
+                            <Button onPress={()=>{
+                                        setFunctionName(() => () => submitRol());setTitleModal('Guardar cambios');
+                                        setContentModal('¿Está seguro de guardar los cambios?');onOpen();}} 
+                            >Guardar cambios</Button>
                           </div>
                         </form>
                        
@@ -258,7 +266,9 @@ const EditarUsuario = ({auth}) => {
                                 </Dropdown>
                               </div>
                               <div>
-                                <Button className='w-full text-large' color='primary' onPress={() => submitPermisosAdd()}
+                                <Button className='w-full text-large' color='primary' onPress={()=>{
+                                        setFunctionName(() => () => submitPermisosAdd());setTitleModal('Agregar permisos');
+                                        setContentModal('¿Está seguro de agregar los permisos seleccionados?');onOpen();}} 
                                 variant='ghost' type='submit'>Agregar permisos selecccionados</Button>
                               </div>
                             </div>
@@ -268,7 +278,10 @@ const EditarUsuario = ({auth}) => {
                       <div className='w-full'>
                         <div className='flex mb-2'>
                           <div className='w-full justify-end flex'>
-                            <Button className='' color='danger' variant='flat' onPress={()=>submitPermisosDeleteSeleccion()} >Quitar seleccionados</Button>
+                            <Button className='' color='danger' variant='flat' onPress={()=>{
+                                        setFunctionName(() => () => submitPermisosDeleteSeleccion());setTitleModal('Eliminar permisos');
+                                        setContentModal('¿Está seguro de eliminar los permisos seleccionados?');onOpen();}} 
+                            >Quitar seleccionados</Button>
                           </div>
                         </div>
                         <Table aria-label="Tabla documentos" color={"primary"} selectionMode="multiple"
@@ -286,12 +299,15 @@ const EditarUsuario = ({auth}) => {
                           <TableBody className=''>
                             {
                               sortedItems.map((permiso,index)=>(
-                                <TableRow key={index}>
+                                <TableRow key={permiso}>
                                   <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis text-tiny lg:text-small'>{permiso}</TableCell>
                                   <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis text-tiny lg:text-small'>
                                     {
                                       <Button color='danger' endContent={<Icon size={1} path={mdiTrashCanOutline} />} 
-                                      onPress={() => submitPermisosDelete(permiso)} size='sm'></Button>
+                                      onPress={()=>{
+                                        setFunctionName(() => () => submitPermisosDelete(permiso));setTitleModal('Eliminar permiso');
+                                        setContentModal('¿Está seguro de eliminar el permiso?');onOpen();}} 
+                                        size='sm'></Button>
                                     }
                                   </TableCell>
                                 </TableRow>
@@ -313,6 +329,28 @@ const EditarUsuario = ({auth}) => {
               
             </div>
         </ContentTemplate>
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+          <ModalContent>
+          {(onClose) => (
+              <>
+              <ModalHeader className="flex flex-col gap-1">{titleModal}</ModalHeader>
+              <ModalBody>
+                  <p> 
+                      {contentModal}
+                  </p>
+              </ModalBody>
+              <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                      Cancelar
+                  </Button>
+                  <Button color="primary" onPress={onClose} onClick={()=>functionName()}>
+                      Confirmar
+                  </Button>
+              </ModalFooter>
+              </>
+          )}
+          </ModalContent>
+        </Modal>
         {
           btnMetadato?
           <>
@@ -320,29 +358,11 @@ const EditarUsuario = ({auth}) => {
               <div className='p-5'>
                 <div className='w-full '>
                     <InputLabel value={"Resetear contraseña"}></InputLabel>
-                    <Button color='danger' onPress={onOpen} className='w-full mt-3' variant='flat'>Restaurar contraseña</Button>
-                    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-                            <ModalContent>
-                            {(onClose) => (
-                                <>
-                                <ModalHeader className="flex flex-col gap-1">Confirmar restaurar</ModalHeader>
-                                <ModalBody>
-                                    <p> 
-                                        ¿Está seguro de restaurar la contraseña?
-                                    </p>
-                                </ModalBody>
-                                <ModalFooter>
-                                    <Button color="danger" variant="light" onPress={onClose}>
-                                        Cancelar
-                                    </Button>
-                                    <Button color="primary" onPress={onClose} onClick={submitRestaurarPwd}>
-                                        Confirmar
-                                    </Button>
-                                </ModalFooter>
-                                </>
-                            )}
-                            </ModalContent>
-                        </Modal>
+                    <Button color='danger' onPress={()=>{
+                        setFunctionName(() => () => submitRestaurarPwd());setTitleModal('Restaurar contraseña');
+                        setContentModal('¿Está seguro de restaurar la contraseña del usuario?');onOpen();}} 
+                    className='w-full mt-3' variant='flat'>Restaurar contraseña</Button>
+                    
                 </div>
               </div>
             </ContentTemplate>

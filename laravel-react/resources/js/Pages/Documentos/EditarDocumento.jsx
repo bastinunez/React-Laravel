@@ -57,6 +57,8 @@ const EditarDocumento = ({auth}) => {
     const datos=documento.anexos.map( anexo => anexo.datos_anexo )
     const [seleccion,setSeleccion] = useState([])
     const [docAnexos,setDocAnexos] = useState(datos)
+    const [sinArchivos,setSinArchivos] = useState([])
+
     const getDocuments = async () => {
         if (documento.id!==0){
           try {
@@ -138,7 +140,8 @@ const EditarDocumento = ({auth}) => {
 
     //post
     const submit = async (e) => {
-        e.preventDefault();
+        // e.preventDefault();
+        //console.log(data)
         post(route('gestion-documento.update-doc',String(documento.id)),{
             onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
             onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
@@ -150,7 +153,7 @@ const EditarDocumento = ({auth}) => {
     }
     const submitMiniForm = (e) => {
         e.preventDefault()
-        console.log(data_mini)
+        //console.log(data_mini)
         post_mini(route('documento-anexo.store'),{
             onSuccess: (msg) => {
                 getDocuments(documento.id);
@@ -302,14 +305,16 @@ const EditarDocumento = ({auth}) => {
                                             </div>
                                             <div className="w-full">
                                                 <InputLabel value={"Agregar archivo"}></InputLabel>
-                                                <input  onChange ={(e) => setData('archivo',e.target.files[0])} id="inputArchivo"
-                                                    style={{ display: 'none' }}  type='file' accept='.pdf' />
+                                                <input  onChange ={(e) => setData('archivo',e.target.files[0])} type='file' accept='.pdf' id="inputArchivo"
+                                                    style={{ display: 'none' }}  
+                                                    />
                                                  <label htmlFor="inputArchivo" style={{ cursor: 'pointer', padding: '', border: '1px solid #ccc' }}>
                                                     {data.archivo ? `Archivo seleccionado ${documento.name_file}` : 'Seleccionar archivo PDF'}
                                                 </label>
                                                 {/* <input onChange ={(e) => setData('archivo',e.target.files[0])} className='text-tiny md:text-small'  */}
                                                 {/* type='file' accept='.pdf' formEncType="multipart/form-data"/> */}
                                                 <InputError message={errors.archivo} className="mt-2" />
+                                                <Button onPress={()=>setData('archivo','')} color='danger' className='md:ms-1'>Quitar archivo</Button>
                                             </div>
                                             <div className='w-full'>
                                                 <InputLabel value={"Marque si el documento se encuentra anulado"}></InputLabel>
@@ -321,7 +326,10 @@ const EditarDocumento = ({auth}) => {
                                                 <Button className='w-full text-large' color='warning' size='md' variant='ghost' >Volver atrás</Button>
                                             </Link>
                                             <Tooltip content="Confirmar cambios y agregar" color='success'>
-                                                <Button onPress={onOpen} color='success' variant='ghost' className='w-full text-large' size='md'>Guardar cambios</Button>
+                                                <Button onPress={()=>{
+                                                    setFunctionName(() => () => submit());setTitleModal('Guardar cambios');
+                                                    setContentModal('¿Está seguro de aplicar los cambios?');onOpen();}}  
+                                                color='success' variant='ghost' className='w-full text-large' size='md'>Guardar cambios</Button>
                                             </Tooltip>
                                             
                                         </div>
@@ -447,7 +455,9 @@ const EditarDocumento = ({auth}) => {
                                                     //onPress={quitarDocAnexoSeleccion} 
                                                     startContent={<Icon path={mdiTrashCanOutline} size={1} />}>
                                                         <p className='md:flex hidden'>Quitar seleccionados</p> </Button>
-                                                    <Button color='primary' variant='solid' onPress={descargarDocAnexoSeleccion}
+                                                    <Button color='primary' variant='solid' onPress={()=>{
+                                                                            setFunctionName(() => () => descargarDocAnexoSeleccion());setTitleModal('Descargar documentos anexos');
+                                                                            setContentModal('¿Está seguro de descargar los documentos?');onOpen();}} 
                                                     startContent={<Icon path={mdiDownloadOutline} size={1} />}>
                                                         <p className='md:flex hidden'>Descargar seleccionados</p></Button>
                                                 </div>
