@@ -61,3 +61,6 @@
             - En la terminal de Laragon ubicarse en la carpeta laravel-react y utilizar lo siguientes comandos:
                 - npm run build
                 - composer install
+            - Iniciar el servicio de apache
+            - Reemplazar el archivo auto.documentos.test.conf en sites-enabled de laragon por el **contenido** que se encuentra en la carpeta raíz de este proyecto también llamado auto.documentos.test.conf. **En la primera línea mantener la ruta donde tienes tu proyecto, esta ruta debe terminar en .../public**
+            - Reiniciar el servicio y entrar a la página documentos.test
