@@ -247,7 +247,7 @@ const ShowUsers = ({auth}) => {
         <div className="flex flex-col gap-4">
             <div className="md:flex justify-center gap-4 items-end">
               <Input isClearable classNames={{input:["border-none"]}} type='text'
-                className="w-full mb-1" size='sm' placeholder="Buscar por numero..."
+                className="w-full mb-1" size='sm' placeholder="Buscar por nombre..."
                 startContent={<Icon path={mdiMagnify} size={1} />} value={filterNombre}
                 onClear={() => onClearNumero()} onValueChange={onSearchChangeNumero} />
 
