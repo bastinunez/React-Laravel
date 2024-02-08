@@ -298,7 +298,7 @@ const GestionDocumentos = ({auth}) => {
         <TitleTemplate>Gestión de Documentos</TitleTemplate>
         <Toast ref={toast_global}></Toast>
         <FilterTemplate>
-          <div className="xl:flex xl:flex-col gap-4">
+          <div className="lg:flex lg:flex-col gap-4">
             <div className="lg:flex mb-2">
               <div className='md:flex w-full gap-2 items-center justify-center mb-1 me-1'>
                 <div className='md:flex gap-2'>
@@ -324,7 +324,7 @@ const GestionDocumentos = ({auth}) => {
               </div>
               <div className="lg:flex gap-1">
                 <div className='flex mb-1 gap-1'>
-                  <div className='w-full'>
+                  <div className='w-full flex items-center'>
                     {/* FILTRO TIPO */}
                     <Dropdown >
                       <DropdownTrigger className="text-tiny md:text-small">
@@ -341,7 +341,7 @@ const GestionDocumentos = ({auth}) => {
                       </DropdownMenu>
                     </Dropdown>
                   </div>
-                  <div className='w-full'>
+                  <div className='w-full flex items-center'>
                     {/* FILTRO AUTOR */}
                     <Dropdown>
                       <DropdownTrigger className="text-tiny md:text-small">
@@ -361,7 +361,7 @@ const GestionDocumentos = ({auth}) => {
                   </div>
                   </div>
                 <div className='flex mb-1 gap-1'>
-                  <div className='w-full'>
+                  <div className='w-full flex items-center'>
                     {/* FILTRO DIRECCION */}
                     <Dropdown>
                       <DropdownTrigger className="text-tiny md:text-small">
@@ -377,7 +377,7 @@ const GestionDocumentos = ({auth}) => {
                       </DropdownMenu>
                     </Dropdown>
                   </div>
-                  <div className='w-full'>
+                  <div className='w-full flex items-center'>
                     <Dropdown >
                       <DropdownTrigger className="text-tiny md:text-small">
                         <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">

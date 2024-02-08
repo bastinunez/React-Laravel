@@ -1,9 +1,9 @@
-import React,{useRef, useState} from "react";
+import React,{useEffect, useRef, useState} from "react";
 import { Link } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 import {Divider,Accordion, AccordionItem,Tooltip} from "@nextui-org/react";
 import { usePermission } from '@/Composables/Permission';
-import { useSidebarStore,useActiveLinkStore } from '@/Store/useStore';
+import { useSidebarStore,useAccordionStore } from '@/Store/useStore';
 import {User} from "@nextui-org/react";
 import Icon from '@mdi/react';
 import { mdiFileMultiple,mdiAccountCircleOutline, mdiFileDocument,mdiShieldAccountVariantOutline,mdiAccountSettingsOutline,mdiHistory,mdiWrenchCogOutline,mdiAccountGroup,mdiBadgeAccount,mdiOfficeBuildingOutline} from '@mdi/js';
@@ -12,12 +12,15 @@ import { mdiFileMultiple,mdiAccountCircleOutline, mdiFileDocument,mdiShieldAccou
 export const Sidebar = ({user}) => {
     //console.log(visible)
     const { sidebar,changeState} = useSidebarStore();
+    const { accordion, changeStateAccordion, resetAccordion} = useAccordionStore();
     const {hasRoles,hasPermission} = usePermission();
-    const [variable,setVariable]=useState('')
-    const [selectedKeys, setSelectedKeys] = React.useState(new Set(["1"]));
+    const [selectedKeys, setSelectedKeys] = useState(new Set([accordion]));
+    useEffect(()=>{
+        changeStateAccordion(Array.from(selectedKeys)[0])
+    },[selectedKeys])
     return(
         <>
-            <div className={`bg-indigo-500 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
+            <div className={`bg-indigo-900 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
                 <div className="text-white">
                     <User name={  <span className=" ps-3">{user.nombres}</span>} 
                         classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis ${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}
@@ -37,20 +40,20 @@ export const Sidebar = ({user}) => {
                              <div className="me-3">
                                 <Icon path={mdiAccountCircleOutline} size={1} />
                             </div>
-                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Perfil</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Perfil</span>
                         </NavLink>
                         </>:<></>
                     }
-                    <Divider className="my-1 bg-white" />
                     {
                         hasPermission('Ver todos documentos')? 
                         <>
+                        <Divider className="my-1 bg-white" />
                         <NavLink className="py-2 px-2 my-1" href={route('documento.index')} tooltip={"Documentos"}
                         active={route().current('documento.index')}>
                             <div className="me-3">
                                 <Icon path={mdiFileDocument} size={1} />
                             </div>
-                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Documentos</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Documentos</span>
                         </NavLink>
                         </>:<></>
                     }
@@ -63,7 +66,7 @@ export const Sidebar = ({user}) => {
                              <div className="me-3">
                                 <Icon path={mdiFileMultiple} size={1} />
                             </div>
-                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Gestion de documentos</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestion de documentos</span>
                         </NavLink>
                         </>:<></>
                     }
@@ -75,7 +78,7 @@ export const Sidebar = ({user}) => {
                              <div className="me-3">
                                 <Icon path={mdiAccountGroup} size={1} />
                             </div>
-                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Gestion de usuarios</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestion de usuarios</span>
                         </NavLink>
                         </>:<></>
                     }{
@@ -86,7 +89,7 @@ export const Sidebar = ({user}) => {
                              <div className="me-3">
                                 <Icon path={mdiBadgeAccount} size={1} />
                             </div>
-                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Gestion de funcionarios</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestion de funcionarios</span>
                         </NavLink>
                         </>:<></>
                     }{
@@ -97,20 +100,20 @@ export const Sidebar = ({user}) => {
                              <div className="me-3">
                                 <Icon path={mdiOfficeBuildingOutline} size={1} />
                             </div>
-                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Gestion de direcciones</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestion de direcciones</span>
                         </NavLink>
                         </>:<></>
                     }
-                    <Divider className="my-2 bg-white" />
                     {
                         hasPermission('Gestion-Roles')?
                         <>
+                            <Divider className="my-2 bg-white" />
                              <NavLink href={route('rol.index')} tooltip={"Roles"}
                             active={route().current('rol.index')} className="py-2 px-2 my-1" >
                                 <div className="me-3">
                                     <Icon path={mdiAccountSettingsOutline} size={1} />
                                 </div>
-                                <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Roles</span>
+                                <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Roles</span>
                             </NavLink>
                         </>
                         :<></>
@@ -123,19 +126,20 @@ export const Sidebar = ({user}) => {
                                 <div className="me-3">
                                     <Icon path={mdiShieldAccountVariantOutline} size={1} />
                                 </div>
-                                <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Permisos</span>
+                                <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Permisos</span>
                             </NavLink>
                         </>
                         :<></>
                     }
-                    <Divider className="my-2 bg-white" />
+                    
                     
                     {
                         hasPermission('Ver historial documento') || hasPermission('Ver historial documento anexo') || 
                         hasPermission('Ver historial accion usuario') || hasPermission('Ver historial accion formulario')?
                         <>  
-                            <Accordion itemClasses={{title:"text-white py-0"}} defaultExpandedKeys={"1"}
-                            //selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys}
+                            <Divider className="my-2 bg-white" />
+                            <Accordion itemClasses={{title:"text-white py-0"}} //defaultExpandedKeys={0}
+                            selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys}
                             motionProps={{ variants: {
                             enter: {
                                 y: 0,
@@ -171,7 +175,7 @@ export const Sidebar = ({user}) => {
                             },
                             },
                         }}>
-                            <AccordionItem key="1" aria-label="Accordion 1" title="Historial" 
+                            <AccordionItem key={1} aria-label="Accordion 1" title="Historial" isCompact={true}
                             className="text-white rounded-md"
                                 startContent={<Icon path={mdiHistory} size={1} />} style={{ overflow: 'hidden', transition: 'width 0.3s'}}>
                                     {

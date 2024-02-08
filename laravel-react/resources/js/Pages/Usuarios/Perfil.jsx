@@ -52,7 +52,7 @@ const Perfil = ({auth}) => {
     const changePwd = (e) => {
         e.preventDefault()
         postPwd(route('usuario.update_pwd'),{
-            onSuccess: (msg)=> {showMsg(msg.update,severity.success,summary.success)},
+            onSuccess: (msg)=> {showMsg(msg.update,severity.success,summary.success);setCambiarPwd(false)},
             onError: (msg) => {showMsg(msg.update,severity.error,summary.error)},
         })
         
@@ -178,11 +178,6 @@ const Perfil = ({auth}) => {
                                     
                                 </div>
                             </>
-                        }{
-                            flash.success_form_pwd?
-                            <>
-                                <div>Se actualizo la contraseña</div>
-                            </>:<></>
                         }
                     </form>
                 </div>

@@ -22,7 +22,7 @@ export default function Authenticated({ user, header, children }) {
                 
                 <main>
                     <div className="align-center justify-center full-width h-full flex-col bg-slate-200">
-                        <div className="d-flex w-100 justify-center pt-6 container mx-auto">
+                        <div className="d-flex w-100 justify-center py-6 container mx-auto">
                             <div>
                              {children}
                             </div>

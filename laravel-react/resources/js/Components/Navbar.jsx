@@ -18,39 +18,17 @@ export default function NavbarComponent() {
     }
     const { sidebar,changeState} = useSidebarStore();
     return (
-        <Navbar maxWidth="full" position="sticky" className="border-b-2 border-b-indigo-500">
+        <Navbar maxWidth="full" position="sticky" className="">
             <NavbarBrand>
-                <Button onClick={() => changeState()} variant="ghost" isIconOnly className='align-middle border-indigo-500  bg-transparent text-indigo-500'>
+                <Button onClick={() => changeState()} isIconOnly className='align-middle border-indigo-900  bg-transparent text-indigo-900'>
                     <Icon path={mdiMenu}></Icon>
                 </Button>
             </NavbarBrand>
-            {/* <NavbarContent className="hidden sm:flex gap-4" justify="center">
-                <NavbarItem>
-                <Link color="foreground" href="#">
-                    Features
-                </Link>
-                </NavbarItem>
-                <NavbarItem isActive>
-                <Link href="#" aria-current="page">
-                    Customers
-                </Link>
-                </NavbarItem>
-                <NavbarItem>
-                <Link color="foreground" href="#">
-                    Integrations
-                </Link>
-                </NavbarItem>
-            </NavbarContent> */}
             <NavbarContent justify="end">
                 <NavbarItem>
-                    {/* <ResponsiveNavLink method="post" href={route('logout')} as="button"> */}
-                    <Button onPress={()=>setVariables()} isIconOnly className="bg-indigo-500 text-white">
+                    <Button onPress={()=>setVariables()} isIconOnly className="bg-indigo-900 text-white">
                             <Icon path={mdiLogout} size={1} />
                     </Button>
-                    {/* <ResponsiveNavLink method="post" href={route('logout')} as="button">                 
-                        <Icon path={mdiLogout} size={1} className="me-2" />
-                        Salir
-                    </ResponsiveNavLink> */}
                 </NavbarItem>
             </NavbarContent>
         </Navbar>

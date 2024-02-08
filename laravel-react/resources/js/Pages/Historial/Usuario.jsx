@@ -167,7 +167,7 @@ const Usuario = ({auth}) => {
       <Head title="Historial acciones sobre usuario" />
       <Toast ref={toast_global}></Toast>
       <TitleTemplate>
-        Historial acciones sobre usuario
+        Historial acciones usuario
       </TitleTemplate>
       <FilterTemplate>
           <div className="flex flex-col gap-4">

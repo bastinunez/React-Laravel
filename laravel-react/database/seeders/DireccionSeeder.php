@@ -14,9 +14,20 @@ class DireccionSeeder extends Seeder
     public function run(): void
     {
         DB::table('direccion')->insert([
-            ['nombre' => 'Sin Direccion'],
-            ['nombre' => 'Finanzas'],
-            ['nombre' => 'Rentas'],
+            ['nombre' => 'Sin Dirección'],
+            ['nombre' => 'Administración Municipal'],
+            ['nombre' => 'Administración y Finanzas'],
+            ['nombre' => 'Seguridad Pública'],
+            ['nombre' => 'Asesoría Jurídica'],
+            ['nombre' => 'Dideco'],
+            ['nombre' => 'Secplac'],
+            ['nombre' => 'Obras Municipales'],
+            ['nombre' => 'Juzgado Policía Local'],
+            ['nombre' => 'Secretaría Municipal'],
+            ['nombre' => 'Control Interno'],
+            ['nombre' => 'Tránsito'],
+            ['nombre' => 'Educación'],
+            ['nombre' => 'Salud'],
         ]);
     }
 }

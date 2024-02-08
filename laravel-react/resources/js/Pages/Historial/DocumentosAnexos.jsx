@@ -174,7 +174,7 @@ const DocumentosAnexos = ({auth}) => {
       <Head title="Historial de documentos anexos" />
       <Toast ref={toast_global}></Toast>
       <TitleTemplate>
-        Historial de documentos anexos
+        Historial documentos anexos
       </TitleTemplate>
       <FilterTemplate>
           <div className="flex flex-col gap-4">
@@ -195,12 +195,12 @@ const DocumentosAnexos = ({auth}) => {
               </div>
               <div className='md:flex items-center md:gap-2'>
                 <div className='w-full card mb-1'>
-                  <Calendar className='max-h-10 border-0 flex p-0'  placeholder='Rango de fecha documento' dateFormat="yy//mm/dd" showIcon value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
+                  <Calendar className='max-h-10 border-0 flex p-0'  placeholder='Fecha documento' dateFormat="yy//mm/dd" showIcon value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
                 </div>
                 <div className='w-full card mb-1'>
-                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Rango de fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
+                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-2 mb-1">
                   <div>
                     {/* FILTRO ACCION */}
                     <Dropdown >
@@ -255,7 +255,6 @@ const DocumentosAnexos = ({auth}) => {
                   </div>
                 </div>
               </div>
-              
               
             </div>
             <div className="flex justify-between items-center">
