@@ -7,7 +7,7 @@ import TextInput from '@/Components/TextInput'
 import { Head ,usePage,useForm,Link} from '@inertiajs/react'
 import { usePermission } from '@/Composables/Permission';
 import { Button,Dropdown,DropdownItem,DropdownMenu,DropdownTrigger,Table,TableBody,
-    TableRow,TableHeader,TableColumn,Pagination,TableCell } from '@nextui-org/react'
+    TableRow,TableHeader,TableColumn,Pagination,TableCell, useDisclosure, Progress} from '@nextui-org/react'
 import Icon from '@mdi/react';
 import { mdiChevronDown,mdiTrashCanOutline} from '@mdi/js';
 import { Toast } from 'primereact/toast';       
@@ -66,16 +66,20 @@ const EditarRol = ({auth}) => {
     }, [sortDescriptor, items]);
     const [permissionSelect, setPermissionSelect] = useState("");
 
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
+
     const submit = (e) => {
         e.preventDefault()
+        onOpenProgress()
         patch(route('rol.update',String(rol.id)),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
-            onError: () => {showMsg("Falló",severity.error,summary.error)}
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress()},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
         })
     }
     const submitPermisosAdd = () => {
         if (permissionSelect.size>0){
           let datos=""
+          onOpenProgress()
           if (permissionSelect=="all"){
               datos = permisos_filter.map(permiso => permiso.id)
           }else{
@@ -84,8 +88,8 @@ const EditarRol = ({auth}) => {
           }
           dataPermission.permisos=datos
           patchPermission(route('rol.addPermissions',String(rol.id)),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
-            onError: () => {showMsg("Falló",severity.error,summary.error)}
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress()},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
           })
         }else{
           showMsg("No hay seleccion",severity.error,summary.error)
@@ -93,32 +97,33 @@ const EditarRol = ({auth}) => {
        
     }
     const submitPermisosDelete = (nombre) => {
-    dataPermission.permisos = [nombre]
-    dataPermission.opcion = 0
-    patchPermission(route('rol.deletePermissions',String(rol.id)),{
-        onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
-        onError: () => {showMsg("Falló",severity.error,summary.error)}
-    })
+        dataPermission.permisos = [nombre]
+        dataPermission.opcion = 0
+        onOpenProgress()
+        patchPermission(route('rol.deletePermissions',String(rol.id)),{
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress()},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
+        })
     }
     const submitPermisosDeleteSeleccion = () => {
-    if (seleccion.size>0){
-        let datos=""
-        if (seleccion=="all"){
-            datos = permisos_filter.map(permiso => permiso.id)
+        if (seleccion.size>0){
+            let datos=""
+            onOpenProgress()
+            if (seleccion=="all"){
+                datos = permisos_filter.map(permiso => permiso.id)
+            }else{
+                const arraySeleccion = Array.from(seleccion)
+                datos = arraySeleccion.map(permiso => permiso)
+            }
+            dataPermission.permisos=datos
+            dataPermission.opcion = 1
+            patchPermission(route('rol.deletePermissions',String(rol.id)),{
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress()},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
+            })
         }else{
-            const arraySeleccion = Array.from(seleccion)
-            datos = arraySeleccion.map(permiso => permiso)
+            showMsg("No hay seleccion",severity.error,summary.error)
         }
-        dataPermission.permisos=datos
-        dataPermission.opcion = 1
-        patchPermission(route('rol.deletePermissions',String(rol.id)),{
-        onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
-        onError: () => {showMsg("Falló",severity.error,summary.error)}
-        })
-    }else{
-        showMsg("No hay seleccion",severity.error,summary.error)
-    }
-    
     }
 
     return (
@@ -127,6 +132,20 @@ const EditarRol = ({auth}) => {
             <Head title='Editar rol'></Head>
             <TitleTemplate>Editar rol</TitleTemplate>
             <Toast ref={toast_global}></Toast>
+            <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                <ModalContent>
+                    {
+                        (onCloseProgress)=>(
+                            <Progress
+                                size="sm"
+                                isIndeterminate
+                                aria-label="Loading..."
+                                className="max-w-md"
+                            />
+                        )
+                    }
+                </ModalContent>
+            </Modal>
             <ContentTemplate>
                 <div>
                     <div>

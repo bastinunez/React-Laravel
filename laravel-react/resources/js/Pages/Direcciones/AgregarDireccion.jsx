@@ -5,7 +5,7 @@ import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import { Head, useForm, Link} from '@inertiajs/react'
-import { Button } from '@nextui-org/react'
+import { Button,useDisclosure,Progress,Modal,ModalContent } from '@nextui-org/react'
 import { Toast } from 'primereact/toast';        
 import React,{useRef} from 'react'
 
@@ -21,8 +21,7 @@ const AgregarDireccion = ({auth}) => {
     }
 
 
-    //QUEDE AQUI FALTA REALIZAR EL POST, MODIFICAR LOS MENSAJES CON TOAST (ES MEJOR DEJARLO GLOBAL EN EL AUTHENTICAD LAYOUT )
-
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
 
     //formularios
     const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset} = useForm({
@@ -31,9 +30,10 @@ const AgregarDireccion = ({auth}) => {
 
     const submit = (e) => {
         e.preventDefault()
+        onOpenProgress()
         post(route('direccion.store'),{
-            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);reset()},
-            onError: (msg) => {showMsg(msg.create,severity.error,summary.error)}
+            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);reset();onCloseProgress()},
+            onError: (msg) => {showMsg(msg.create,severity.error,summary.error);onCloseProgress()}
         })
     }
 
@@ -43,6 +43,20 @@ const AgregarDireccion = ({auth}) => {
             <Head title='Agregar direccion'></Head>
             <TitleTemplate>Agregar direccion</TitleTemplate>
             <Toast ref={toast_global} />
+            <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                <ModalContent>
+                    {
+                        (onCloseProgress)=>(
+                            <Progress
+                                size="sm"
+                                isIndeterminate
+                                aria-label="Loading..."
+                                className="max-w-md"
+                            />
+                        )
+                    }
+                </ModalContent>
+            </Modal>
             <ContentTemplate>
                 <div>
                     <form onSubmit={submit} className='p-8'>

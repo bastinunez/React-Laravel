@@ -32,13 +32,29 @@ class DocumentoResource extends JsonResource
             'anexos' =>  $this->obtenerDatosAnexos($this->docAnexos)
         ];
     }
+//     protected function obtenerDatosAnexos($anexos)
+// {
+//     // Filtrar solo los documentos anexos de primer nivel
+//     $primerNivelAnexos = $anexos->filter(function ($anexo) {
+//         // Condición para determinar si es de primer nivel
+//         return $anexo->documentoAnexoIdRelacion->documentoAnexoIdRelacion === null;
+//     });
+
+//     return $primerNivelAnexos->map(function ($anexo) {
+//         return [
+//             'documento_id' => $anexo->documento_id,
+//             'documento_id_anexo' => $anexo->documento_id_anexo,
+//             'datos_anexo' => (new DocumentoResource($anexo->documentoAnexoIdRelacion))
+//         ];
+//     });
+// }
     protected function obtenerDatosAnexos($anexos)
     {
         return $anexos->map(function ($anexo) {
             return [
                 'documento_id' => $anexo->documento_id,
                 'documento_id_anexo' => $anexo->documento_id_anexo,
-                'datos_anexo' => (new DocumentoResource($anexo->documentoAnexoIdRelacion))
+                'datos_anexo' => (new DocumentoAnexoResource($anexo->documentoAnexoIdRelacion))
             ];
         });
     }

@@ -43,8 +43,8 @@ createInertiaApp({
 
         // Whether to include the default NProgress styles...
         includeCSS: true,
-
+        //QUEDE AQUI PARA MODIFICAR EL SPINNER
         // Whether the NProgress spinner will be shown...
-        showSpinner: false,
+        showSpinner: true,
     },
 });

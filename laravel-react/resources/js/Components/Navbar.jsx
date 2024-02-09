@@ -18,15 +18,15 @@ export default function NavbarComponent() {
     }
     const { sidebar,changeState} = useSidebarStore();
     return (
-        <Navbar maxWidth="full" position="sticky" className="">
+        <Navbar maxWidth="full" position="sticky" className="bg-slate-700">
             <NavbarBrand>
-                <Button onClick={() => changeState()} isIconOnly className='align-middle border-indigo-900  bg-transparent text-indigo-900'>
+                <Button onClick={() => changeState()} isIconOnly className='align-middle border-indigo-900  bg-transparent text-white'>
                     <Icon path={mdiMenu}></Icon>
                 </Button>
             </NavbarBrand>
             <NavbarContent justify="end">
                 <NavbarItem>
-                    <Button onPress={()=>setVariables()} isIconOnly className="bg-indigo-900 text-white">
+                    <Button onPress={()=>setVariables()} isIconOnly className="bg-white text-slate-700">
                             <Icon path={mdiLogout} size={1} />
                     </Button>
                 </NavbarItem>

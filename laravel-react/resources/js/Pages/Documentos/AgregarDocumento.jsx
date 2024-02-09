@@ -13,6 +13,7 @@ import { Toast } from 'primereact/toast'
 import { Head } from '@inertiajs/react';        
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
+import { useModalProgressStore } from '@/Store/useStore'
 locale('en');
 addLocale('es', {
   firstDayOfWeek: 1,
@@ -36,7 +37,7 @@ const AgregarDocumento = ({auth}) => {
   const [docAnexos,setDocAnexos] = useState([])
 
   //formularios
-  const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset} = useForm({
+  const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset,progress} = useForm({
     rut_documento: '',
     numero_documento: '',
     materia_documento: '',
@@ -55,9 +56,6 @@ const AgregarDocumento = ({auth}) => {
   const selectAutorDocumento = (value) => {  setData('autor_documento',value) };
   const selectDireccionDocumento = (value) => { setData('direccion_documento',value) };
 
-  const [btnAgregarNuevo,setBtnAgregarNuevo] = useState(true)
-  const [btnAgregarExistente,setBtnAgregarExistente] = useState(false)
-
   useEffect(() => {
     if (flash.FormDocumento=="Success"){
       changeStateForm()
@@ -75,6 +73,9 @@ const AgregarDocumento = ({auth}) => {
   }, [flash.documentos]);
 
 
+  //progress
+  const {isOpenProgress,onOpenProgress,onCloseProgress} = useModalProgressStore()
+
   //seleccion agregar doocs
   const [valuesAgregarAnexo, setValuesAgregarAnexo] = useState(new Set([]));
   const handleSelectionChange = (e) => {
@@ -89,17 +90,20 @@ const AgregarDocumento = ({auth}) => {
   }
 
   //post
+  const [stateBtn,setStateBtn] = useState(false)
   const submit = async (e) => {
     e.preventDefault();
+    setStateBtn(true)
+    onOpenProgress()
     post(route('gestion-documento.store'),{
       onSuccess: (msg) => { 
-        reset('materia_documento'); showMsg(msg.success,severity.success,summary.success)},
+        reset('materia_documento'); setStateBtn(false);showMsg(msg.success,severity.success,summary.success);onCloseProgress()},
       onError: (errors) => {
-        showMsg(errors.create,severity.error,summary.error)
+        setStateBtn(false)
+        showMsg(errors.create,severity.error,summary.error);onCloseProgress()
       }
     });
   }
-  
   
   //Tabla
   const [page, setPage] = React.useState(1);
@@ -122,6 +126,22 @@ const AgregarDocumento = ({auth}) => {
       <TitleTemplate>
         Agregar documento
       </TitleTemplate>
+{/* 
+      <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+          <ModalContent>
+              {
+                  (onCloseProgress)=>(
+                      <Progress
+                          size="sm"
+                          isIndeterminate
+                          aria-label="Loading..."
+                          className="max-w-md"
+                      />
+                  )
+              }
+          </ModalContent>
+      </Modal> */}
+
       <ContentTemplate>
         <h2>Formulario</h2>
         <form className='md:p-8' onSubmit={submit} >
@@ -185,7 +205,7 @@ const AgregarDocumento = ({auth}) => {
               <Button className='w-full text-large mb-1' color='warning' variant='ghost' >Volver atrás</Button>
             </Link>
             <Tooltip content="Confirmar y agregar" color='success'>
-              <Button type='submit' color='success' variant='ghost' className='w-full text-large' size='md'>Agregar</Button>
+              <Button type='submit' disabled={stateBtn} color='success' variant='ghost' className='w-full text-large' size='md'>Agregar</Button>
             </Tooltip>
           </div>
           

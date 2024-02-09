@@ -5,7 +5,7 @@ import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import { Head, useForm, Link} from '@inertiajs/react'
-import { Button } from '@nextui-org/react'
+import { Button,useDisclosure,Progress, Modal, ModalContent } from '@nextui-org/react'
 import { Toast } from 'primereact/toast';        
 import React,{useRef} from 'react'
 
@@ -26,10 +26,13 @@ const AgregarRol = ({auth}) => {
         nombre: '',
     });
 
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
     const submit = (e) => {
         e.preventDefault()
+        onOpenProgress()
         post(route('rol.store'),{
-            onSuccess: () => console.log("bien")
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress()},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
         })
     }
 
@@ -39,6 +42,20 @@ const AgregarRol = ({auth}) => {
             <Head title='Agregar rol'></Head>
             <TitleTemplate>Agregar rol</TitleTemplate>
             <Toast ref={toast_global} />
+            <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                <ModalContent>
+                    {
+                        (onCloseProgress)=>(
+                            <Progress
+                                size="sm"
+                                isIndeterminate
+                                aria-label="Loading..."
+                                className="max-w-md"
+                            />
+                        )
+                    }
+                </ModalContent>
+            </Modal>
             <ContentTemplate>
                 <div>
                     <form onSubmit={submit} className='p-8'>

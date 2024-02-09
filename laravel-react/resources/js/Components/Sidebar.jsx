@@ -20,7 +20,7 @@ export const Sidebar = ({user}) => {
     },[selectedKeys])
     return(
         <>
-            <div className={`bg-indigo-900 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
+            <div className={`bg-slate-700 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
                 <div className="text-white">
                     <User name={  <span className=" ps-3">{user.nombres}</span>} 
                         classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis ${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}

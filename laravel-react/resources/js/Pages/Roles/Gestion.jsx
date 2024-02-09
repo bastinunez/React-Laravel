@@ -9,7 +9,7 @@ import { usePage ,Link, useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import Select from '@/Components/Select';
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
-    Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Tooltip,
+    Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Tooltip, Progress,
     Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure}  from "@nextui-org/react";
 import Icon from '@mdi/react';
 import { mdiFileEyeOutline, mdiVacuumOutline, 

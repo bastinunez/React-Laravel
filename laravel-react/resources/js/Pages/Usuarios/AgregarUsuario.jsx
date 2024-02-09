@@ -12,7 +12,7 @@ import { Toast } from 'primereact/toast';
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import { Button, Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,
-    Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Input} from '@nextui-org/react';
+    Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Input,Progress} from '@nextui-org/react';
 import Icon from '@mdi/react';
 import { mdiDownloadOutline, mdiTrashCanOutline } from '@mdi/js';
 import * as XLSX from "xlsx";
@@ -58,18 +58,21 @@ const AgregarUsuario = ({auth}) => {
         toast_global.current.show({severity:sev, summary:sum, detail:msg, life: 3000});
     }
 
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
+
     const submit = (e) => {
         e.preventDefault()
+        onOpenProgress()
         post(route('gestion-usuarios.store'),{
-            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success)},
-            onError: (msg) => {showMsg(msg.create,severity.error,summary.error)},
+            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);onCloseProgress()},
+            onError: (msg) => {showMsg(msg.create,severity.error,summary.error);onCloseProgress()},
         })
     }
 
     const submitExcel = (e) => {
         e.preventDefault()
         //console.log(dataExcel)
-
+        onOpenProgress()
         const reader = new FileReader();
         reader.readAsArrayBuffer(dataExcel.archivo);
         reader.onload = async (e) => {
@@ -124,8 +127,8 @@ const AgregarUsuario = ({auth}) => {
                     }
                     if (dataExcel.rol==1 || dataExcel.rol==2 || dataExcel.rol==3){
                         postExcel(route('gestion-usuarios.store'),{
-                            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success)},
-                            onError: (msg) => {showMsg(msg.create,severity.error,summary.error)},
+                            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);onCloseProgress()},
+                            onError: (msg) => {showMsg(msg.create,severity.error,summary.error);onCloseProgress()},
                         })
                     }
                   });
@@ -148,9 +151,6 @@ const AgregarUsuario = ({auth}) => {
         document.body.removeChild(link);
     }
     
-    const borrarExcel = () =>{
-
-    }
 
 
     return (
@@ -159,6 +159,20 @@ const AgregarUsuario = ({auth}) => {
             <Head title="Agregar Usuario"></Head>
             <TitleTemplate>Agregar usuario</TitleTemplate>
             <Toast ref={toast_global}></Toast>
+            <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                <ModalContent>
+                    {
+                        (onCloseProgress)=>(
+                            <Progress
+                                size="sm"
+                                isIndeterminate
+                                aria-label="Loading..."
+                                className="max-w-md"
+                            />
+                        )
+                    }
+                </ModalContent>
+            </Modal>
             <ContentTemplate>
                 <div className='p-8'>
                     {/* Seleccionar accion */}

@@ -11,11 +11,10 @@ import { Toast } from 'primereact/toast';
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import { Button, Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,
-        Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Checkbox} from '@nextui-org/react';
+        Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Checkbox,Progress} from '@nextui-org/react';
 import Icon from '@mdi/react';
 import { mdiDownloadOutline, mdiTrashCanOutline } from '@mdi/js';
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
-import { Transform } from '@/Composables/Base64toBlob'
 import { Head } from '@inertiajs/react';
 import { DescargarDocumento } from '@/Composables/DownloadPDF'
 locale('en');
@@ -84,7 +83,7 @@ const EditarDocumento = ({auth}) => {
     const matchDireccion = direcciones.find(direccion => documento.direccion === direccion.nombre)
     const matchTipo = tipos.find(tipo => documento.tipo === tipo.nombre)
 
-    const { data:data, setData:setData, patch:patch, put, errors:errors, reset:reset,post:post  } = useForm({
+    const { data:data, setData:setData, patch:patch, put, errors:errors,progress, reset:reset,post:post  } = useForm({
         rut_documento: documento.rut ? documento.rut:'',
         numero_documento: documento.numero,
         materia_documento: documento.materia?documento.materia:'',
@@ -101,13 +100,14 @@ const EditarDocumento = ({auth}) => {
         autor_documento: '',
         fecha_documento: '',
         tipo_documento: '',
-        id_doc:documento.id
+        id_doc:documento.id,
+        estado:false
     });
     const {data:dataDelete, setData:setDataDelete, delete:deleteAnexo,post:postDelete}=useForm({
         documento_id:documento.id,
         anexos:[]
     });
-    const {data:dataAddAnexo, setData:setDataAddAnexoo, delete:deleteAddAnexo,post:postAddAnexo,reset:resetAddAnexo}=useForm({
+    const {data:dataAddAnexo, setData:setDataAddAnexoo,post:postAddAnexo,reset:resetAddAnexo}=useForm({
         documento_id:documento.id,
         anexos:[]
     });
@@ -137,33 +137,41 @@ const EditarDocumento = ({auth}) => {
         toast_global.current.show({severity:sev, summary:sum, detail:msg, life: 3000});
     }
 
+    const [isProgress,setIsProgress] = useState(false)
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
+
+    const [stateBtnModal,setStateBtnModal] = useState(false)
+    useEffect(()=>{
+        setStateBtnModal(false)
+    },[data,data_mini,seleccion,btnMetadato,btnAnexos,btnAgregarNuevo,btnAgregarExistente])
 
     //post
     const submit = async (e) => {
         // e.preventDefault();
         //console.log(data)
+        setStateBtnModal(true)
+        onOpenProgress()
         post(route('gestion-documento.update-doc',String(documento.id)),{
-            onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
-            onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
+            onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);setIsProgress(false);onCloseProgress()},
+            onError: (msg) => {showMsg(msg.update,severity.error,summary.error);setIsProgress(false);onCloseProgress()}
         });
-        // put(route('gestion-documento.update',String(documento.id)),{
-        //     onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
-        //     onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
-        // });
     }
+    const [stateBtnMiniForm,setStateBtnMiniForm] = useState(false)
     const submitMiniForm = (e) => {
         e.preventDefault()
-        //console.log(data_mini)
+        setStateBtnMiniForm(true)
+        onOpenProgress()
         post_mini(route('documento-anexo.store'),{
             onSuccess: (msg) => {
-                getDocuments(documento.id);
+                getDocuments(documento.id);setStateBtnModal(true);
                 reset_mini('numero_documento','autor_documento','tipo_documento','fecha_documento')
-                showMsg(msg.create,severity.success,summary.success)
+                showMsg(msg.create,severity.success,summary.success);onCloseProgress()
             },
             onError: (errors) => {
-                showMsg(errors.create,severity.error,summary.error)
+                showMsg(errors.create,severity.error,summary.error);onCloseProgress()
             }
         })
+
     }
     const submitAgregarAnexo = (e) => {
         e.preventDefault()
@@ -175,22 +183,25 @@ const EditarDocumento = ({auth}) => {
             datos = arraySeleccion.map(doc => doc)
         }
         dataAddAnexo.anexos=datos
+        onOpenProgress()
         setValuesAgregarAnexo(new Set([]))
         postAddAnexo(route('documento-anexo.agregar-existente'),{
             onSuccess: (msg) => {
                 showMsg(msg.add_anexo,severity.success,summary.success)
                 getDocuments(documento.id);
                 resetAddAnexo('anexos');
-                setValuesAgregarAnexo(new Set([]))
+                setValuesAgregarAnexo(new Set([]));onCloseProgress()
+                
             },
             onError: (msg) => {
-                showMsg(msg.add_anexo,severity.error,summary.error)
+                showMsg(msg.add_anexo,severity.error,summary.error);onCloseProgress()
             }
         })
     }
     
     const quitarDocAnexoSeleccion = () => {
         let datos=""
+        setStateBtnModal(true)
         if (seleccion=="all"){
             datos = docAnexos.map(doc => doc.id)
         }else{
@@ -198,21 +209,25 @@ const EditarDocumento = ({auth}) => {
             datos = arraySeleccion.map(doc => doc)
         }
         dataDelete.anexos=datos
+        onOpenProgress()
         deleteAnexo(route('documento-anexo.destroy',documento.id),{
-            onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success)},
-            onError: (msg) => {showMsg(msg.destroy,severity.error,summary.error)}
+            onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success);onCloseProgress()},
+            onError: (msg) => {showMsg(msg.destroy,severity.error,summary.error);onCloseProgress()}
         })
     }
     const quitarDocAnexoButton = (id_anexo) => {
         dataDelete.anexos=[id_anexo]
+        setStateBtnModal(true)
+        onOpenProgress()
         deleteAnexo(route('documento-anexo.destroy',id_anexo),{
-            onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success)},
-            onError: (msg) => { showMsg(msg.destroy,severity.error,summary.error)}
+            onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success);onCloseProgress()},
+            onError: (msg) => { showMsg(msg.destroy,severity.error,summary.error);onCloseProgress()}
         })
 
     }
 
     const descargarDocAnexoSeleccion = () => {
+        setStateBtnModal(true)
         const respSinArchivos = DescargarDocumento(seleccion,docAnexos);
         if (respSinArchivos.length !== 0){
             setSinArchivos(respSinArchivos)
@@ -230,6 +245,22 @@ const EditarDocumento = ({auth}) => {
             <div>
                 <TitleTemplate>Editar Documento</TitleTemplate>
                 <Toast ref={toast_global} />
+
+                <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                    <ModalContent>
+                        {
+                            (onCloseProgress)=>(
+                                <Progress
+                                    size="sm"
+                                    isIndeterminate
+                                    aria-label="Loading..."
+                                    className="max-w-md"
+                                />
+                            )
+                        }
+                    </ModalContent>
+                </Modal>
+                
                 <ContentTemplate>
                     <div className='md:p-5'>
                         {/* Seleccionar accion (Editar metadatos/editar doc. anexos) */}
@@ -343,7 +374,7 @@ const EditarDocumento = ({auth}) => {
                                         <div className='mt-5 w-full'>
                                             <div className='md:flex w-full gap-4'>
                                                 <div className='w-full'>
-                                                    <Button color='secondary' className='w-full text-medium' variant={btnAgregarNuevo?'solid':'ghost'} 
+                                                    <Button color='secondary' className='w-full text-medium' variant={btnAgregarNuevo?'solid':'ghost'}  
                                                     onClick={() => { if(!btnAgregarNuevo){setBtnAgregarExistente(!btnAgregarExistente);setBtnAgregarNuevo(!btnAgregarNuevo)}}} >
                                                         Agregar nuevo documento
                                                     </Button>
@@ -372,33 +403,37 @@ const EditarDocumento = ({auth}) => {
                                             <div className='mt-5'>
                                                 <form onSubmit={submitMiniForm}>
                                                     <div className='md:flex w-full justify-between mb-5 gap-3'>
-                                                        <div className="w-80">
-                                                            <InputLabel value={"Selecciona tipo de documento"}></InputLabel>
+                                                        <div className="w-80 lg:me-4">
+                                                            <InputLabel value={"Tipo de documento"}></InputLabel>
                                                             <Select opciones={tipos} value={data_mini.tipo_documento} onChange={(value) => setData_mini('tipo_documento', value)} required>
                                                             </Select>
                                                             <InputError message={errors_mini.tipo_documento} className="mt-2" />
                                                         </div>
-                                                        <div className="w-80">
-                                                            <InputLabel value={"Selecciona autor de documento"}></InputLabel>
+                                                        <div className="w-80 lg:me-4">
+                                                            <InputLabel value={"Autor de documento"}></InputLabel>
                                                             <Select opciones={autores} value={data_mini.autor_documento} onChange={(value) => setData_mini('autor_documento', value)}  required>
                                                             </Select>
                                                             <InputError message={errors_mini.autor_documento} className="mt-2" />
                                                         </div>
-                                                        <div className="w-80">
-                                                            <InputLabel value={"Ingresa numero de documento"}></InputLabel>
-                                                            <TextInput className={"w-full"} type={'number'} value={data_mini.numero_documento} onChange={(e) => setData_mini('numero_documento',e.target.value)}required ></TextInput>
+                                                        <div className="w-80 lg:me-4">
+                                                            <InputLabel value={"Número de documento"}></InputLabel>
+                                                            <TextInput className={"w-full"} placeholder={"Ingresa número"} type={'number'} value={data_mini.numero_documento} onChange={(e) => setData_mini('numero_documento',e.target.value)}required ></TextInput>
                                                             <InputError message={errors_mini.numero_documento} className="mt-2" />
                                                         </div>
-                                                        <div className="w-80">
-                                                            <InputLabel value={"Ingresa fecha"}></InputLabel>
+                                                        <div className="w-80 lg:me-4">
+                                                            <InputLabel value={"Fecha"}></InputLabel>
                                                             <div className="card flex justify-content-center">
-                                                                <Calendar value={data_mini.fecha_documento} locale="es" inputStyle={{"padding":"0.5rem "}} required onChange={(e) => setData_mini('fecha_documento',e.target.value)} readOnlyInput />
+                                                                <Calendar value={data_mini.fecha_documento} placeholder={"Ingresa fecha"} locale="es" inputStyle={{"padding":"0.5rem "}} required onChange={(e) => setData_mini('fecha_documento',e.target.value)} readOnlyInput />
                                                             </div>
                                                             <InputError message={errors_mini.fecha_documento} className="mt-2" />
                                                         </div>
+                                                        <div className='w-80 lg:me-4'>
+                                                            <InputLabel value={"¿Se encuentra anulado?"}></InputLabel>
+                                                            <Checkbox value={data_mini.estado} onChange={(e) => setData_mini('estado',e.target.checked)}  color="danger">Anulado</Checkbox>
+                                                        </div>
                                                     </div>
                                                     <div className='mt-3'>
-                                                        <Button id='submit_miniform' type='submit' color='primary' 
+                                                        <Button id='submit_miniform' disabled={stateBtnMiniForm} color='primary' type='submit'
                                                         variant='ghost'  className='w-full text-large' size='md'>Agregar documento anexo</Button>
                                                     </div>
                                                 </form>
@@ -440,6 +475,7 @@ const EditarDocumento = ({auth}) => {
                                             </div>
                                         </>
                                     }
+                                    
                                     <Divider className='mt-5'></Divider>
                                     {/* Tabla con los documentos actuales */}
                                     <div className='mt-5'>
@@ -529,7 +565,7 @@ const EditarDocumento = ({auth}) => {
                             <Button color="danger" variant="light" onPress={onClose}>
                                 Cancelar
                             </Button>
-                            <Button color="primary" onPress={onClose} onClick={()=>functionName()}>
+                            <Button color="primary" disabled={stateBtnModal} onPress={onClose} onClick={()=>functionName()}>
                                 Confirmar
                             </Button>
                         </ModalFooter>

@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Sidebar } from '@/Components/Sidebar';
 import NavbarComponent from '@/Components/Navbar';
 import { useSidebarStore } from '@/Store/useStore';
+import { useDisclosure,Modal,ModalContent } from '@nextui-org/react';
 
 
 export default function Authenticated({ user, header, children }) {
     const { sidebar,changeState} = useSidebarStore();
-    
     return (
         <div className=" flex h-screen bg-slate-200">
             {/* SIDEBAR */}
@@ -27,7 +27,7 @@ export default function Authenticated({ user, header, children }) {
                              {children}
                             </div>
                         </div>
-                        
+                       
                     </div>
                 </main>
             </div>

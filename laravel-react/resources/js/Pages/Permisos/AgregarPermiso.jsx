@@ -5,7 +5,7 @@ import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import { Head, useForm, Link} from '@inertiajs/react'
-import { Button } from '@nextui-org/react'
+import { Button,useDisclosure,Progress,Modal,ModalContent } from '@nextui-org/react'
 import { Toast } from 'primereact/toast';        
 import React,{useRef} from 'react'
 
@@ -20,6 +20,7 @@ const AgregarPermiso = ({auth}) => {
         toast_global.current.show({severity:sev, summary:sum, detail:msg, life: 3000});
     }
 
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
 
     //formularios
     const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset} = useForm({
@@ -28,8 +29,10 @@ const AgregarPermiso = ({auth}) => {
 
     const submit = (e) => {
         e.preventDefault()
+        onOpenProgress()
         post(route('permiso.store'),{
-            onSuccess: () => console.log("bien")
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress()},
+            onError:() => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
         })
     }
 
@@ -39,6 +42,20 @@ const AgregarPermiso = ({auth}) => {
             <Head title='Agregar permiso'></Head>
             <TitleTemplate>Agregar permiso</TitleTemplate>
             <Toast ref={toast_global} />
+            <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                <ModalContent>
+                    {
+                        (onCloseProgress)=>(
+                            <Progress
+                                size="sm"
+                                isIndeterminate
+                                aria-label="Loading..."
+                                className="max-w-md"
+                            />
+                        )
+                    }
+                </ModalContent>
+            </Modal>
             <ContentTemplate>
                 <div>
                     <form onSubmit={submit} className='p-8'>

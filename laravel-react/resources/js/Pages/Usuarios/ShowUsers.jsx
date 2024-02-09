@@ -6,7 +6,7 @@ import React,{useRef,useState,useEffect,useMemo,useCallback} from 'react'
 import { usePage ,Link, useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
-  Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
+  Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip, Progress,
   Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip,}  from "@nextui-org/react";
 import Icon from '@mdi/react';
 import { mdiVacuumOutline, mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline} from '@mdi/js';
@@ -175,11 +175,14 @@ const ShowUsers = ({auth}) => {
     {name: "Acciones", uid: "actions"},
   ];
 
+  const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
+
   
   //UPDATE ESTADOS
   const anularSeleccionados = (e) => {
     if (seleccion.length!=0){
       let datos=[]
+      onOpenProgress()
       if (seleccion=="all"){
         datos = usuarios.filter(item=>{item.estado === estados[0].nombre;return item.id})
         datos = datos.map(doc=>doc.id)
@@ -194,8 +197,8 @@ const ShowUsers = ({auth}) => {
       }
       dataEstado.id_users=datos
       patchEstado(route('gestion-usuarios.update-collection',0),{
-        onSuccess:(msg)=>{showMsg("Exito",severity.success,summary.success)},
-        onError:()=>{showMsg("Falló",severity.error,summary.error)}
+        onSuccess:(msg)=>{showMsg("Exito",severity.success,summary.success);onCloseProgress()},
+        onError:()=>{showMsg("Falló",severity.error,summary.error);onCloseProgress()}
       })
     }else{
       showMsg("No seleccionaste datos",severity.error,summary.error)
@@ -206,6 +209,7 @@ const ShowUsers = ({auth}) => {
   const habilitarSeleccionados = (e) => {
     if (seleccion.length!=0){
       let datos=[]
+      onOpenProgress()
       if (seleccion=="all"){
         datos = usuarios.filter(item=>{item.estado === estados[1].nombre;return item.id})
         datos = datos.map(item=>item.id)
@@ -220,8 +224,8 @@ const ShowUsers = ({auth}) => {
       }
       dataEstado.id_users=datos
       patchEstado(route('gestion-usuarios.update-collection',0),{
-        onSuccess:(msg)=>{showMsg("Exito",severity.success,summary.success)},
-        onError:()=>{showMsg("Error",severity.error,summary.error)}
+        onSuccess:(msg)=>{showMsg("Exito",severity.success,summary.success);onCloseProgress()},
+        onError:()=>{showMsg("Error",severity.error,summary.error);onCloseProgress()}
       })
     }else{
       showMsg("No seleccionaste datos",severity.error,summary.error)
@@ -243,6 +247,20 @@ const ShowUsers = ({auth}) => {
         <TitleTemplate>Gestion de usuarios</TitleTemplate>
         <Head title='Gestion de usuarios'></Head>
         <Toast ref={toast_global}></Toast>
+        <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+            <ModalContent>
+                {
+                    (onCloseProgress)=>(
+                        <Progress
+                            size="sm"
+                            isIndeterminate
+                            aria-label="Loading..."
+                            className="max-w-md"
+                        />
+                    )
+                }
+            </ModalContent>
+        </Modal>
         <FilterTemplate>
         <div className="flex flex-col gap-4">
             <div className="md:flex justify-center gap-4 items-end">

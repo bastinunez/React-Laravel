@@ -9,7 +9,7 @@ import React,{useRef,useState,useEffect,useMemo,useCallback} from 'react'
 import { usePage ,Link, useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import {Button, Radio,RadioGroup, Table,TableCell,TableRow,Pagination,
-  Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
+  Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip, Progress,
   Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip, TableHeader, TableBody, TableColumn, Divider,}  from "@nextui-org/react";
 import Icon from '@mdi/react';
 import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline, mdiTrashCan, mdiTrashCanOutline} from '@mdi/js';
@@ -90,9 +90,12 @@ const EditarUsuario = ({auth}) => {
   }, [sortDescriptor, items]);
   const [permissionSelect, setPermissionSelect] = useState("");
 
+  const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
+
   const submitPermisosAdd = () => {
     if (permissionSelect.size>0){
       let datos=""
+      onOpenProgress()
       if (permissionSelect=="all"){
           datos = permisos_filter.map(permiso => permiso.id)
       }else{
@@ -102,25 +105,27 @@ const EditarUsuario = ({auth}) => {
       dataPermission.opcion=1
       dataPermission.permisos=datos
       patchPermission(route('gestion-usuarios.update-permission',String(usuario.id)),{
-        onSuccess: () => {showMsg("Exito",severity.success,summary.success);setPermissionSelect('')},
-        onError: () => {showMsg("Falló",severity.error,summary.error)}
+        onSuccess: () => {showMsg("Exito",severity.success,summary.success);setPermissionSelect('');onCloseProgress()},
+        onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
       })
     }else{
-      showMsg("No hay seleccion",severity.error,summary.error)
+      showMsg("No hay seleccion",severity.error,summary.error);onCloseProgress()
     }
    
   }
   const submitPermisosDelete = (nombre) => {
     dataPermission.permisos = [nombre]
     dataPermission.opcion = 0
+    onOpenProgress()
     patchPermission(route('gestion-usuarios.update-permission',String(usuario.id)),{
-      onSuccess: () => {showMsg("Exito",severity.success,summary.success);setSeleccion('')},
-      onError: () => {showMsg("Falló",severity.error,summary.error)}
+      onSuccess: () => {showMsg("Exito",severity.success,summary.success);setSeleccion('');onCloseProgress()},
+      onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
     })
   }
   const submitPermisosDeleteSeleccion = () => {
     if (seleccion.size>0){
       let datos=""
+      onOpenProgress()
       if (seleccion=="all"){
           datos = permisos_filter.map(permiso => permiso.id)
       }else{
@@ -130,30 +135,33 @@ const EditarUsuario = ({auth}) => {
       dataPermission.permisos=datos
       dataPermission.opcion = 0
       patchPermission(route('gestion-usuarios.update-permission',String(usuario.id)),{
-        onSuccess: () => {showMsg("Exito",severity.success,summary.success);setSeleccion('')},
-        onError: () => {showMsg("Falló",severity.error,summary.error)}
+        onSuccess: () => {showMsg("Exito",severity.success,summary.success);setSeleccion('');onCloseProgress()},
+        onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
       })
     }else{
-      showMsg("No hay seleccion",severity.error,summary.error)
+      showMsg("No hay seleccion",severity.error,summary.error);onCloseProgress()
     }
     
   }
   const submitUpdateData = (e) => {
+    onOpenProgress()
     patchEdit(route("gestion-usuarios.update-metadata",String(usuario.id)),{
-      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
-      onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
+      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);onCloseProgress()},
+      onError: (msg) => {showMsg(msg.update,severity.error,summary.error);onCloseProgress()}
     })
   }
   const submitRestaurarPwd = (e) => {
+    onOpenProgress()
     patchPwd(route('gestion-usuarios.update',usuario.id),{
-      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
-      onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
+      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);onCloseProgress()},
+      onError: (msg) => {showMsg(msg.update,severity.error,summary.error);onCloseProgress()}
     })
   }
   const submitRol = (e) => {
+    onOpenProgress()
     patchRol(route('gestion-usuarios.update-rol',String(usuario.id)),{
-      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
-      onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
+      onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);onCloseProgress()},
+      onError: (msg) => {showMsg(msg.update,severity.error,summary.error);onCloseProgress()}
     })
   }
 
@@ -162,6 +170,20 @@ const EditarUsuario = ({auth}) => {
         <TitleTemplate>Editar usuario</TitleTemplate>
         <Head title='Editar usuario'></Head>
         <Toast ref={toast_global}></Toast>
+        <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+            <ModalContent>
+                {
+                    (onCloseProgress)=>(
+                        <Progress
+                            size="sm"
+                            isIndeterminate
+                            aria-label="Loading..."
+                            className="max-w-md"
+                        />
+                    )
+                }
+            </ModalContent>
+        </Modal>
         <ContentTemplate>
             <div className='lg:p-8'>
               <div className='lg:flex w-full gap-4'>
