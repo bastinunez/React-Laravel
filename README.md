@@ -58,9 +58,13 @@
             - Habilitar el servicio de APACHE (puertos 80 y 443)
             - Configurar carpeta "Root" según donde se encuentre el proyecto. Ejemplo: /ruta/a/proyecto/**laravel-react/public/**
         - #### Manual de uso
+            - Crear un archivo .env con los mismos parámetros del archivo .env.example.
+            - En el archivo.env editar las credenciales de la base de datos que tendrá.
             - En la terminal de Laragon ubicarse en la carpeta laravel-react y utilizar lo siguientes comandos:
+                - php artisan key:generate
                 - npm run build
                 - composer install
+            - Abrir la carpeta en el directorio public, copiar la carpeta build que se genera y crear otro directorio llamado documentos con los mismos datos de build.
             - Iniciar el servicio de apache
             - Reemplazar el archivo auto.documentos.test.conf en sites-enabled de laragon por el **contenido** que se encuentra en la carpeta raíz de este proyecto también llamado auto.documentos.test.conf. **En la primera línea mantener la ruta donde tienes tu proyecto, esta ruta debe terminar en .../public**
             - Reiniciar el servicio y entrar a la página documentos.test

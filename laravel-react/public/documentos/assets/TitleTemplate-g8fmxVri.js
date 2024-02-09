@@ -1,0 +1,1 @@
+import{j as e}from"./app-eXGWw0Q1.js";const m=t=>e.jsx("div",{className:"bg-white rounded-md p-4 me-4 ms-4 mb-4 max-w-[365px] sm:max-w-none",children:e.jsx("div",{className:"text-2xl xl:text-4xl",children:t.children})}),x=m;export{x as T};
