@@ -10,7 +10,7 @@ import React,{useState,useEffect,useRef,useMemo,useCallback} from 'react'
 import Icon from '@mdi/react';
 import { Calendar } from 'primereact/calendar';
 import Select from '@/Components/Select';
-import { mdiVacuumOutline, mdiMagnify,mdiChevronDown} from '@mdi/js';
+import { mdiVacuumOutline, mdiMagnify,mdiChevronDown,mdiEyeOutline} from '@mdi/js';
 import FilterTemplate from '@/Components/FilterTemplate'
 
 const Documentos = ({auth}) => {
@@ -40,15 +40,16 @@ const Documentos = ({auth}) => {
   });
 
   const columnas = [
-    {name: "ID", uid: "id", sortable: true},
-    {name: "Número", uid: "numero", sortable: true},
-    {name: "Fecha", uid: "fecha", sortable: true},
-    {name: "Autor", uid: "autor", sortable: true},
-    {name: "Tipo", uid: "tipo", sortable: true},
+    //{name: "ID", uid: "id", sortable: true},
+    //{name: "Número", uid: "numero", sortable: true},
+    //{name: "Fecha", uid: "fecha", sortable: true},
+    //{name: "Autor", uid: "autor", sortable: true},
+    //{name: "Tipo", uid: "tipo", sortable: true},
     {name: "Responsable", uid: "responsable", sortable: true},
     {name: "Acción", uid: "accion", sortable: true},
     {name: "Detalles", uid: "detalles", sortable: true},
     {name: "Creado", uid: "creado", sortable: true},
+    {name: "Revisar", uid: "revisar", sortable: true},
   ];
 
   //Tabla
@@ -173,6 +174,9 @@ const Documentos = ({auth}) => {
     setFilterDetalles('')
   }
 
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const [datosModal,setDatosModal] = useState([])
+
   return (
     <Authenticated user={auth.user}>
       <Head title="Historial de documentos" />
@@ -200,10 +204,10 @@ const Documentos = ({auth}) => {
               <div className='w-full md:flex gap-2'>
 
                 <div className=' mb-1 card'>
-                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Fecha documento' dateFormat="yy//mm/dd" showIcon value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
+                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Fecha documento' dateFormat="yy//mm/dd" value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
                 </div>
                 <div className=' mb-1 card'>
-                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
+                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Fecha registro' dateFormat="yy//mm/dd" value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
                 </div>
               </div>
               <div className="flex gap-2 mb-1">
@@ -303,15 +307,63 @@ const Documentos = ({auth}) => {
                 {
                   sortedItems.map((fila,index)=>(
                     <TableRow key={index} className='text-start'>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_id}</TableCell>
+                      {/* <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_id}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_numero}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_fecha}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_autor}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_tipo}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_tipo}</TableCell> */}
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.responsable.nombres} {fila.responsable.apellidos}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.accion.nombre}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
+                      {
+                        fila.accion.nombre === "Crear"?
+                        <>
+                          <Chip className="capitalize" color={'success'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip>
+                        </>:
+                          fila.accion.nombre=== "Editar"?
+                          <>
+                            <Chip className="capitalize" color={'primary'} size="sm" variant="flat">
+                              {fila.accion.nombre}
+                            </Chip>
+                          </>
+                          :
+                          fila.accion.nombre === "Eliminar"?
+                          <><Chip className="capitalize" color={'danger'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :fila.accion.nombre === "Anexar"?
+                          <><Chip className="capitalize bg-amber-600"  size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :fila.accion.nombre === "Desanexar"?
+                          <><Chip className="capitalize"  size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :fila.accion.nombre === "Anular"?
+                          <><Chip className="capitalize" color={'danger'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :fila.accion.nombre === "Habilitar"?
+                          <><Chip className="capitalize" color={'secondary'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :<></>
+                        
+                      
+                      }  
+                      </TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.detalles}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{new Date(fila.created_at).toLocaleString()}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
+                        <Tooltip content={"Ver detalles"} className='bg-slate-400'>
+                          <Button className="me-1 bg-slate-400" size='sm' onClick={onOpen} onPress={()=>setDatosModal(fila)} color='' isIconOnly variant='flat'> 
+                            {/* active={route().current('documento.visualizar')} */}
+                            <Icon path={mdiEyeOutline} size={1} />
+                          </Button>
+                        </Tooltip>
+                      </TableCell>
+    
                     </TableRow>
                   ))
                 }
@@ -320,6 +372,60 @@ const Documentos = ({auth}) => {
             </div>
         </div>
       </ContentTemplate>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='3xl'>
+          <ModalContent>
+          {(onClose) => (
+              <>
+              <ModalHeader className="flex flex-col gap-1">Datos</ModalHeader>
+              <ModalBody>
+                <h1>Documento</h1>
+                <Table fullWidth={true} aria-label="Tabla documentos anexos">
+                  <TableHeader>
+                    <TableColumn>ID</TableColumn>
+                    <TableColumn>Número</TableColumn>
+                    <TableColumn>Fecha</TableColumn>
+                    <TableColumn>Autor</TableColumn>
+                    <TableColumn>Tipo</TableColumn>
+                    <TableColumn>Dirección</TableColumn>
+                    <TableColumn>Estado</TableColumn>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow >
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_id}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_numero}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_fecha}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_autor}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_tipo}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_direccion}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
+                      {
+                        datosModal.doc_estado === "Habilitado"?
+                        <>
+                          <Chip className="capitalize" color={'success'} size="sm" variant="flat">
+                            {datosModal.doc_estado}
+                          </Chip>
+                        </>:
+                        <>
+                          <Chip className="capitalize" color={'danger'} size="sm" variant="flat">
+                            {datosModal.doc_estado}
+                          </Chip>
+                        </>
+                      
+                      }
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </ModalBody>
+              <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                      Salir
+                  </Button>
+              </ModalFooter>
+              </>
+          )}
+          </ModalContent>
+        </Modal>
     </Authenticated>
   )
 }

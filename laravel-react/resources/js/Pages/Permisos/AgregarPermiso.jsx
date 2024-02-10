@@ -58,14 +58,14 @@ const AgregarPermiso = ({auth}) => {
             </Modal>
             <ContentTemplate>
                 <div>
-                    <form onSubmit={submit} className='p-8'>
+                    <form onSubmit={submit} className=''>
                         <div className=' w-full mb-5 gap-10'>
                             <InputLabel value={"Ingresa nombre"}></InputLabel>
                             <TextInput type={'text'} className="w-full" placeholder={"Nombre"} value={data.nombre} 
                             onChange={(e) => setData('nombre',e.target.value)} ></TextInput>
                             <InputError message={errors.nombre} className="mt-2" />
                         </div>
-                        <div className='w-full xl:flex gap-10'>
+                        <div className='w-full flex gap-3'>
                             <Link href={route("permiso.index")} className='w-full'>
                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                             </Link>

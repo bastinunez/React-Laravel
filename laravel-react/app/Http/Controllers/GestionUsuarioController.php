@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission as ModelsPermission;
 use Spatie\Permission\Models\Role;
 
 class GestionUsuarioController extends Controller
@@ -237,7 +238,7 @@ class GestionUsuarioController extends Controller
             return Inertia::render("Usuarios/EditarUsuario",[
                 "usuario"=> new UserSharedResource($usuario),
                 'roles'=>RoleResource::collection(Role::all()),
-                'permisos'=>PermissionResource::collection(Permission::all())
+                'permisos'=>PermissionResource::collection(ModelsPermission::all())
             ]);
         }else{
             return back();

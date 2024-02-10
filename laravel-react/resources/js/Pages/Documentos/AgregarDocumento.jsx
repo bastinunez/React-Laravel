@@ -6,14 +6,14 @@ import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import Select from '@/Components/Select'
-import {Button, Divider, Input, Tooltip, Pagination,Select as NextSelect, SelectItem as NextSelectItem,Checkbox,
+import {Button, Divider, Input, Tooltip, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,Checkbox,
     Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, } from "@nextui-org/react";
 import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast'
 import { Head } from '@inertiajs/react';        
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
-import { useModalProgressStore } from '@/Store/useStore'
+
 locale('en');
 addLocale('es', {
   firstDayOfWeek: 1,
@@ -74,7 +74,7 @@ const AgregarDocumento = ({auth}) => {
 
 
   //progress
-  const {isOpenProgress,onOpenProgress,onCloseProgress} = useModalProgressStore()
+  const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
 
   //seleccion agregar doocs
   const [valuesAgregarAnexo, setValuesAgregarAnexo] = useState(new Set([]));
@@ -200,7 +200,7 @@ const AgregarDocumento = ({auth}) => {
               <Checkbox value={data.estado} onChange={(e) => setData('estado',e.target.checked)}  color="danger">Anulado</Checkbox>
             </div>
           </div>
-          <div className='md:flex w-full mb-5 md:gap-8'>
+          <div className='flex w-full mb-5 gap-3 md:gap-8'>
             <Link href={route("gestion-documento.index")} className='w-full'>
               <Button className='w-full text-large mb-1' color='warning' variant='ghost' >Volver atrás</Button>
             </Link>

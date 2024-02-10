@@ -1,7 +1,7 @@
 import ContentTemplate from '@/Components/ContentTemplate'
 import TitleTemplate from '@/Components/TitleTemplate'
 import Authenticated from '@/Layouts/AuthenticatedLayout'
-import { Head,usePage } from '@inertiajs/react'
+import { Head,Link,usePage } from '@inertiajs/react'
 import { Toast } from 'primereact/toast'
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
   Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
@@ -10,7 +10,7 @@ import React,{useState,useEffect,useRef,useMemo,useCallback} from 'react'
 import Icon from '@mdi/react';
 import { Calendar } from 'primereact/calendar';
 import Select from '@/Components/Select';
-import { mdiVacuumOutline,mdiMagnify,mdiChevronDown} from '@mdi/js';
+import { mdiVacuumOutline,mdiMagnify,mdiChevronDown,mdiEyeOutline} from '@mdi/js';
 import FilterTemplate from '@/Components/FilterTemplate'
 
 const DocumentosAnexos = ({auth}) => {
@@ -40,20 +40,21 @@ const DocumentosAnexos = ({auth}) => {
   });
 
   const columnas = [
-    {name: "ID", uid: "id", sortable: true},
-    {name: "#", uid: "numero", sortable: true},
-    {name: "Fecha", uid: "fecha", sortable: true},
-    {name: "Autor", uid: "autor", sortable: true},
-    {name: "Tipo", uid: "tipo", sortable: true},
-    {name: "ID anexo", uid: "id_anexo", sortable: true},
-    {name: "# anexo", uid: "numero_anexo", sortable: true},
-    {name: "Fecha anexo", uid: "fecha_anexo", sortable: true},
+    // {name: "ID", uid: "id", sortable: true},
+    // {name: "#", uid: "numero", sortable: true},
+    // {name: "Fecha", uid: "fecha", sortable: true},
+    // {name: "Autor", uid: "autor", sortable: true},
+    // {name: "Tipo", uid: "tipo", sortable: true},
+    // {name: "ID anexo", uid: "id_anexo", sortable: true},
+    // {name: "# anexo", uid: "numero_anexo", sortable: true},
+    //{name: "Fecha anexo", uid: "fecha_anexo", sortable: true},
     //{name: "Autor anexo", uid: "autor_anexo", sortable: true},
     //{name: "Tipo anexo", uid: "tipo_anexo", sortable: true},
     {name: "Responsable", uid: "responsable", sortable: true},
     {name: "Acción", uid: "accion", sortable: true},
     {name: "Detalles", uid: "detalles", sortable: true},
     {name: "Creado", uid: "creado", sortable: true},
+    {name: "Revisar", uid: "revisar", sortable: true},
   ];
 
   //Tabla
@@ -169,6 +170,9 @@ const DocumentosAnexos = ({auth}) => {
     setFilterDetalles('')
   }
 
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const [datosModal,setDatosModal] = useState([])
+
   return (
     <Authenticated user={auth.user}>
       <Head title="Historial de documentos anexos" />
@@ -195,10 +199,10 @@ const DocumentosAnexos = ({auth}) => {
               </div>
               <div className='md:flex items-center md:gap-2'>
                 <div className='w-full card mb-1'>
-                  <Calendar className='max-h-10 border-0 flex p-0'  placeholder='Fecha documento' dateFormat="yy//mm/dd" showIcon value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
+                  <Calendar className='max-h-10 border-0 flex p-0'  placeholder='Fecha documento' dateFormat="yy//mm/dd" value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
                 </div>
                 <div className='w-full card mb-1'>
-                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
+                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Fecha registro' dateFormat="yy//mm/dd" value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
                 </div>
                 <div className="flex gap-2 mb-1">
                   <div>
@@ -281,7 +285,7 @@ const DocumentosAnexos = ({auth}) => {
       <ContentTemplate>
         <div>
             <div>
-            <Table aria-label="Tabla historial" color={"primary"}
+            <Table aria-label="Tabla historial" color={"primary"} loa
             selectedKeys={seleccion} onSelectionChange={setSeleccion}  
             bottomContent={ 
               <div className="flex w-full justify-center">
@@ -295,32 +299,171 @@ const DocumentosAnexos = ({auth}) => {
                     <TableColumn className='text-start text-small' key={columna.uid}>{columna.name}</TableColumn>
                   ))}
               </TableHeader>
-              <TableBody emptyContent={"No existen historial"}>
+              <TableBody emptyContent={"No existen historial"} isLoading={true} loadingState='loading'>
                 {
                   sortedItems.map((fila,index)=>(
                     <TableRow key={index} className='text-start'>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_id}</TableCell>
+                      {/* <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_id}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_numero}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_fecha}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_autor}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_tipo}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_anexo_id}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_tipo}</TableCell> */}
+                      {/* <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_anexo_id}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_anexo_numero}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_anexo_fecha}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_anexo_fecha}</TableCell> */}
                       {/* <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_anexo_autor}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_anexo_tipo}</TableCell> */}
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.responsable.nombres} {fila.responsable.apellidos}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.accion.nombre}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
+                      {
+                        fila.accion.nombre === "Crear"?
+                        <>
+                          <Chip className="capitalize" color={'success'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip>
+                        </>:
+                          fila.accion.nombre=== "Editar"?
+                          <>
+                            <Chip className="capitalize" color={'primary'} size="sm" variant="flat">
+                              {fila.accion.nombre}
+                            </Chip>
+                          </>
+                          :
+                          fila.accion.nombre === "Eliminar"?
+                          <><Chip className="capitalize" color={'danger'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :fila.accion.nombre === "Anexar"?
+                          <><Chip className="capitalize" color={'danger'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :fila.accion.nombre === "Desanexar"?
+                          <><Chip className="capitalize" color={'success'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :fila.accion.nombre === "Anular"?
+                          <><Chip className="capitalize" color={'danger'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :fila.accion.nombre === "Habilitar"?
+                          <><Chip className="capitalize" color={'secondary'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :<></>
+                        
+                      
+                      }  
+                      </TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.detalles}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{new Date(fila.created_at).toLocaleString()}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
+                        <Tooltip content={"Ver detalles"} className='bg-slate-400'>
+                          <Button className="me-1 bg-slate-400" size='sm' onClick={onOpen} onPress={()=>setDatosModal(fila)} color='' isIconOnly variant='flat'> 
+                            {/* active={route().current('documento.visualizar')} */}
+                            <Icon path={mdiEyeOutline} size={1} />
+                          </Button>
+                          
+                        </Tooltip>
+                      </TableCell>
+                      
                     </TableRow>
+                    
                   ))
+                  
                 }
               </TableBody>
             </Table>
             </div>
         </div>
       </ContentTemplate>
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size='3xl'>
+          <ModalContent>
+          {(onClose) => (
+              <>
+              <ModalHeader className="flex flex-col gap-1">Datos</ModalHeader>
+              <ModalBody>
+                <h1>Documento padre</h1>
+                <Table fullWidth={true} aria-label="Tabla documentos anexos">
+                  <TableHeader>
+                    <TableColumn>ID</TableColumn>
+                    <TableColumn>Número</TableColumn>
+                    <TableColumn>Fecha</TableColumn>
+                    <TableColumn>Autor</TableColumn>
+                    <TableColumn>Tipo</TableColumn>
+                    <TableColumn>Estado</TableColumn>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow >
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_id}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_numero}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_fecha}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_autor}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_tipo}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
+                      {
+                        datosModal.doc_estado === "Habilitado"?
+                        <>
+                          <Chip className="capitalize" color={'success'} size="sm" variant="flat">
+                            {datosModal.doc_estado}
+                          </Chip>
+                        </>:
+                        <>
+                          <Chip className="capitalize" color={'danger'} size="sm" variant="flat">
+                            {datosModal.doc_estado}
+                          </Chip>
+                        </>
+                      
+                      }
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+                <h1>Documento anexado</h1>
+                <Table fullWidth={true} aria-label="Tabla documentos anexos">
+                  <TableHeader>
+                    <TableColumn>ID</TableColumn>
+                    <TableColumn>Número</TableColumn>
+                    <TableColumn>Fecha</TableColumn>
+                    <TableColumn>Autor</TableColumn>
+                    <TableColumn>Tipo</TableColumn>
+                    <TableColumn>Estado</TableColumn>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow >
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_anexo_id}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_anexo_numero}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_anexo_fecha}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_anexo_autor}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_anexo_tipo}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
+                      {
+                        datosModal.doc_anexo_estado === "Habilitado"?
+                        <>
+                          <Chip className="capitalize" color={'success'} size="sm" variant="flat">
+                            {datosModal.doc_anexo_estado}
+                          </Chip>
+                        </>:
+                        <>
+                          <Chip className="capitalize" color={'danger'} size="sm" variant="flat">
+                            {datosModal.doc_anexo_estado}
+                          </Chip>
+                        </>
+                      
+                      }
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </ModalBody>
+              <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                      Salir
+                  </Button>
+              </ModalFooter>
+              </>
+          )}
+          </ModalContent>
+        </Modal>
     </Authenticated>
   )
 }

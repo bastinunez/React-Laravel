@@ -259,7 +259,7 @@ const GestionDocumentos = ({auth}) => {
                     startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
                     onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
                   <div className='w-full card'>
-                    <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="yy//mm/dd" showIcon value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
+                    <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="yy//mm/dd" value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
                   </div>
                 </div>
               </div>
@@ -371,7 +371,7 @@ const GestionDocumentos = ({auth}) => {
                     //isIconOnly 
                     onClick={descargarSeleccionados}
                     endContent={<Icon path={mdiFileDownloadOutline} size={1} />}>
-                    <div className='hidden text-tiny md:flex md:text-small'>
+                    <div className='hidden text-tiny lg:flex md:text-small'>
                       Descargar seleccionados
                     </div>
                     </Button>
@@ -414,7 +414,7 @@ const GestionDocumentos = ({auth}) => {
                                       Ver materia
                                   </Button>
                               </DropdownTrigger>
-                              <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
+                              <DropdownMenu closeOnSelect={false} className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
                                 <DropdownItem key={documento.materia} >{documento.materia}</DropdownItem>   
                               </DropdownMenu>
                             </Dropdown>
@@ -437,7 +437,7 @@ const GestionDocumentos = ({auth}) => {
                                       Ver Anexos
                                   </Button>
                               </DropdownTrigger>
-                              <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions" emptyContent={'No posee'}>
+                              <DropdownMenu closeOnSelect={false} className='h-64 overflow-auto' aria-label="Static Actions" emptyContent={'No posee'}>
                                   {
                                       documento.anexos.map((doc_anexo) => (
                                           <DropdownItem key={doc_anexo.documento_id_anexo} textValue={`Número: ${doc_anexo.datos_anexo.numero}`}>Número: {doc_anexo.datos_anexo.numero}</DropdownItem>

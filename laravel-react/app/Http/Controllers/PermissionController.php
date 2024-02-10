@@ -20,7 +20,7 @@ class PermissionController extends Controller
         $current_user=Auth::user();
         if ($current_user->hasPermissionTo('Gestion-Permisos')){
             return Inertia::render('Permisos/Gestion',[
-                "all_permisos"=>PermissionResource::collection(Permission::all())
+                "all_permisos"=>PermissionResource::collection(Permission::all()),
             ]);
         }else{
             return back();

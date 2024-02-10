@@ -223,15 +223,20 @@ const GestionDocumentos = ({auth}) => {
     {name: "Acciones", uid: "actions"},
   ];
 
+  const [stateBtnModal,setStateBtnModal] = useState(false)
+  useEffect(()=>{
+    setStateBtnModal(false)
+  },[])
+
   const descargarSeleccionados = () => {
     if (seleccion.length!=0){
       setStateBtnModal(true)
-      setStateBtnDescargar(true)
       const respSinArchivos = DescargarDocumento(seleccion,documentos);
       if (respSinArchivos.length!==0){
         setSinArchivos(respSinArchivos)
         onOpen()
       }
+      setStateBtnModal(false)
     }else{
       showMsg("No seleccionaste datos",severity.error,summary.error)
     }
@@ -245,7 +250,6 @@ const GestionDocumentos = ({auth}) => {
   const anularSeleccionados = (e) => {
     if (seleccion.length!=0){
       setStateBtnModal(true)
-      setStateBtnAnular(true)
       onOpenProgress()
       let datos=[]
       if (seleccion=="all"){
@@ -262,8 +266,8 @@ const GestionDocumentos = ({auth}) => {
       }
       dataEstado.id_docs=datos
       patchEstado(route('gestion-documento.update-collection',0),{
-        onSuccess:(msg)=>{getDocumentos();showMsg("Exito",severity.success,summary.success);onCloseProgress()},
-        onError:()=>{showMsg("Falló",severity.error,summary.error);onCloseProgress()}
+        onSuccess:(msg)=>{getDocumentos();showMsg("Exito",severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
+        onError:()=>{showMsg("Falló",severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
       })
     }else{
       showMsg("No seleccionaste datos",severity.error,summary.error)
@@ -291,18 +295,14 @@ const GestionDocumentos = ({auth}) => {
       }
       dataEstado.id_docs=datos
       patchEstado(route('gestion-documento.update-collection',0),{
-        onSuccess:(msg)=>{getDocumentos();showMsg("Exito",severity.success,summary.success);onCloseProgress()},
-        onError:()=>{showMsg("Error",severity.error,summary.error);onCloseProgress()}
+        onSuccess:(msg)=>{getDocumentos();showMsg("Exito",severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
+        onError:()=>{showMsg("Error",severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
       })
     }else{
       showMsg("No seleccionaste datos",severity.error,summary.error)
     }
   }
 
-  const [stateBtnModal,setStateBtnModal] = useState(false)
-  useEffect(()=>{
-    setStateBtnModal(false)
-  },[seleccion])
 
   return (
     <AuthenticatedLayout 
@@ -348,7 +348,8 @@ const GestionDocumentos = ({auth}) => {
                     startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
                     onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
                   <div className='w-full card'>
-                    <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="yy//mm/dd" showIcon value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
+                    <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' 
+                    dateFormat="yy//mm/dd"  value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
                   </div>
                 </div>
               </div>
@@ -460,7 +461,7 @@ const GestionDocumentos = ({auth}) => {
                       <Button color="success" variant="solid" size='sm'  className='min-w-0 min-h-0'
                       //isIconOnly 
                       endContent={<Icon path={mdiPlus} size={1} />}>
-                        <div className='hidden text-tiny md:flex xl:text-small'>
+                        <div className='hidden text-tiny lg:flex xl:text-small'>
                           Agregar documento
                         </div>
                       </Button>
@@ -478,7 +479,7 @@ const GestionDocumentos = ({auth}) => {
                     setContentModal('¿Está seguro de anular los documentos?');onOpenEstado();}} 
                   //onPress={()=>anularSeleccionados()}
                   endContent={<Icon path={mdiCancel} size={1} />}>
-                    <div className='hidden text-tiny md:flex xl:text-small'>
+                    <div className='hidden text-tiny lg:flex xl:text-small'>
                       Anular seleccionados
                     </div>
                   </Button>
@@ -495,7 +496,7 @@ const GestionDocumentos = ({auth}) => {
                     setContentModal('¿Está seguro de habilitar los documentos?');onOpenEstado();}} 
                   //onPress={habilitarSeleccionados}
                   endContent={<Icon path={mdiCheckUnderline} size={1} />}>
-                    <div className='hidden text-tiny md:flex xl:text-small'>
+                    <div className='hidden text-tiny lg:flex xl:text-small'>
                     Habilitar seleccionados
                     </div>
                   </Button>
@@ -509,7 +510,7 @@ const GestionDocumentos = ({auth}) => {
                     //isIconOnly 
                     onClick={descargarSeleccionados}
                     endContent={<Icon path={mdiFileDownloadOutline} size={1} />}>
-                      <div className='hidden text-tiny md:flex xl:text-small'>
+                      <div className='hidden text-tiny lg:flex xl:text-small'>
                       Descargar seleccionados
                     </div>
                     </Button>
@@ -553,7 +554,7 @@ const GestionDocumentos = ({auth}) => {
                                       Ver materia
                                   </Button>
                               </DropdownTrigger>
-                              <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
+                              <DropdownMenu closeOnSelect={false} className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
                                 <DropdownItem key={documento.materia} >{documento.materia}</DropdownItem>   
                               </DropdownMenu>
                             </Dropdown>
@@ -576,7 +577,7 @@ const GestionDocumentos = ({auth}) => {
                                       Ver Anexos
                                   </Button>
                               </DropdownTrigger>
-                              <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
+                              <DropdownMenu closeOnSelect={false} className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
                                   {
                                       documento.anexos.map((doc_anexo) => (
                                           <DropdownItem key={doc_anexo.documento_id_anexo} textValue={`Número: ${doc_anexo.datos_anexo.numero}`}>Número: {doc_anexo.datos_anexo.numero}</DropdownItem>

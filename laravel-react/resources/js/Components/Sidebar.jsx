@@ -1,12 +1,12 @@
 import React,{useEffect, useRef, useState} from "react";
 import { Link } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
-import {Divider,Accordion, AccordionItem,Tooltip} from "@nextui-org/react";
+import {Divider,Accordion, AccordionItem,Button} from "@nextui-org/react";
 import { usePermission } from '@/Composables/Permission';
 import { useSidebarStore,useAccordionStore } from '@/Store/useStore';
 import {User} from "@nextui-org/react";
 import Icon from '@mdi/react';
-import { mdiFileMultiple,mdiAccountCircleOutline, mdiFileDocument,mdiShieldAccountVariantOutline,mdiAccountSettingsOutline,mdiHistory,mdiWrenchCogOutline,mdiAccountGroup,mdiBadgeAccount,mdiOfficeBuildingOutline} from '@mdi/js';
+import { mdiFileMultiple,mdiAccountCircleOutline, mdiMenu,mdiFileDocument,mdiShieldAccountVariantOutline,mdiAccountSettingsOutline,mdiHistory,mdiWrenchCogOutline,mdiAccountGroup,mdiBadgeAccount,mdiOfficeBuildingOutline} from '@mdi/js';
 
 
 export const Sidebar = ({user}) => {
@@ -20,17 +20,16 @@ export const Sidebar = ({user}) => {
     },[selectedKeys])
     return(
         <>
-            <div className={`bg-slate-700 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
-                <div className="text-white">
+            <div className={`bg-slate-700 text-white fixed h-full transition-all p-2 duration-300 ease-in-out  z-50 ${sidebar ? 'w-64 ' : 'w-14 sm:hover:w-64 inset-0'}`}>
+                <div className="text-white flex justify-between">
                     <User name={  <span className=" ps-3">{user.nombres}</span>} 
                         classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis ${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}
                         description={(
                             <span className="text-medium overflow-hidden whitespace-nowrap text-ellipsis ps-3">{user.roles[0]}</span>
                         )}
-                        avatarProps={null}
                     />
+                   
                 </div>
-                <Divider className="mt-2 mb-1 bg-white" />
                 <nav className="flex flex-col items-start text-gray-500 ">
                     {
                         hasPermission('Ver perfil')? 
@@ -47,7 +46,7 @@ export const Sidebar = ({user}) => {
                     {
                         hasPermission('Ver todos documentos')? 
                         <>
-                        <Divider className="my-1 bg-white" />
+                        <Divider className="mt-2 mb-1 bg-white"></Divider>
                         <NavLink className="py-2 px-2 my-1" href={route('documento.index')} tooltip={"Documentos"}
                         active={route().current('documento.index')}>
                             <div className="me-3">

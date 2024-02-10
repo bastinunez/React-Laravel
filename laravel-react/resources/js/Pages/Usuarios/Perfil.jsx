@@ -122,7 +122,7 @@ const Perfil = ({auth}) => {
                                 
                             </div>
                         </div>
-                        <div className='pt-5 xl:flex w-full xl:mx-auto justify-center mt-3 text-large'>
+                        <div className='flex w-full gap-3 xl:mx-auto justify-center mt-3 text-large'>
                             {
                                 isDisabled?
                                 <>
@@ -135,18 +135,12 @@ const Perfil = ({auth}) => {
                                 </>
                             }
                         </div>
-                        {
-                                flash.success_form_edit?
-                                <>
-                                    <div>Se actualizo la contraseña</div>
-                                </>:<></>
-                            }
                     </form>
                 </div>
                 
             </ContentTemplate>
             <ContentTemplate>
-                <div className='pt-5 pb-3'>
+                <div className=''>
                     <form onSubmit={changePwd}>
                         {
                             cambiarPwd?
@@ -163,7 +157,7 @@ const Perfil = ({auth}) => {
                                         <InputError message={errorsPwd.nueva_pwd} className="mt-2" />
                                     </div>
                                 </div>
-                                <div className='flex w-full gap-1'>
+                                <div className='flex w-full gap-3'>
                                     <Tooltip content="Borrarás los cambios" color={"warning"}>
                                         <Button variant='ghost' color='warning' className='w-full md:mx-8' onClick={(e) => {setCambiarPwd(!cambiarPwd)}}>Cancelar</Button>
                                     </Tooltip>
@@ -171,9 +165,9 @@ const Perfil = ({auth}) => {
                                 </div>
                             </>:
                             <>
-                                 <div className='flex w-full px-8'>
+                                 <div className='flex w-full'>
                                     <Tooltip content="Presiona para ingresar la contraseña actual y luego la nueva" color={"primary"}>
-                                        <Button variant='ghost' onClick={() => setCambiarPwd(!cambiarPwd)} color='primary' className='w-full px-8'>Cambiar contraseña</Button>
+                                        <Button variant='ghost' onClick={() => setCambiarPwd(!cambiarPwd)} color='primary' className='w-full'>Cambiar contraseña</Button>
                                     </Tooltip>
                                     
                                 </div>

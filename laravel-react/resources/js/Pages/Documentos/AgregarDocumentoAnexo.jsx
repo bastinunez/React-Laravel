@@ -222,11 +222,11 @@ const AgregarDocumentoAnexo = ({auth}) => {
                     <Button className='text-white rounded-md w-full p-2 whitespace-normal text-center xl:text-large ' color='success' >Se agregó correctamente el documento, presione para agregar otro</Button>
                 </Link>
             </div>
-            <div className='p-5'>
+            <div className='py-2 lg;py-5'>
                 <Divider></Divider>
             </div>
             <div className='w-full'>
-                <div className='mt-3 w-full'>
+                <div className='mt-1 w-full'>
                     <div className='xl:flex w-full gap-4'>
                         <div className='w-full'>
                             <Button color='secondary' className='w-full text-medium' variant={btnAgregarNuevo?'solid':'ghost'} 
@@ -315,9 +315,9 @@ const AgregarDocumentoAnexo = ({auth}) => {
                             </NextSelect>
                         </div>
                         <div className='md:flex items-center xl:gap-5'>
-                            <Button type='text' size='lg' className="w-full" color='primary' variant='ghost'>Anexar documentos</Button>
+                            <Button type='text' size='md' className="w-full" color='primary' variant='ghost'>Anexar documentos</Button>
                             <Link href={route("gestion-documento.index")} className='w-full'>
-                                <Button className='w-full text-large' disabled={stateBtnAgregar} size='lg' color='warning' variant='ghost' >Volver atrás</Button>
+                                <Button className='w-full text-large' disabled={stateBtnAgregar} size='md' color='warning' variant='ghost' >Volver atrás</Button>
                             </Link>
                         </div>
                     </form>

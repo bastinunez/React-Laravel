@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\PermissionResource;
 use App\Http\Resources\RoleResource;
 use App\Models\HistorialFormulario;
-use App\Models\Permission;
+use Spatie\Permission\Models\Permission;
 use App\Models\Rol;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

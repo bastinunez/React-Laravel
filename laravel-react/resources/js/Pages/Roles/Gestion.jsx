@@ -170,7 +170,7 @@ const Gestion = ({auth}) => {
                                                         Ver permisos
                                                     </Button>
                                                 </DropdownTrigger>
-                                                <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
+                                                <DropdownMenu closeOnSelect={false} className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
                                                     {
                                                         rol.permisos.map((permiso) => (
                                                             <DropdownItem key={permiso.id} textValue={`${permiso.name}`}>{permiso.name}</DropdownItem>

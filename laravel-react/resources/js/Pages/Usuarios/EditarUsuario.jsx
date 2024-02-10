@@ -9,12 +9,11 @@ import React,{useRef,useState,useEffect,useMemo,useCallback} from 'react'
 import { usePage ,Link, useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import {Button, Radio,RadioGroup, Table,TableCell,TableRow,Pagination,
-  Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip, Progress,
-  Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip, TableHeader, TableBody, TableColumn, Divider,}  from "@nextui-org/react";
+  Select,SelectItem, Progress,
+  Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Chip, TableHeader, TableBody, TableColumn, Divider,}  from "@nextui-org/react";
 import Icon from '@mdi/react';
 import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline, mdiTrashCan, mdiTrashCanOutline} from '@mdi/js';
 import { Calendar } from 'primereact/calendar';
-import Select from '@/Components/Select';
 import { Head } from '@inertiajs/react';
 import { Toast } from 'primereact/toast'; 
 
@@ -35,6 +34,8 @@ const EditarUsuario = ({auth}) => {
   const { usuario,roles,permisos} = usePage().props;
   const permisos_filter=permisos.filter(item=>!usuario.permissions.includes(item.name))
   const rol_filter = roles.filter(item=>item.name === usuario.roles[0])
+  console.log(permisos_filter)
+  console.log(usuario)
 
   //PERMISOS
   const {hasRoles,hasPermission} = usePermission()
@@ -104,6 +105,7 @@ const EditarUsuario = ({auth}) => {
       }
       dataPermission.opcion=1
       dataPermission.permisos=datos
+      //console.log(datos)
       patchPermission(route('gestion-usuarios.update-permission',String(usuario.id)),{
         onSuccess: () => {showMsg("Exito",severity.success,summary.success);setPermissionSelect('');onCloseProgress()},
         onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
@@ -164,6 +166,10 @@ const EditarUsuario = ({auth}) => {
       onError: (msg) => {showMsg(msg.update,severity.error,summary.error);onCloseProgress()}
     })
   }
+
+  const handleSelectionChange = (e) => {
+    setPermissionSelect(new Set(e.target.value.split(",")));
+};
 
   return (
     <Authenticated user={auth.user}>
@@ -230,7 +236,7 @@ const EditarUsuario = ({auth}) => {
                             <TextInput className="w-full" disabled={true} type={'text'} value={dataEdit.rut} ></TextInput>
                         </div>
                       </div>
-                      <div className='w-full lg:flex gap-5'>
+                      <div className='w-full flex gap-5'>
                         <Link href={route("gestion-usuarios.index")} className='w-full'>
                           <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                         </Link>
@@ -269,30 +275,40 @@ const EditarUsuario = ({auth}) => {
                        
                         <div className='w-full mb-8'>
                             <InputLabel value={"Seleccionar permisos para agregar: "} className='flex items-center me-5'></InputLabel>
-                            <div className='w-full flex gap-8'>
-                              <div>
-                                <Dropdown>
-                                  <DropdownTrigger className="hidden sm:flex">
-                                    <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                                      Permisos
-                                    </Button>
-                                  </DropdownTrigger>
-                                  <DropdownMenu   aria-label="Table Columns" id='permission' selectedKeys={permissionSelect} style={{maxHeight:"300px"}} className='overflow-hidden whitespace-nowrap overflow-y-scroll'
-                                    onSelectionChange={setPermissionSelect} closeOnSelect={false} selectionMode="multiple" items={permisos_filter}>
-                                    {
-                                      (permiso)=>(
-                                        <DropdownItem key={permiso.name}>{permiso.name}</DropdownItem>
-                                      )
-                                    }
-                                  </DropdownMenu>
-                                </Dropdown>
-                              </div>
-                              <div>
-                                <Button className='w-full text-large' color='primary' onPress={()=>{
-                                        setFunctionName(() => () => submitPermisosAdd());setTitleModal('Agregar permisos');
-                                        setContentModal('¿Está seguro de agregar los permisos seleccionados?');onOpen();}} 
-                                variant='ghost' type='submit'>Agregar permisos selecccionados</Button>
-                              </div>
+                            <div className='w-full lg:flex lg:gap-8'>
+                              {
+                                permisos_filter.length!=0?
+                                <>
+                                  <div className='w-full'>
+                                  <Select label="Permisos: " selectionMode="multiple" placeholder="Seleccionar permisos..."
+                                      selectedKeys={permissionSelect} className="max-w-xs" onChange={handleSelectionChange}>
+                                      {
+                                          permisos_filter.map((permiso)=>(
+                                              <SelectItem key={permiso.name} textValue={permiso.name}>
+                                                  <div className="flex flex-col">
+                                                      <span className="text-small">{"Permiso: " +permiso.name}</span>
+                                                      {/* <span className="text-tiny">
+                                                          {"Autor: "+ doc.autor +" | Tipo: "+doc.tipo+" | Dirección: "+ doc.direccion + " | Fecha: "+doc.fecha}
+                                                      </span> */}
+                                                  </div>
+                                              </SelectItem>
+                                          ))
+                                      }
+                                      
+                                  </Select>
+                                </div>
+                                <div>
+                                  <Button className='w-full text-large' color='primary' onPress={()=>{
+                                          setFunctionName(() => () => submitPermisosAdd());setTitleModal('Agregar permisos');
+                                          setContentModal('¿Está seguro de agregar los permisos seleccionados?');onOpen();}} 
+                                  variant='ghost' type='submit'>Agregar permisos selecccionados</Button>
+                                </div>
+                                </>:
+                                <>
+                                  <Chip>Ya tienes todos los permisos</Chip>
+                                </>
+                              }
+                              
                             </div>
                             
                         </div>
@@ -377,13 +393,13 @@ const EditarUsuario = ({auth}) => {
           btnMetadato?
           <>
             <ContentTemplate>
-              <div className='p-5'>
+              <div className='lg:p-5'>
                 <div className='w-full '>
-                    <InputLabel value={"Resetear contraseña"}></InputLabel>
+                    <InputLabel value={"Restaurar contraseña"}></InputLabel>
                     <Button color='danger' onPress={()=>{
                         setFunctionName(() => () => submitRestaurarPwd());setTitleModal('Restaurar contraseña');
                         setContentModal('¿Está seguro de restaurar la contraseña del usuario?');onOpen();}} 
-                    className='w-full mt-3' variant='flat'>Restaurar contraseña</Button>
+                    className='w-full mt-3' variant='flat'>Presione para restaurar</Button>
                     
                 </div>
               </div>

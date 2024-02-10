@@ -174,7 +174,7 @@ const AgregarUsuario = ({auth}) => {
                 </ModalContent>
             </Modal>
             <ContentTemplate>
-                <div className='p-8'>
+                <div className=''>
                     {/* Seleccionar accion */}
                     <div className='xl:flex w-full xl:gap-4'>
                         {
@@ -209,8 +209,10 @@ const AgregarUsuario = ({auth}) => {
                         }
                        
                     </div>
-                    <Divider className='mt-10 w-full'></Divider>
-                    <div className='mt-10 w-full'>
+                    <div className='py-2 lg;py-5'>
+                        <Divider></Divider>
+                    </div>
+                    <div className=' w-full'>
                         {
                             btnAgregarManual?
                             //se muestra formulario de agregar usuario
@@ -239,7 +241,7 @@ const AgregarUsuario = ({auth}) => {
                                             <InputError message={errors.rol} className="mt-2" />
                                         </div>
                                     </div>
-                                    <div className='flex w-full gap-10'>
+                                    <div className='flex w-full gap-3'>
                                         <Link href={route("gestion-usuarios.index")} className='w-full'>
                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                         </Link>
@@ -253,18 +255,18 @@ const AgregarUsuario = ({auth}) => {
                                 <form onSubmit={submitExcel}>
                                     <div className='justify-between flex mb-4'>
                                         <div className='w-full justify-center xl:flex mx-auto'>
-                                            <div className='xl:me-2 mb-3 md:mb-0'>
+                                            <div className='xl:me-2 mb-2 md:mb-0'>
                                                 <InputLabel value={"Subir archivo"}></InputLabel>
                                                 <Input type='file' accept='.xls, .xlsx' onChange ={(e) => setDataExcel('archivo',e.target.files[0])} >
                                                 </Input>
                                                 <InputError message={errors.archivo} className="mt-2" />
                                             </div>
                                             <div className='flex items-end'>
-                                                <Button className='w-full' color='secondary' size='lg' onPress={()=>getTemplate()}>Descargar plantilla</Button>
+                                                <Button className='w-full' color='secondary'  onPress={()=>getTemplate()}>Descargar plantilla</Button>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='mt-3 md:flex gap-3'>
+                                    <div className='mt-4 flex gap-3'>
                                         <Link href={route("gestion-usuarios.index")} className='w-full'>
                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                         </Link>

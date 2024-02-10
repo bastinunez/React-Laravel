@@ -5,7 +5,7 @@ import { useSidebarStore,useActiveLinkStore } from '@/Store/useStore';
 export default function NavLink({ active = false, className = '',tooltip='', children, ...props }) {
     const { sidebar,changeState} = useSidebarStore();
     return (
-        <Tooltip content={tooltip} isDisabled={sidebar}>
+        // <Tooltip content={tooltip} isDisabled={sidebar}>
         <Link
             {...props}
             className={
@@ -19,6 +19,6 @@ export default function NavLink({ active = false, className = '',tooltip='', chi
             {children}
         </Link>
 
-    </Tooltip>
+    // </Tooltip>
     );
 }
