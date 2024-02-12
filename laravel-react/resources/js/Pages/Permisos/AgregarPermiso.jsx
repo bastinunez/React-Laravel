@@ -66,7 +66,7 @@ const AgregarPermiso = ({auth}) => {
                             <InputError message={errors.nombre} className="mt-2" />
                         </div>
                         <div className='w-full flex gap-3'>
-                            <Link href={usePage().props.ziggy.previous} className='w-full'>
+                            <Link href={route('permiso.index')} className='w-full'>
                                 <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                             </Link>
                             <Button type='submit' color='primary' variant='ghost' className='w-full text-large'>Agregar</Button>

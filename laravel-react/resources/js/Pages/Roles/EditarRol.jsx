@@ -245,7 +245,7 @@ const EditarRol = ({auth}) => {
                             </Table>
                         </div>
                         <div>
-                            <Link href={usePage().props.ziggy.previous} className='w-full'>
+                            <Link href={route('rol.index')} className='w-full'>
                                 <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                             </Link>
                         </div>

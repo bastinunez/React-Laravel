@@ -6,7 +6,7 @@ import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import Select from '@/Components/Select'
-import {Button, Divider, Input, Tooltip, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,Checkbox,
+import {Button, Modal,ModalBody,ModalContent,ModalFooter,ModalHeader, Tooltip, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,Checkbox,
     Popover,PopoverContent,PopoverTrigger } from "@nextui-org/react";
 import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast'
@@ -120,6 +120,23 @@ const AgregarDocumento = ({auth}) => {
     return docAnexos.slice(start, end);
   }, [page, docAnexos]);
 
+  const {isOpen:isOpen, onOpen:onOpen, onClose:onClose} = useDisclosure();
+
+    //formularios
+    const { data:dataFuncionario, setData:setDataFuncionario, post:postFuncionario, errors:errorsFuncionario, reset:resetFuncionario} = useForm({
+        nombres: '',
+        apellidos: '',
+    });
+
+    const submitFuncionario = (e) => {
+        e.preventDefault()
+        onOpenProgress()
+        postFuncionario(route('funcionario.store'),{
+            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);onCloseProgress();onClose();resetFuncionario('nombres');resetFuncionario('apellidos')},
+            onError: (msg) => {showMsg(msg.create,severity.error,summary.error);onCloseProgress()}
+        })
+    }
+
 
   return (
     <Authenticated  user={auth.user}
@@ -129,21 +146,32 @@ const AgregarDocumento = ({auth}) => {
       <TitleTemplate>
         Agregar documento
       </TitleTemplate>
-{/* 
-      <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
           <ModalContent>
               {
-                  (onCloseProgress)=>(
-                      <Progress
-                          size="sm"
-                          isIndeterminate
-                          aria-label="Loading..."
-                          className="max-w-md"
-                      />
+                  (onClose)=>(
+                    <form onSubmit={submitFuncionario} className='p-8'>
+                      <div className='xl:flex w-full mb-5 gap-10'>
+                          <div className="w-full me-5">
+                              <InputLabel value={"Ingresa nombres"}></InputLabel>
+                              <TextInput type={'text'} className="w-full" placeholder={"Nombre Nombre"} value={dataFuncionario.nombres} onChange={(e) => setDataFuncionario('nombres',e.target.value)} ></TextInput>
+                              <InputError message={errorsFuncionario.nombres} className="mt-2" />
+                          </div>
+                          <div className="w-full">
+                              <InputLabel value={"Ingresa apellidos"}></InputLabel>
+                              <TextInput type={'text'} className="w-full" placeholder={"Apellido Apellido"} value={dataFuncionario.apellidos} onChange={(e) => setDataFuncionario('apellidos',e.target.value)} ></TextInput>
+                              <InputError message={errorsFuncionario.apellidos} className="mt-2" />
+                          </div>
+                      </div>
+                      <div className='w-full xl:flex gap-10'>
+                          <Button type='submit' color='primary' variant='ghost' className='w-full text-large'>Agregar</Button>
+                      </div>
+                  </form>
                   )
               }
           </ModalContent>
-      </Modal> */}
+      </Modal>
 
       <ContentTemplate> 
         <form className='md:p-8' onSubmit={submit} >
@@ -159,40 +187,9 @@ const AgregarDocumento = ({auth}) => {
               <div className='flex'>
               <Select opciones={autores} value={data.autor_documento} onChange={selectAutorDocumento} required>
               </Select>
-              <Popover 
-                        showArrow
-                        backdrop="opaque"
-                        placement="right"
-                        classNames={{
-                        base: [  
-                            // arrow color
-                            "before:bg-default-200"
-                        ],
-                        content: [
-                            "py-3 px-4 border border-default-200",
-                            "bg-gradient-to-br from-white to-default-300",
-                            "dark:from-default-100 dark:to-default-50",
-                        ],
-                        }}
-                    >
-                        <PopoverTrigger>
-                        <Button isIconOnly endContent={<Icon path={mdiHelpCircle} size={1} />}></Button>
-                        </PopoverTrigger>
-                        <PopoverContent>
-                        {(titleProps) => (
-                            <div className="px-1 py-2 justify-center">
-                              <h3 className="text-medium font-bold" {...titleProps}>
-                                  ¿No encuentras el autor?
-                              </h3>
-                              <div className="text-medium justify-center">
-                                <Link href={route('funcionario.create')} >
-                                  <Button className='w-full' color='primary'>Agrega un autor</Button>
-                                </Link>
-                              </div>
-                            </div>
-                        )}
-                        </PopoverContent>
-                    </Popover>
+              <Tooltip content={"¿No encuentra el autor?"}>
+                <Button className='' isIconOnly startContent={<Icon path={mdiHelpCircle} size={1} />} onPress={onOpen} color='primary'></Button>
+              </Tooltip>
               </div>
               
               <InputError message={errors.autor_documento} className="mt-2" />
@@ -240,7 +237,7 @@ const AgregarDocumento = ({auth}) => {
             </div>
           </div>
           <div className='flex w-full mb-5 gap-3 md:gap-8'>
-            <Link href={usePage().props.ziggy.previous} className='w-full'>
+            <Link href={route('gestion-documento.index')} className='w-full'>
               <Button className='w-full text-large mb-1' color='warning' variant='ghost' >Volver atrás</Button>
             </Link>
             <Tooltip content="Confirmar y agregar" color='success'>

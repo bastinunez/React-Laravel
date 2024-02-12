@@ -73,7 +73,7 @@ const AgregarFuncionario = ({auth}) => {
                             </div>
                         </div>
                         <div className='w-full xl:flex gap-10'>
-                            <Link href={usePage().props.ziggy.previous} className='w-full'>
+                            <Link href={route('funcionario.index')} className='w-full'>
                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                             </Link>
                             <Button type='submit' color='primary' variant='ghost' className='w-full text-large'>Agregar</Button>

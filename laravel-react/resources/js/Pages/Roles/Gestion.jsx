@@ -122,7 +122,7 @@ const Gestion = ({auth}) => {
                         <h1 className='text-large md:text-2xl'>Resultados</h1>
                     </div>
                     <div className='flex '>
-                        {
+                        {/* {
                             hasPermission('Gestion-Crear rol')?
                             <>
                             <Link href={route('rol.create')}>
@@ -136,7 +136,7 @@ const Gestion = ({auth}) => {
                                 </Tooltip>
                             </Link>
                             </>:<></>
-                        }
+                        } */}
                     </div>
                 </div>
                 <div className='w-full'>

@@ -353,7 +353,7 @@ const EditarDocumento = ({auth}) => {
                                             </div>
                                         </div>
                                         <div className='w-full flex mb-5 gap-5'>
-                                            <Link href={usePage().props.ziggy.previous} className='w-full'>
+                                            <Link href={route('gestion-documento.index')} className='w-full'>
                                                 <Button className='w-full text-large' color='warning' size='md' variant='ghost' >Volver atrás</Button>
                                             </Link>
                                             <Tooltip content="Confirmar cambios y agregar" color='success'>
@@ -432,7 +432,10 @@ const EditarDocumento = ({auth}) => {
                                                             <Checkbox value={data_mini.estado} onChange={(e) => setData_mini('estado',e.target.checked)}  color="danger">Anulado</Checkbox>
                                                         </div>
                                                     </div>
-                                                    <div className='mt-3'>
+                                                    <div className='w-full md:flex gap-4 mt-3'>
+                                                        <Link href={route('gestion-documento.index')} className='w-full'>
+                                                            <Button className='w-full text-large' color='warning' size='md' variant='ghost' >Volver atrás</Button>
+                                                        </Link>
                                                         <Button id='submit_miniform' disabled={stateBtnMiniForm} color='primary' type='submit'
                                                         variant='ghost'  className='w-full text-large' size='md'>Agregar documento anexo</Button>
                                                     </div>
@@ -467,7 +470,7 @@ const EditarDocumento = ({auth}) => {
                                                     </div>
                                                     <div className='flex items-center '>
                                                         <Button type='submit' className="w-full me-2" color='primary' variant='ghost'>Anexar documentos</Button>
-                                                        <Link href={usePage().props.ziggy.previous} className='w-full'>
+                                                        <Link href={route('gestion-documento.index')} className='w-full'>
                                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                                         </Link>
                                                     </div>
