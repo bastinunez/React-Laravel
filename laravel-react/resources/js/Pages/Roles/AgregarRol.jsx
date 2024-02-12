@@ -4,7 +4,7 @@ import Authenticated from '@/Layouts/AuthenticatedLayout'
 import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
-import { Head, useForm, Link} from '@inertiajs/react'
+import { Head, useForm, Link, usePage} from '@inertiajs/react'
 import { Button,useDisclosure,Progress, Modal, ModalContent } from '@nextui-org/react'
 import { Toast } from 'primereact/toast';        
 import React,{useRef} from 'react'
@@ -66,8 +66,8 @@ const AgregarRol = ({auth}) => {
                             <InputError message={errors.nombre} className="mt-2" />
                         </div>
                         <div className='w-full flex gap-3'>
-                            <Link href={route("rol.index")} className='w-full'>
-                            <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                            <Link href={usePage().props.ziggy.previous} className='w-full'>
+                                <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                             </Link>
                             <Button type='submit' color='primary' variant='ghost' className='w-full text-large'>Agregar</Button>
                         </div>

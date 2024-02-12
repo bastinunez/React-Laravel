@@ -10,7 +10,7 @@ import '@react-pdf-viewer/core/lib/styles/index.css';
 import TitleTemplate from '@/Components/TitleTemplate';
 import ContentTemplate from '@/Components/ContentTemplate';
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Pagination,
-  Table, TableHeader, TableBody, TableColumn, TableRow, TableCell} from '@nextui-org/react';
+  Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, Chip} from '@nextui-org/react';
 import { Transform } from '@/Composables/Base64toBlob';
 // Import styles
 import '@react-pdf-viewer/zoom/lib/styles/index.css';
@@ -116,8 +116,12 @@ const VisualizadorDocumento = ({auth}) => {
           {
             hasPermission('Ver documentos anexos')?
             <>
-              <div className='align-items-center flex'>
-                <Button color='primary' variant='ghost' onPress={onOpen}>Ver documentos anexos</Button>
+              
+              <div className='items-center flex gap-1'>
+                <Link href={usePage().props.ziggy.previous} className='w-full items-center flex'>
+                  <Button className='w-full' color='warning' variant='ghost' >Volver atrás</Button>
+                </Link>
+                <Button color='primary' className='w-full' variant='ghost' onPress={onOpen}>Ver documentos anexos</Button>
               </div>
             </>
             :<></>
@@ -156,6 +160,20 @@ const VisualizadorDocumento = ({auth}) => {
                                 <TableCell>{documento.autor_nombre} {documento.autor_apellido}</TableCell>
                                 <TableCell>{documento.fecha}</TableCell>
                                 <TableCell>
+                                {
+                                  !documento.file?
+                                  <>
+                                    <Chip>No hay archivo</Chip>
+                                  </>
+                                  :<></>
+                                }
+                                {
+                                  !documento.estado=="Habilitado"?
+                                  <>
+                                    <Chip>Documento anulado</Chip>
+                                  </>
+                                  :<></>
+                                }
                                 {
                                     hasPermission('Visualizar documento') && documento.file && documento.estado=="Habilitado"?
                                     <>
@@ -200,7 +218,7 @@ const VisualizadorDocumento = ({auth}) => {
         </ModalContent>
       </Modal>
       <ContentTemplate>
-        <div className='justify-center lg:px-72'>
+        <div className='justify-center xl:px-72'>
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
           <div className="rpv-core__viewer" 
           style={{  border: '1px solid rgba(0, 0, 0, 0.3)', display: 'flex', 

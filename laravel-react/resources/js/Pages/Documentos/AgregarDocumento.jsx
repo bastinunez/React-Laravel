@@ -7,11 +7,13 @@ import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import Select from '@/Components/Select'
 import {Button, Divider, Input, Tooltip, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,Checkbox,
-    Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, } from "@nextui-org/react";
+    Popover,PopoverContent,PopoverTrigger } from "@nextui-org/react";
 import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast'
 import { Head } from '@inertiajs/react';        
 import { usePage ,Link,useForm} from '@inertiajs/react';
+import Icon from '@mdi/react';
+import { mdiLockOutline,mdiHelpCircle,mdiLockOffOutline } from '@mdi/js';
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
 
 locale('en');
@@ -118,6 +120,7 @@ const AgregarDocumento = ({auth}) => {
     return docAnexos.slice(start, end);
   }, [page, docAnexos]);
 
+
   return (
     <Authenticated  user={auth.user}
     header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Agregar documento</h2>}>
@@ -142,8 +145,7 @@ const AgregarDocumento = ({auth}) => {
           </ModalContent>
       </Modal> */}
 
-      <ContentTemplate>
-        <h2>Formulario</h2>
+      <ContentTemplate> 
         <form className='md:p-8' onSubmit={submit} >
           <div className='md:flex w-full justify-between gap-3 mb-5'>
             <div className="w-80">
@@ -154,8 +156,45 @@ const AgregarDocumento = ({auth}) => {
             </div>
             <div className="w-80">
               <InputLabel value={"Selecciona autor de documento (*)"}></InputLabel>
+              <div className='flex'>
               <Select opciones={autores} value={data.autor_documento} onChange={selectAutorDocumento} required>
               </Select>
+              <Popover 
+                        showArrow
+                        backdrop="opaque"
+                        placement="right"
+                        classNames={{
+                        base: [  
+                            // arrow color
+                            "before:bg-default-200"
+                        ],
+                        content: [
+                            "py-3 px-4 border border-default-200",
+                            "bg-gradient-to-br from-white to-default-300",
+                            "dark:from-default-100 dark:to-default-50",
+                        ],
+                        }}
+                    >
+                        <PopoverTrigger>
+                        <Button isIconOnly endContent={<Icon path={mdiHelpCircle} size={1} />}></Button>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                        {(titleProps) => (
+                            <div className="px-1 py-2 justify-center">
+                              <h3 className="text-medium font-bold" {...titleProps}>
+                                  ¿No encuentras el autor?
+                              </h3>
+                              <div className="text-medium justify-center">
+                                <Link href={route('funcionario.create')} >
+                                  <Button className='w-full' color='primary'>Agrega un autor</Button>
+                                </Link>
+                              </div>
+                            </div>
+                        )}
+                        </PopoverContent>
+                    </Popover>
+              </div>
+              
               <InputError message={errors.autor_documento} className="mt-2" />
             </div>
             <div className="w-80">
@@ -201,7 +240,7 @@ const AgregarDocumento = ({auth}) => {
             </div>
           </div>
           <div className='flex w-full mb-5 gap-3 md:gap-8'>
-            <Link href={route("gestion-documento.index")} className='w-full'>
+            <Link href={usePage().props.ziggy.previous} className='w-full'>
               <Button className='w-full text-large mb-1' color='warning' variant='ghost' >Volver atrás</Button>
             </Link>
             <Tooltip content="Confirmar y agregar" color='success'>

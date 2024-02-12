@@ -354,7 +354,17 @@ const DocumentosAnexos = ({auth}) => {
                       
                       }  
                       </TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.detalles}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
+                        {!fila.detalles?
+                        <>
+                          <Chip className="capitalize"  size="sm" variant="flat">
+                            No existen
+                          </Chip>
+                        </>
+                        :<>{fila.detalles}
+                        </>
+                      }  
+                      </TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{new Date(fila.created_at).toLocaleString()}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                         <Tooltip content={"Ver detalles"} className='bg-slate-400'>

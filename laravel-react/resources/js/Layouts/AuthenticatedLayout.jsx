@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Sidebar } from '@/Components/Sidebar';
 import NavbarComponent from '@/Components/Navbar';
-import { useSidebarStore } from '@/Store/useStore';
+import {  useSidebarStore } from '@/Store/useStore';
 import { useDisclosure,Modal,ModalContent } from '@nextui-org/react';
+import { usePage } from '@inertiajs/react';
 
 
 export default function Authenticated({ user, header, children }) {

@@ -77,8 +77,8 @@ const EditarDireccion = ({auth}) => {
                                 </div>
                             </div>
                             <div className='w-full md:flex gap-10'>
-                                <Link href={route("direccion.index")} className='w-full'>
-                                <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                                <Link href={usePage().props.ziggy.previous} className='w-full'>
+                                    <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                 </Link>
                                 <Button className='w-full' color='primary' variant='ghost' type='submit'>Guardar cambios</Button>
                             </div>

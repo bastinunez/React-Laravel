@@ -79,7 +79,7 @@ const EditarPermiso = ({auth}) => {
                                 </div>
                             </div>
                             <div className='xl:flex xl:gap-2'>
-                                <Link href={route("permiso.index")} className='w-full'>
+                                <Link href={usePage().props.ziggy.previous} className='w-full'>
                                     <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                 </Link>
                                 <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Guardar cambios</Button>

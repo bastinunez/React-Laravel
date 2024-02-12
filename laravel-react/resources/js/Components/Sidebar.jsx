@@ -23,7 +23,7 @@ export const Sidebar = ({user}) => {
             <div className={`bg-slate-700 text-white fixed h-full transition-all p-2 duration-300 ease-in-out  z-50 ${sidebar ? 'w-64 ' : 'w-14 sm:hover:w-64 inset-0'}`}>
                 <div className="text-white flex justify-between">
                     <User name={  <span className=" ps-3">{user.nombres}</span>} 
-                        classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis ${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}
+                        classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis  ${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}
                         description={(
                             <span className="text-medium overflow-hidden whitespace-nowrap text-ellipsis ps-3">{user.roles[0]}</span>
                         )}
@@ -56,7 +56,6 @@ export const Sidebar = ({user}) => {
                         </NavLink>
                         </>:<></>
                     }
-                    <Divider className="my-2 bg-white" />
                     {
                         hasPermission('Gestion-Ver documentos')? 
                         <>
@@ -137,7 +136,7 @@ export const Sidebar = ({user}) => {
                         hasPermission('Ver historial accion usuario') || hasPermission('Ver historial accion formulario')?
                         <>  
                             <Divider className="my-2 bg-white" />
-                            <Accordion itemClasses={{title:"text-white py-0"}} //defaultExpandedKeys={0}
+                            <Accordion itemClasses={{title:"text-white px-0 py-0",base:"px-0"}} //defaultExpandedKeys={0}
                             selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys}
                             motionProps={{ variants: {
                             enter: {
@@ -175,15 +174,15 @@ export const Sidebar = ({user}) => {
                             },
                         }}>
                             <AccordionItem key={1} aria-label="Accordion 1" title="Historial" isCompact={true}
-                            className="text-white rounded-md"
+                            className="text-white rounded-md overflow-x-auto" classNames={{content:"px-0"}}
                                 startContent={<Icon path={mdiHistory} size={1} />} style={{ overflow: 'hidden', transition: 'width 0.3s'}}>
                                     {
                                         hasPermission('Ver historial documento')? 
                                         <>
                                         <NavLink href={route('historial-documentos.index')} tooltip={"Documentos"}
-                                        active={route().current('historial-documentos.index')} className="py-2 px-2 mb-3">
+                                        active={route().current('historial-documentos.index')} className="py-2 px-0  mb-3">
                                             <div className="me-2">
-                                            <Icon path={mdiHistory} size={1} />
+                                            <Icon path={mdiFileDocument} size={1} />
                                             </div>
                                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Documentos</span>
                                         </NavLink>
@@ -192,9 +191,9 @@ export const Sidebar = ({user}) => {
                                         hasPermission('Ver historial documento anexo')? 
                                         <>
                                         <NavLink href={route('historial-documentos-anexos.index')} tooltip={"Documentos anexos"}
-                                        active={route().current('historial-documentos-anexos.index')} className="py-2 px-2 mb-3">
+                                        active={route().current('historial-documentos-anexos.index')} className="py-2 px-0  mb-3">
                                             <div className="me-2">
-                                            <Icon path={mdiHistory} size={1} />
+                                            <Icon path={mdiFileMultiple} size={1} />
                                             </div>
                                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Documentos anexos</span>
                                         </NavLink>
@@ -203,7 +202,7 @@ export const Sidebar = ({user}) => {
                                         hasPermission('Ver historial accion usuario')? 
                                         <>
                                         <NavLink href={route('historial-accion-usuario.index')} tooltip={"Acción sobre usuario"}
-                                        active={route().current('historial-accion-usuario.index')} className="py-2 px-2 mb-3">
+                                        active={route().current('historial-accion-usuario.index')} className="py-2 px-0  mb-3">
                                             <div className="me-2">
                                             <Icon path={mdiHistory} size={1} />
                                             </div>
@@ -215,7 +214,7 @@ export const Sidebar = ({user}) => {
                                         hasPermission('Ver historial accion formulario')? 
                                         <>
                                         <NavLink href={route('historial-accion-formulario.index')} tooltip={"Acción sobre formulario"}
-                                        active={route().current('historial-accion-formulario.index')} className="py-2 px-2 mb-3">
+                                        active={route().current('historial-accion-formulario.index')} className="py-2 px-0  mb-3">
                                             <div className="me-2">
                                             <Icon path={mdiFileDocument} size={1} />
                                             </div>

@@ -356,8 +356,8 @@ const EditarUsuario = ({auth}) => {
                       </div>
                     </div>
                     <div className='w-full flex gap-5'>
-                      <Link href={route("gestion-usuarios.index")} className='w-full'>
-                          <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                      <Link href={usePage().props.ziggy.previous} className='w-full'>
+                            <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                       </Link>
                     </div>
                   </div>

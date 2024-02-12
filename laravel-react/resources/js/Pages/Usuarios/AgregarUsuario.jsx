@@ -242,7 +242,7 @@ const AgregarUsuario = ({auth}) => {
                                         </div>
                                     </div>
                                     <div className='flex w-full gap-3'>
-                                        <Link href={route("gestion-usuarios.index")} className='w-full'>
+                                        <Link href={usePage().props.ziggy.previous} className='w-full'>
                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                         </Link>
                                         <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Registrar</Button>
@@ -267,7 +267,7 @@ const AgregarUsuario = ({auth}) => {
                                         </div>
                                     </div>
                                     <div className='mt-4 flex gap-3'>
-                                        <Link href={route("gestion-usuarios.index")} className='w-full'>
+                                        <Link href={usePage().props.ziggy.previous} className='w-full'>
                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                         </Link>
                                         <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Subir archivo</Button>

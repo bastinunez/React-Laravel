@@ -289,7 +289,7 @@ const EditarDocumento = ({auth}) => {
                                 // se muestra formulario de editar metadatos
                                 <>
                                     <form className='md:p-8' onSubmit={submit} >
-                                        <div className='md:flex w-full justify-between mb-5 md:gap-3 '>
+                                        <div className='md:flex w-full justify-between md:mb-5 md:gap-3 '>
                                             <div className="w-full">
                                                 <InputLabel value={"Selecciona tipo de documento"}></InputLabel>
                                                 <Select opciones={tipos} value={data.tipo_documento} onChange={(value) => {setData('tipo_documento', value)}} required>
@@ -309,7 +309,7 @@ const EditarDocumento = ({auth}) => {
                                                 <InputError message={errors.direccion_documento} className="mt-2" />
                                             </div>
                                         </div>
-                                        <div className='w-full justify-between md:flex mb-5 md:gap-3'>
+                                        <div className='w-full justify-between md:flex md:mb-5 md:gap-3'>
                                             <div className="w-full">
                                                 <InputLabel value={"Ingresa rut"}></InputLabel>
                                                 <TextInput type={'text'} className='w-full' value={data.rut_documento} onChange={(e) => setData('rut_documento',e.target.value)} ></TextInput>
@@ -326,7 +326,7 @@ const EditarDocumento = ({auth}) => {
                                                 <InputError message={errors.materia_documento} className="mt-2" />
                                             </div>
                                         </div>
-                                        <div className='w-full md:flex justify-between mb-8  md:gap-3'>
+                                        <div className='w-full md:flex justify-between md:mb-8  md:gap-3'>
                                             <div className="w-full">
                                                 <InputLabel value={"Ingresa fecha"}></InputLabel>
                                                 <div className="card flex justify-content-center">
@@ -334,7 +334,7 @@ const EditarDocumento = ({auth}) => {
                                                 </div>
                                                 <InputError message={errors.fecha_documento} className="mt-2" />
                                             </div>
-                                            <div className="w-full">
+                                            <div className="w-full mb-2">
                                                 <InputLabel value={"Agregar archivo"}></InputLabel>
                                                 <input  onChange ={(e) => setData('archivo',e.target.files[0])} type='file' accept='.pdf' id="inputArchivo"
                                                     style={{ display: 'none' }}  
@@ -345,7 +345,7 @@ const EditarDocumento = ({auth}) => {
                                                 {/* <input onChange ={(e) => setData('archivo',e.target.files[0])} className='text-tiny md:text-small'  */}
                                                 {/* type='file' accept='.pdf' formEncType="multipart/form-data"/> */}
                                                 <InputError message={errors.archivo} className="mt-2" />
-                                                <Button onPress={()=>setData('archivo','')} color='danger' className='md:ms-1'>Quitar archivo</Button>
+                                                <Button onPress={()=>setData('archivo','')} color='danger' className='md:ms-1 w-full'>Quitar archivo</Button>
                                             </div>
                                             <div className='w-full'>
                                                 <InputLabel value={"Marque si el documento se encuentra anulado"}></InputLabel>
@@ -353,7 +353,7 @@ const EditarDocumento = ({auth}) => {
                                             </div>
                                         </div>
                                         <div className='w-full flex mb-5 gap-5'>
-                                            <Link href={route("gestion-documento.index")} className='w-full'>
+                                            <Link href={usePage().props.ziggy.previous} className='w-full'>
                                                 <Button className='w-full text-large' color='warning' size='md' variant='ghost' >Volver atrás</Button>
                                             </Link>
                                             <Tooltip content="Confirmar cambios y agregar" color='success'>
@@ -467,7 +467,7 @@ const EditarDocumento = ({auth}) => {
                                                     </div>
                                                     <div className='flex items-center '>
                                                         <Button type='submit' className="w-full me-2" color='primary' variant='ghost'>Anexar documentos</Button>
-                                                        <Link href={route("gestion-documento.index")} className='w-full'>
+                                                        <Link href={usePage().props.ziggy.previous} className='w-full'>
                                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                                         </Link>
                                                     </div>

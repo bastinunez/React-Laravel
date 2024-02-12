@@ -15,6 +15,9 @@ export default {
     
     theme: {
         extend: {
+            ringOpacity: {
+                '0': '0', // Establecer la opacidad del anillo a 0
+              },
             boxShadow: {
                 none: 'none', // Elimina completamente las sombras
               },

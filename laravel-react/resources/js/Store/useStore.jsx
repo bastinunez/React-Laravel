@@ -40,7 +40,6 @@ export const useAccordionStore = create(
 )
 
 
-
 export const useActiveLinkStore = create(
     persist(
         (set,get)=>({

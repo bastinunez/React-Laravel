@@ -289,7 +289,8 @@ class GestionUsuarioController extends Controller
     {
         $user=User::find($id);
         $user->forceFill([
-            'password' => 12345678,
+            'password' => Hash::make('12345678') ,
+            'change_pwd'=>1
         ])->save();
 
         $user_id=Auth::id();

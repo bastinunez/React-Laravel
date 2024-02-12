@@ -10,10 +10,11 @@ import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import {NextUIProvider} from "@nextui-org/react";
-import { StrictMode } from 'react';
+import { StrictMode, useState } from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
 
 import { PrimeReactProvider } from 'primereact/api';
+import LoadingPage from './Layouts/LoadingPage';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -23,12 +24,13 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
 
+
         root.render(
             <StrictMode>
                 <PrimeReactProvider >
                     <NextUIProvider>
-                    
-                    <App {...props} /> 
+                        <App {...props} />
+                    {/* <App {...props} />  */}
                     </NextUIProvider>
                 </PrimeReactProvider>
             </StrictMode>
