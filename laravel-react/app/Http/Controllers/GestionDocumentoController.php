@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use DateTime;
-use Illuminate\Validation\Rule;
+use Spatie\Permission\Traits\HasPermissions;
 
 class GestionDocumentoController extends Controller
 {
@@ -107,7 +107,21 @@ class GestionDocumentoController extends Controller
         
         try {
 
-            $id_doc=DB::table("documento")->insertGetId([
+            // $id_doc=DB::table("documento")->insertGetId([
+            //     "tipo" => $input['tipo_documento'],
+            //     "numero" => $input['numero_documento'],
+            //     "autor" => $input['autor_documento'],
+            //     "fecha" => $input['fecha_documento'],
+            //     "anno" => $year,
+            //     "rut" => $input['rut_documento'],
+            //     "materia" => $input['materia_documento'],
+            //     "estado" => $request->estado == 0 ? 1 : 2,
+            //     "direccion" => $input['direccion_documento'],
+            //     'name_file'=> $nombre_file.'.'.$ext,
+            //     'file' => $base64,
+            //     'mime_file'=> $mime
+            // ]);
+            $id_doc= Documento::create([
                 "tipo" => $input['tipo_documento'],
                 "numero" => $input['numero_documento'],
                 "autor" => $input['autor_documento'],
@@ -121,13 +135,12 @@ class GestionDocumentoController extends Controller
                 'file' => $base64,
                 'mime_file'=> $mime
             ]);
-
             $user_id=Auth::id();
-            HistorialDocumento::create([
-                'documento_id'=>$id_doc,
-                'responsable'=>$user_id,
-                'accion'=>2
-            ]);
+            // HistorialDocumento::create([
+            //     'documento_id'=>$id_doc->id,
+            //     'responsable'=>$user_id,
+            //     'accion'=>2
+            // ]);
 
             $documentos = Documento::all();
             $documentos = $documentos->reject(function ($documento) use ($id_doc) {
@@ -187,17 +200,17 @@ class GestionDocumentoController extends Controller
                 "documento_id_anexo"=>$id_documento
             ]);
             $user_id=Auth::id();
-            HistorialDocumento::create([
-                'documento_id'=>$id_documento_anexo,
-                'responsable'=>$user_id,
-                'accion'=>2
-            ]);
-            HistorialDocumentoAnexo::create([
-                'fk_documento_id'=>$id_documento,
-                'fk_documento_id_anexo'=>$id_documento_anexo,
-                'responsable'=>$user_id,
-                'accion'=>5
-            ]);
+            // HistorialDocumento::create([
+            //     'documento_id'=>$id_documento_anexo,
+            //     'responsable'=>$user_id,
+            //     'accion'=>2
+            // ]);
+            // HistorialDocumentoAnexo::create([
+            //     'fk_documento_id'=>$id_documento,
+            //     'fk_documento_id_anexo'=>$id_documento_anexo,
+            //     'responsable'=>$user_id,
+            //     'accion'=>5
+            // ]);
 
             return redirect()->back()->with("FormDocMini","Success");
         }catch (\Throwable $th){
@@ -368,13 +381,13 @@ class GestionDocumentoController extends Controller
             }
            
             $user_id=Auth::user();
-            HistorialDocumento::create([
-                'documento_id'=>$documento->id,
-                'responsable'=>$user_id->id,
-                'accion'=>3,
-                'detalles'=>"Actualiza metadatos"
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-            ]);
+            // HistorialDocumento::create([
+            //     'documento_id'=>$documento->id,
+            //     'responsable'=>$user_id->id,
+            //     'accion'=>3,
+            //     'detalles'=>"Actualiza metadatos"
+            //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            // ]);
 
             return redirect()->back()->with(['update'=>'Se pudo actualizar el documento','documento'=>$documento]);
         }catch(\Throwable $th){
@@ -483,13 +496,13 @@ class GestionDocumentoController extends Controller
             }
            
             $user_id=Auth::user();
-            HistorialDocumento::create([
-                'documento_id'=>$documento->id,
-                'responsable'=>$user_id->id,
-                'accion'=>3,
-                'detalles'=>"Actualiza metadatos"
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-            ]);
+            // HistorialDocumento::create([
+            //     'documento_id'=>$documento->id,
+            //     'responsable'=>$user_id->id,
+            //     'accion'=>3,
+            //     'detalles'=>"Actualiza metadatos"
+            //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            // ]);
 
             return redirect()->back()->with(['update'=>'Se pudo actualizar el documento','documento'=>$documento]);
         }catch(\Throwable $th){
@@ -509,13 +522,13 @@ class GestionDocumentoController extends Controller
                 $documento->save();
 
                 $user_id=Auth::id();
-                HistorialDocumento::create([
-                    'documento_id'=>$documento->id,
-                    'responsable'=>$user_id,
-                    'accion'=>8,
-                    'detalles'=>"Habilita documento"
-                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-                ]);
+                // HistorialDocumento::create([
+                //     'documento_id'=>$documento->id,
+                //     'responsable'=>$user_id,
+                //     'accion'=>8,
+                //     'detalles'=>"Habilita documento"
+                //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                // ]);
             }
         }elseif ($opcion==2){
             foreach($docs as $doc_id){
@@ -524,13 +537,13 @@ class GestionDocumentoController extends Controller
                 $documento->save();
 
                 $user_id=Auth::id();
-                HistorialDocumento::create([
-                    'documento_id'=>$documento->id,
-                    'responsable'=>$user_id,
-                    'accion'=>7,
-                    'detalles'=>"Anula documento"
-                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-                ]);
+                // HistorialDocumento::create([
+                //     'documento_id'=>$documento->id,
+                //     'responsable'=>$user_id,
+                //     'accion'=>7,
+                //     'detalles'=>"Anula documento"
+                //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                // ]);
             }
             
         }

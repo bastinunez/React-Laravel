@@ -7,10 +7,11 @@ use App\Models\Accion;
 use App\Models\Funcionario;
 use App\Models\HistorialDocumentoAnexo;
 use App\Models\TipoDocumento;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-
+use Spatie\Activitylog\Models\Activity;
 
 class HistorialDocumentosAnexosController extends Controller
 {
@@ -18,10 +19,23 @@ class HistorialDocumentosAnexosController extends Controller
     {
         $current_user=Auth::user();
         if ($current_user->hasPermissionTo('Ver historial documento anexo')){ 
+            $filas=Activity::where('log_name', 'documento_anexo')->get();
+            $userIds = $filas->pluck('causer_id')->unique();
+            $users = User::whereIn('id', $userIds)->get();
+            $filasConNombres = $filas->map(function ($fila) use ($users) {
+                $usuario = $users->where('id', $fila->causer_id)->first();
+                $fila->setAttribute('nombres_usuario', $usuario->nombres);
+                $fila->setAttribute('apellidos_usuario', $usuario->apellidos);
+                $fila->setAttribute('rut_usuario', $usuario->rut);
+                $fila->setAttribute('correo_usuario', $usuario->correo);
+                return $fila;
+            });
+
             return Inertia::render('Historial/DocumentosAnexos',[
-            'historial'=>HistorialDocumentosAnexosResource::collection(HistorialDocumentoAnexo::all()),
+            //'historial'=>HistorialDocumentosAnexosResource::collection(HistorialDocumentoAnexo::all()),
             'autores'=>Funcionario::all(),
             'acciones'=>Accion::all(),
+            'historial'=>$filasConNombres,
             'tipos'=>TipoDocumento::all(),
         ]);
         }else{

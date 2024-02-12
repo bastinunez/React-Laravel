@@ -14,14 +14,9 @@ class AccionSeeder extends Seeder
     public function run(): void
     {
         DB::table('accion')->insert([
-            ['nombre' => 'Sin Nombre'],
-            ['nombre' => 'Crear'],
-            ['nombre' => 'Editar'],
-            ['nombre' => 'Eliminar'],
-            ['nombre' => 'Anexar'],
-            ['nombre' => 'Desanexar'],
-            ['nombre' => 'Anular'],
-            ['nombre' => 'Habilitar'],
+            ['nombre' => 'Crear','key'=>'created'],
+            ['nombre' => 'Editar','key'=>'edit'],
+            ['nombre' => 'Eliminar','key'=>'deleted'],
         ]);
     }
 }

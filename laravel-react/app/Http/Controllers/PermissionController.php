@@ -98,12 +98,12 @@ class PermissionController extends Controller
             $permiso->save();
     
             $user_id=Auth::id();
-            HistorialFormulario::create([
-                'responsable'=>$user_id,
-                'accion'=>3,
-                'detalles'=>"Edita permiso " . $antiguo . " con nuevo nombre: " . $permiso->name
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-            ]);
+            // HistorialFormulario::create([
+            //     'responsable'=>$user_id,
+            //     'accion'=>3,
+            //     'detalles'=>"Edita permiso " . $antiguo . " con nuevo nombre: " . $permiso->name
+            //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            // ]);
     
             return redirect()->back()->with(["update"=>"Se actualizó la dirección"]);
         }catch (\Illuminate\Database\QueryException $e) {

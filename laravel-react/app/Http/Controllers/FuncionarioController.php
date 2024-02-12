@@ -73,19 +73,19 @@ class FuncionarioController extends Controller
 
         $iniciales = $inicialesNombres . $inicialesApellidos;
         try{
-            $funcionario_id=DB::table('funcionario')->insertGetId([
+            Funcionario::create([
                 'nombres'=>$input['nombres'],
                 'apellidos'=>$input['apellidos'],
                 'abreviacion'=>$iniciales
             ]);
 
             $user_id=Auth::id();
-            HistorialFormulario::create([
-                'responsable'=>$user_id,
-                'accion'=>2,
-                'detalles'=>"Crea el funcionario con nombres: " . $input['nombres'] . " " . $input['apellidos']
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-            ]);
+            // HistorialFormulario::create([
+            //     'responsable'=>$user_id,
+            //     'accion'=>2,
+            //     'detalles'=>"Crea el funcionario con nombres: " . $input['nombres'] . " " . $input['apellidos']
+            //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            // ]);
             
             return redirect()->back()->with(["create"=>"Success"]);
         } catch (\Illuminate\Database\QueryException $e) {

@@ -198,7 +198,7 @@ const AgregarDocumentoAnexo = ({auth}) => {
       <Head title="Agregar documento anexo" />
       <Toast ref={toast_global}></Toast>
       <TitleTemplate>
-        Agregar documento
+        Agregar documento anexo
       </TitleTemplate>
       <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
           <ModalContent>
@@ -219,7 +219,9 @@ const AgregarDocumentoAnexo = ({auth}) => {
         <div className='xl:p-5'>
             <div className='w-full'>
                 <Link href={route('gestion-documento.create')}>
-                    <Button className='text-white rounded-md w-full p-2 whitespace-normal text-center xl:text-large ' color='success' >Se agregó correctamente el documento, presione para agregar otro</Button>
+                    <Button className='text-white rounded-md w-full p-2 whitespace-normal text-center xl:text-large ' color='success' >
+                      Presione para agregar otro
+                    </Button>
                 </Link>
             </div>
             <div className='py-2 lg;py-5'>
@@ -285,7 +287,7 @@ const AgregarDocumentoAnexo = ({auth}) => {
                     
                     <div className='mt-3 w-full md:flex gap-8'>
                         <Link href={route("gestion-documento.index")} className='w-full'>
-                        <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                        <Button className='w-full text-large' color='warning' variant='ghost' >Volver a gestión</Button>
                         </Link>
                         <Button type='submit' disabled={stateBtnMiniForm} color='primary' variant='ghost'  className='w-full text-large' size='md'>Agregar documento anexo</Button>
                     </div>

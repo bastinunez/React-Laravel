@@ -12,11 +12,13 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Traits\HasPermissions;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class User extends Authenticatable
 {
     use HasApiTokens;
-    use HasFactory;
+    use HasFactory,LogsActivity;
     use Notifiable;
     use TwoFactorAuthenticatable;
     use HasRoles;
@@ -43,6 +45,14 @@ class User extends Authenticatable
         'correo',
         'password',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['nombres','apellidos','rut','correo'])
+            ->useLogName('usuario');
+        // Chain fluent methods for configuration options
+    }
 
     /**
      * The attributes that should be hidden for serialization.

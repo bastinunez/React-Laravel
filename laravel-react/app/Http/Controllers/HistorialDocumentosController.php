@@ -16,6 +16,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Spatie\Activitylog\Contracts\Activity;
+use Spatie\Activitylog\Models\Activity as ModelsActivity;
 
 class HistorialDocumentosController extends Controller
 {
@@ -26,16 +28,26 @@ class HistorialDocumentosController extends Controller
     {
         $current_user=Auth::user();
         if ($current_user->hasPermissionTo('Ver historial documento')){
-            // $roles = Rol::whereIn('name', ['digitador', 'administrador'])->get();
-            // $user=Auth::user();
-            // Obtener usuarios con roles específicos
-            //$responsables = User::role($roles)->get();
-            //dd($responsables);
+            $filas=ModelsActivity::where('log_name', 'documento')->get();
+            $userIds = $filas->pluck('causer_id')->unique();
+            $users = User::whereIn('id', $userIds)->get();
+            $filasConNombres = $filas->map(function ($fila) use ($users) {
+                $usuario = $users->where('id', $fila->causer_id)->first();
+                $fila->setAttribute('nombres_usuario', $usuario->nombres);
+                $fila->setAttribute('apellidos_usuario', $usuario->apellidos);
+                $fila->setAttribute('rut_usuario', $usuario->rut);
+                $fila->setAttribute('correo_usuario', $usuario->correo);
+                return $fila;
+            });
+
+
             return Inertia::render('Historial/Documentos',[
-                'historial'=>HistorialDocumentosResource::collection(HistorialDocumento::all()),
+                //'historial'=>HistorialDocumentosResource::collection(HistorialDocumento::all()),
                 'autores'=>Funcionario::all(),
                 'acciones'=>Accion::all(),
-                //'responsables'=>$responsables,
+                // 'history'=>ModelsActivity::where('properties->ip', '127.0.0.1')->get(),
+                // 'history'=>ModelsActivity::where('description', 'created')->get(),
+                'historial'=>$filasConNombres,
                 'tipos'=>TipoDocumento::all(),
             ]);
         }else{

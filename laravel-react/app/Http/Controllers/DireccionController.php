@@ -53,12 +53,12 @@ class DireccionController extends Controller
                 "nombre"=>$request->nombre
             ]);
             $user_id=Auth::id();
-            HistorialFormulario::create([
-                'responsable'=>$user_id,
-                'accion'=>2,
-                'detalles'=>"Crea direccion con nombre: " . $direccion->nombre
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-            ]);
+            // HistorialFormulario::create([
+            //     'responsable'=>$user_id,
+            //     'accion'=>2,
+            //     'detalles'=>"Crea direccion con nombre: " . $direccion->nombre
+            //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            // ]);
             return redirect()->back()->with(["create"=>"Se añadió la dirección"]);
         }catch (\Illuminate\Database\QueryException $e) {
             // Manejo específico para errores de duplicidad
@@ -113,12 +113,12 @@ class DireccionController extends Controller
             $direccion->save();
     
             $user_id=Auth::id();
-            HistorialFormulario::create([
-                'responsable'=>$user_id,
-                'accion'=>3,
-                'detalles'=>"Edita direccion " . $antiguo . " con nuevo nombre: " . $direccion->nombre
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-            ]);
+            // HistorialFormulario::create([
+            //     'responsable'=>$user_id,
+            //     'accion'=>3,
+            //     'detalles'=>"Edita direccion " . $antiguo . " con nuevo nombre: " . $direccion->nombre
+            //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            // ]);
     
             return redirect()->back()->with(["update"=>"Se actualizó la dirección"]);
         }catch (\Illuminate\Database\QueryException $e) {

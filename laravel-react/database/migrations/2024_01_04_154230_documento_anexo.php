@@ -12,9 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('documento_anexo', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('documento_id')->constrained('documento')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('documento_id_anexo')->constrained('documento')->onUpdate('cascade')->onDelete('cascade');
-            $table->primary(['documento_id', 'documento_id_anexo']);
+            $table->unique(['documento_id', 'documento_id_anexo']);
         });
     }
 

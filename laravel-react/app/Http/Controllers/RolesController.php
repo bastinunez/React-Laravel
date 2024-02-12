@@ -100,12 +100,12 @@ class RolesController extends Controller
             $rol->save();
     
             $user_id=Auth::id();
-            HistorialFormulario::create([
-                'responsable'=>$user_id,
-                'accion'=>3,
-                'detalles'=>"Edita rol " . $antiguo . " con nuevo nombre: " . $rol->name
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-            ]);
+            // HistorialFormulario::create([
+            //     'responsable'=>$user_id,
+            //     'accion'=>3,
+            //     'detalles'=>"Edita rol " . $antiguo . " con nuevo nombre: " . $rol->name
+            //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            // ]);
     
             return redirect()->back()->with(["update"=>"Se actualizó la dirección"]);
         }catch (\Illuminate\Database\QueryException $e) {

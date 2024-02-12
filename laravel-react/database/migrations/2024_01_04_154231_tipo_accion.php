@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('accion',function (Blueprint $table){
             $table->id();
             $table->string('nombre', 30);
+            $table->string('key', 30)->default("Especial");
         });
     }
 

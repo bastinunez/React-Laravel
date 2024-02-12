@@ -19,7 +19,8 @@ const Documentos = ({auth}) => {
 
 
   const { historial,tipos,autores,acciones } = usePage().props;
-
+  console.log(historial)
+  
   //TABLA Y FILTROS
   //Filtros
   const [seleccion, setSeleccion] = useState([]);
@@ -47,7 +48,7 @@ const Documentos = ({auth}) => {
     //{name: "Tipo", uid: "tipo", sortable: true},
     {name: "Responsable", uid: "responsable", sortable: true},
     {name: "Acción", uid: "accion", sortable: true},
-    {name: "Detalles", uid: "detalles", sortable: true},
+    //{name: "Detalles", uid: "detalles", sortable: true},
     {name: "Creado", uid: "creado", sortable: true},
     {name: "Revisar", uid: "revisar", sortable: true},
   ];
@@ -56,17 +57,17 @@ const Documentos = ({auth}) => {
   const filteredItems = useMemo(() => {
     let filteredHistorial = [...historial];
     if (hasSearchFilterNumero) {
-      filteredHistorial = filteredHistorial.filter((fila) => fila.doc_numero == parseInt(filterNumero));
+      filteredHistorial = filteredHistorial.filter((fila) => fila.properties.attributes.numero == parseInt(filterNumero));
     }
     if (hasSearchFilterResponsable) {
-      filteredHistorial = filteredHistorial.filter((fila) => (fila.responsable.nombres + " " + fila.responsable.apellidos).toLowerCase().includes(filterResponsable.toLowerCase()));
+      filteredHistorial = filteredHistorial.filter((fila) => (fila.nombres_usuario + " " + fila.apellidos_usuario).toLowerCase().includes(filterResponsable.toLowerCase()));
     }
-    if (hasSearchFilterDetalles) {
-      filteredHistorial = filteredHistorial.filter((fila) => fila.detalles? (fila.detalles).toLowerCase().includes(filterDetalles.toLowerCase()) : null);
-    }
+    // if (hasSearchFilterDetalles) {
+    //   filteredHistorial = filteredHistorial.filter((fila) => fila.detalles? (fila.detalles).toLowerCase().includes(filterDetalles.toLowerCase()) : null);
+    // }
     if (filterFechaDoc){
       filteredHistorial = filteredHistorial.filter((fila) => {
-        const fecha_doc = new Date(fila.doc_fecha);
+        const fecha_doc = new Date(fila.properties.attributes.fecha);
         return fecha_doc >= filterFechaDoc[0] && fecha_doc <= filterFechaDoc[1]
       });
     }
@@ -78,11 +79,12 @@ const Documentos = ({auth}) => {
     }
     if (accionFilter !== "all" && Array.from(accionFilter).length !== acciones.length) {
       let arrayAccion =  new Set([...accionFilter].map(numero => {
+          console.log(numero)
           const matchingItem = acciones.find(item => item.id === parseInt(numero));
-          return matchingItem ? matchingItem.nombre : null;
+          return matchingItem ? matchingItem.key : null;
         }).filter(nombre => nombre !== null));
       filteredHistorial = filteredHistorial.filter((fila) =>
-        Array.from(arrayAccion).includes(fila.accion.nombre)
+          arrayAccion.has(fila.description)
       );
     }
     if (tipoFilter !== "all" && Array.from(tipoFilter).length !== tipos.length) {
@@ -99,9 +101,10 @@ const Documentos = ({auth}) => {
           const matchingItem = autores.find(item => item.id === parseInt(numero));
           return matchingItem ? [matchingItem.nombres + " " + matchingItem.apellidos]: null;
         }).filter(nombres => nombres !== null));
-      filteredHistorial = filteredHistorial.filter((fila) =>
-        Array.from(arrayAutor).some(item=>JSON.stringify(item) === JSON.stringify([fila.doc_autor]))
-      );
+        console.log(arrayAutor)
+        filteredHistorial = filteredHistorial.filter((fila) =>
+          Array.from(arrayAutor).some(item=>JSON.stringify(item) === JSON.stringify([fila.properties.attributes['autorRelacion.nombres'] + " " + fila.properties.attributes['autorRelacion.apellidos']]))
+        );
     }
     return filteredHistorial;
   }, [historial, filterNumero,filterDetalles,filterResponsable,tipoFilter,accionFilter,autorFilter,filterFechaDoc,filterFechaCreated]);
@@ -308,62 +311,52 @@ const Documentos = ({auth}) => {
                   sortedItems.map((fila,index)=>(
                     <TableRow key={index} className='text-start'>
                       {/* <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_id}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_numero}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_fecha}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.properties.attributes.numero}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.properties.attributes.fecha}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_autor}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.doc_tipo}</TableCell> */}
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.responsable.nombres} {fila.responsable.apellidos}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.nombres_usuario} {fila.apellidos_usuario}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                       {
-                        fila.accion.nombre === "Crear"?
+                        fila.description === "created"?
                         <>
                           <Chip className="capitalize" color={'success'} size="sm" variant="flat">
-                            {fila.accion.nombre}
+                            Crear
                           </Chip>
                         </>:
-                          fila.accion.nombre=== "Editar"?
+                          fila.description=== "edit"?
                           <>
                             <Chip className="capitalize" color={'primary'} size="sm" variant="flat">
-                              {fila.accion.nombre}
+                              Editar
                             </Chip>
                           </>
                           :
-                          fila.accion.nombre === "Eliminar"?
+                          fila.description === "deleted"?
                           <><Chip className="capitalize" color={'danger'} size="sm" variant="flat">
-                            {fila.accion.nombre}
+                            Eliminar
                           </Chip></>
-                          :fila.accion.nombre === "Anexar"?
-                          <><Chip className="capitalize bg-amber-600"  size="sm" variant="flat">
-                            {fila.accion.nombre}
-                          </Chip></>
-                          :fila.accion.nombre === "Desanexar"?
-                          <><Chip className="capitalize"  size="sm" variant="flat">
-                            {fila.accion.nombre}
-                          </Chip></>
-                          :fila.accion.nombre === "Anular"?
-                          <><Chip className="capitalize" color={'danger'} size="sm" variant="flat">
-                            {fila.accion.nombre}
-                          </Chip></>
-                          :fila.accion.nombre === "Habilitar"?
-                          <><Chip className="capitalize" color={'secondary'} size="sm" variant="flat">
-                            {fila.accion.nombre}
-                          </Chip></>
+                          // :fila.event === "Anexar"?
+                          // <><Chip className="capitalize bg-amber-600"  size="sm" variant="flat">
+                          //   {fila.event}
+                          // </Chip></>
+                          // :fila.event === "Desanexar"?
+                          // <><Chip className="capitalize"  size="sm" variant="flat">
+                          //   {fila.event}
+                          // </Chip></>
+                          // :fila.event === "Anular"?
+                          // <><Chip className="capitalize" color={'danger'} size="sm" variant="flat">
+                          //   {fila.event}
+                          // </Chip></>
+                          // :fila.event === "Habilitar"?
+                          // <><Chip className="capitalize" color={'secondary'} size="sm" variant="flat">
+                          //   {fila.event}
+                          // </Chip></>
                           :<></>
                         
                       
                       }  
                       </TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
-                        {!fila.detalles?
-                        <>
-                          <Chip className="capitalize"  size="sm" variant="flat">
-                            No existen
-                          </Chip>
-                        </>
-                        :<>{fila.detalles}
-                        </>
-                      }  
-                      </TableCell>
+                      
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{new Date(fila.created_at).toLocaleString()}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                         <Tooltip content={"Ver detalles"} className='bg-slate-400'>
@@ -391,7 +384,7 @@ const Documentos = ({auth}) => {
                 <h1>Documento</h1>
                 <Table fullWidth={true} aria-label="Tabla documentos anexos">
                   <TableHeader>
-                    <TableColumn>ID</TableColumn>
+                    {/* <TableColumn>ID</TableColumn> */}
                     <TableColumn>Número</TableColumn>
                     <TableColumn>Fecha</TableColumn>
                     <TableColumn>Autor</TableColumn>
@@ -401,23 +394,23 @@ const Documentos = ({auth}) => {
                   </TableHeader>
                   <TableBody>
                     <TableRow >
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_id}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_numero}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_fecha}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_autor}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_tipo}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_direccion}</TableCell>
+                      {/* <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.doc_id}</TableCell> */}
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.properties.attributes.numero}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.properties.attributes.fecha}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.properties.attributes['autorRelacion.nombres']}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.properties.attributes['tipoRelacion.nombre']}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{datosModal.properties.attributes['direccionRelacion.nombre']}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                       {
-                        datosModal.doc_estado === "Habilitado"?
+                        datosModal.properties.attributes['estadoRelacion.nombre'] === "Habilitado"?
                         <>
                           <Chip className="capitalize" color={'success'} size="sm" variant="flat">
-                            {datosModal.doc_estado}
+                            {datosModal.properties.attributes['estadoRelacion.nombre']}
                           </Chip>
                         </>:
                         <>
                           <Chip className="capitalize" color={'danger'} size="sm" variant="flat">
-                            {datosModal.doc_estado}
+                            {datosModal.properties.attributes['estadoRelacion.nombre']}
                           </Chip>
                         </>
                       

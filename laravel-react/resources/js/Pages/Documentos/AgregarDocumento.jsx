@@ -240,8 +240,8 @@ const AgregarDocumento = ({auth}) => {
             </div>
           </div>
           <div className='flex w-full mb-5 gap-3 md:gap-8'>
-            <Link href={usePage().props.ziggy.previous} className='w-full'>
-              <Button className='w-full text-large mb-1' color='warning' variant='ghost' >Volver atrás</Button>
+            <Link href={route("gestion-documento.index")} className='w-full'>
+              <Button className='w-full text-large' color='warning' variant='ghost' >Volver a gestión</Button>
             </Link>
             <Tooltip content="Confirmar y agregar" color='success'>
               <Button type='submit' disabled={stateBtn} color='success' variant='ghost' className='w-full text-large' size='md'>Agregar</Button>

@@ -79,18 +79,22 @@ class DocumentoAnexoController extends Controller
         $docs=$request->anexos;
         try {
             foreach  ($docs as $doc_id){
-                DB::table("documento_anexo")->insert([
+                DocumentoAnexo::create([
                     "documento_id"=>$documento_id,
                     "documento_id_anexo"=>$doc_id
                 ]);
+                // DB::table("documento_anexo")->insert([
+                //     "documento_id"=>$documento_id,
+                //     "documento_id_anexo"=>$doc_id
+                // ]);
 
                 $user_id=Auth::id();
-                HistorialDocumentoAnexo::create([
-                    'fk_documento_id'=>$documento_id,
-                    'fk_documento_id_anexo'=>$doc_id,
-                    'responsable'=>$user_id,
-                    'accion'=>5
-                ]);
+                // HistorialDocumentoAnexo::create([
+                //     'fk_documento_id'=>$documento_id,
+                //     'fk_documento_id_anexo'=>$doc_id,
+                //     'responsable'=>$user_id,
+                //     'accion'=>5
+                // ]);
             }
             return redirect()->back()->with(['add_anexo'=>'Se pudo anexar el documento']);
         }catch (\Throwable $th){
@@ -129,7 +133,7 @@ class DocumentoAnexoController extends Controller
         $nombre_file=($input['numero_documento']).'-'.($year).'-'.($input['autor_documento']).'-'.($input['tipo_documento']);
         try {
 
-            $id_documento=DB::table("documento")->insertGetId([
+            $id_documento = Documento::create([
                 "tipo" => $input['tipo_documento'],
                 "numero" => $input['numero_documento'],
                 "autor" => $input['autor_documento'],
@@ -139,23 +143,23 @@ class DocumentoAnexoController extends Controller
                 "anno" => $year,
                 "estado" => $request->estado == 0 ? 1 : 2,
             ]);
-            DB::table("documento_anexo")->insertGetId([
+            DocumentoAnexo::create([
                 "documento_id"=>$input['id_doc'],
-                "documento_id_anexo"=>$id_documento
+                "documento_id_anexo"=>$id_documento->id
             ]);
 
             $user_id=Auth::id();
-            HistorialDocumento::create([
-                'documento_id'=>$id_documento,
-                'responsable'=>$user_id,
-                'accion'=>2
-            ]);
-            HistorialDocumentoAnexo::create([
-                'fk_documento_id'=>$input['id_doc'],
-                'fk_documento_id_anexo'=>$id_documento,
-                'responsable'=>$user_id,
-                'accion'=>5
-            ]);
+            // HistorialDocumento::create([
+            //     'documento_id'=>$id_documento->id,
+            //     'responsable'=>$user_id,
+            //     'accion'=>2
+            // ]);
+            // HistorialDocumentoAnexo::create([
+            //     'fk_documento_id'=>$input['id_doc'],
+            //     'fk_documento_id_anexo'=>$id_documento->id,
+            //     'responsable'=>$user_id,
+            //     'accion'=>5
+            // ]);
 
             return redirect()->back()->with(["create"=>"Se pudo crear el documento anexo"]);
         }catch (\Illuminate\Database\QueryException $e) {
@@ -237,14 +241,14 @@ class DocumentoAnexoController extends Controller
             ])->delete();
             if ($eliminar){
                 $user_id=Auth::id();
-                HistorialDocumentoAnexo::create([
-                    'fk_documento_id'=>$documento_id,
-                    'fk_documento_id_anexo'=>$anexo_id,
-                    'responsable'=>$user_id,
-                    'accion'=>6,
-                    'detalles'=>"Quita anexo del documento ID: " . $documento_id 
-                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-                ]);
+                // HistorialDocumentoAnexo::create([
+                //     'fk_documento_id'=>$documento_id,
+                //     'fk_documento_id_anexo'=>$anexo_id,
+                //     'responsable'=>$user_id,
+                //     'accion'=>6,
+                //     'detalles'=>"Quita anexo del documento ID: " . $documento_id 
+                //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                // ]);
                 //return redirect()->back()->with(['destroy'=>'Se pudo eliminar el documento '.$anexo_id]);
             }
         }

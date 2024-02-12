@@ -13,8 +13,10 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
+use Spatie\Activitylog\Contracts\Activity;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -61,6 +63,11 @@ class FortifyServiceProvider extends ServiceProvider
             $user = User::where('rut', $request->rut)->first();
             if ($user && Hash::check($request->password, $user->password) && $user->estado == 1) {
                 //if ($user->estado == 1) {
+                    activity()->causedBy($user)
+                        ->performedOn($user)
+                        ->createdAt(now()->subDays(10))
+                        ->withProperties(['ip' => $request->ip()])
+                        ->log('login');
                     return $user;
                 //} else {
                     // Usuario no habilitado, redirigir con mensaje de error

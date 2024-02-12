@@ -161,13 +161,13 @@ class GestionUsuarioController extends Controller
                 ])->assignRole($rol);
 
                 $user_id=Auth::id();
-                HistorialUsuario::create([
-                    'usuario_id'=>$usuario->id,
-                    'responsable'=>$user_id,
-                    'accion'=>2,
-                    'detalles'=>"Crea manualmente el usuario"
-                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-                ]);
+                // HistorialUsuario::create([
+                //     'usuario_id'=>$usuario->id,
+                //     'responsable'=>$user_id,
+                //     'accion'=>2,
+                //     'detalles'=>"Crea manualmente el usuario"
+                //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                // ]);
                 return redirect()->back()->with(["create"=>"Usuario agregado exitosamente"]);
             }catch (\Illuminate\Database\QueryException $e) {
                 // Manejo específico para errores de duplicidad
@@ -267,13 +267,13 @@ class GestionUsuarioController extends Controller
             ]);
 
             $user_id=Auth::id();
-            HistorialUsuario::create([
-                'usuario_id'=>$usuario->id,
-                'responsable'=>$user_id,
-                'accion'=>3,
-                'detalles'=>"Actualiza metadatos"
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-            ]);
+            // HistorialUsuario::create([
+            //     'usuario_id'=>$usuario->id,
+            //     'responsable'=>$user_id,
+            //     'accion'=>3,
+            //     'detalles'=>"Actualiza metadatos"
+            //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            // ]);
 
             return redirect()->back()->with("update","Se guardó correctamente los cambios");
             
@@ -294,13 +294,13 @@ class GestionUsuarioController extends Controller
         ])->save();
 
         $user_id=Auth::id();
-        HistorialUsuario::create([
-            'usuario_id'=>$user->id,
-            'responsable'=>$user_id,
-            'accion'=>3,
-            'detalles'=>"Restaura contraseña"
-            //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-        ]);
+        // HistorialUsuario::create([
+        //     'usuario_id'=>$user->id,
+        //     'responsable'=>$user_id,
+        //     'accion'=>3,
+        //     'detalles'=>"Restaura contraseña"
+        //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+        // ]);
         return redirect()->back()->with("update","Se restauró correctamente");
     }
 
@@ -316,13 +316,13 @@ class GestionUsuarioController extends Controller
                 $usuario->save();
 
                 $user_id=Auth::id();
-                HistorialUsuario::create([
-                    'usuario_id'=>$usuario->id,
-                    'responsable'=>$user_id,
-                    'accion'=>8,
-                    'detalles'=>"Habilita usuario"
-                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-                ]);
+                // HistorialUsuario::create([
+                //     'usuario_id'=>$usuario->id,
+                //     'responsable'=>$user_id,
+                //     'accion'=>8,
+                //     'detalles'=>"Habilita usuario"
+                //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                // ]);
             }
         }elseif ($opcion==2){
             foreach($users as $user_id){
@@ -331,13 +331,13 @@ class GestionUsuarioController extends Controller
                 $usuario->save();
 
                 $user_id=Auth::id();
-                HistorialUsuario::create([
-                    'usuario_id'=>$usuario->id,
-                    'responsable'=>$user_id,
-                    'accion'=>7,
-                    'detalles'=>"Anula usuario"
-                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-                ]);
+                // HistorialUsuario::create([
+                //     'usuario_id'=>$usuario->id,
+                //     'responsable'=>$user_id,
+                //     'accion'=>7,
+                //     'detalles'=>"Anula usuario"
+                //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                // ]);
             }
         }
         $usuarios = UsuarioResource::collection(User::all());
@@ -359,25 +359,25 @@ class GestionUsuarioController extends Controller
                 $user->revokePermissionTo($permiso);
                 $user->save();
                 $user_id=Auth::id();
-                HistorialUsuario::create([
-                    'usuario_id'=>$user->id,
-                    'responsable'=>$user_id,
-                    'accion'=>2,
-                    'detalles'=>"Se le quita el  permiso: ".$permiso
-                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-                ]);
+                // HistorialUsuario::create([
+                //     'usuario_id'=>$user->id,
+                //     'responsable'=>$user_id,
+                //     'accion'=>2,
+                //     'detalles'=>"Se le quita el  permiso: ".$permiso
+                //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                // ]);
             }
             
         }else{
             $user->syncPermissions($permisos);
             $user_id=Auth::id();
-            HistorialUsuario::create([
-                'usuario_id'=>$user->id,
-                'responsable'=>$user_id,
-                'accion'=>2,
-                'detalles'=>"Se le otorgan permisos: " .implode(', ', $permisos)
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-            ]);
+            // HistorialUsuario::create([
+            //     'usuario_id'=>$user->id,
+            //     'responsable'=>$user_id,
+            //     'accion'=>2,
+            //     'detalles'=>"Se le otorgan permisos: " .implode(', ', $permisos)
+            //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+            // ]);
             // foreach($permisos as $permiso){
             //     $permision_name=Permission::find($permiso);
             //     //$user->syncPermissions($permision_name->name);
@@ -394,13 +394,13 @@ class GestionUsuarioController extends Controller
         $role=Rol::find($request->rol);
         $user->syncRoles($role->name);
         $user_id=Auth::id();
-        HistorialUsuario::create([
-            'usuario_id'=>$user->id,
-            'responsable'=>$user_id,
-            'accion'=>2,
-            'detalles'=>"Nuevo rol: ".$role->name
-            //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
-        ]);
+        // HistorialUsuario::create([
+        //     'usuario_id'=>$user->id,
+        //     'responsable'=>$user_id,
+        //     'accion'=>2,
+        //     'detalles'=>"Nuevo rol: ".$role->name
+        //     //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+        // ]);
         return redirect()->back()->with(['update'=>'Se pudo cambiar el rol']);
     }
 
