@@ -139,6 +139,7 @@ const EditarDocumento = ({auth}) => {
 
     const [isProgress,setIsProgress] = useState(false)
     const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
+    const {isOpen:isOpenArchivos, onOpen:onOpenArchivos, onOpenChange:onOpenChangeArchivos} = useDisclosure();
 
     const [stateBtnModal,setStateBtnModal] = useState(false)
     useEffect(()=>{
@@ -152,8 +153,8 @@ const EditarDocumento = ({auth}) => {
         setStateBtnModal(true)
         onOpenProgress()
         post(route('gestion-documento.update-doc',String(documento.id)),{
-            onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);setIsProgress(false);onCloseProgress()},
-            onError: (msg) => {showMsg(msg.update,severity.error,summary.error);setIsProgress(false);onCloseProgress()}
+            onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);setIsProgress(false);onCloseProgress();setStateBtnModal(false)},
+            onError: (msg) => {showMsg(msg.update,severity.error,summary.error);setIsProgress(false);onCloseProgress();setStateBtnModal(false)}
         });
     }
     const [stateBtnMiniForm,setStateBtnMiniForm] = useState(false)
@@ -165,10 +166,10 @@ const EditarDocumento = ({auth}) => {
             onSuccess: (msg) => {
                 getDocuments(documento.id);setStateBtnModal(true);
                 reset_mini('numero_documento','autor_documento','tipo_documento','fecha_documento')
-                showMsg(msg.create,severity.success,summary.success);onCloseProgress()
+                showMsg(msg.create,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)
             },
             onError: (errors) => {
-                showMsg(errors.create,severity.error,summary.error);onCloseProgress()
+                showMsg(errors.create,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)
             }
         })
 
@@ -190,50 +191,59 @@ const EditarDocumento = ({auth}) => {
                 showMsg(msg.add_anexo,severity.success,summary.success)
                 getDocuments(documento.id);
                 resetAddAnexo('anexos');
-                setValuesAgregarAnexo(new Set([]));onCloseProgress()
+                setValuesAgregarAnexo(new Set([]));onCloseProgress();setStateBtnModal(false)
                 
             },
             onError: (msg) => {
-                showMsg(msg.add_anexo,severity.error,summary.error);onCloseProgress()
+                showMsg(msg.add_anexo,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)
             }
         })
     }
     
     const quitarDocAnexoSeleccion = () => {
-        let datos=""
-        setStateBtnModal(true)
-        if (seleccion=="all"){
-            datos = docAnexos.map(doc => doc.id)
+        if (seleccion.length!=0){
+            let datos=""
+            setStateBtnModal(true)
+            if (seleccion=="all"){
+                datos = docAnexos.map(doc => doc.id)
+                console.log("all")
+            }else{
+                const arraySeleccion = Array.from(seleccion)
+                datos = arraySeleccion.map(doc => doc)
+            }
+            dataDelete.anexos=datos
+            onOpenProgress()
+            deleteAnexo(route('documento-anexo.destroy',documento.id),{
+                onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
+                onError: (msg) => {showMsg(msg.destroy,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
+            })
         }else{
-            const arraySeleccion = Array.from(seleccion)
-            datos = arraySeleccion.map(doc => doc)
-        }
-        dataDelete.anexos=datos
-        onOpenProgress()
-        deleteAnexo(route('documento-anexo.destroy',documento.id),{
-            onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success);onCloseProgress()},
-            onError: (msg) => {showMsg(msg.destroy,severity.error,summary.error);onCloseProgress()}
-        })
+            showMsg("No seleccionaste datos",severity.error,summary.error)
+          }
     }
     const quitarDocAnexoButton = (id_anexo) => {
         dataDelete.anexos=[id_anexo]
         setStateBtnModal(true)
         onOpenProgress()
         deleteAnexo(route('documento-anexo.destroy',id_anexo),{
-            onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success);onCloseProgress()},
-            onError: (msg) => { showMsg(msg.destroy,severity.error,summary.error);onCloseProgress()}
+            onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
+            onError: (msg) => { showMsg(msg.destroy,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
         })
 
     }
 
     const descargarDocAnexoSeleccion = () => {
-        setStateBtnModal(true)
-        const respSinArchivos = DescargarDocumento(seleccion,docAnexos);
-        if (respSinArchivos.length !== 0){
-            setSinArchivos(respSinArchivos)
-            onOpen()
-        }
-        //console.log(sinArchivos)
+        if (seleccion.length!=0){
+            setStateBtnModal(true)
+            const respSinArchivos = DescargarDocumento(seleccion,docAnexos);
+            if (respSinArchivos.length !== 0){
+                setSinArchivos(respSinArchivos)
+                onOpenArchivos()
+            }
+            setStateBtnModal(false)
+        }else{
+            showMsg("No seleccionaste datos",severity.error,summary.error)
+          }
     }
 
     
@@ -258,6 +268,51 @@ const EditarDocumento = ({auth}) => {
                                 />
                             )
                         }
+                    </ModalContent>
+                </Modal>
+
+                <Modal isOpen={isOpenArchivos} placement={modalPlacement} onOpenChange={onOpenChangeArchivos} size="xl" >
+                    <ModalContent>
+                    {(onClose) => (
+                        <>
+                        <ModalHeader className="flex flex-col gap-1">Documentos sin archivo</ModalHeader>
+                        <ModalBody>
+                            <div>
+                            <p>Los siguientes documentos no poseen archivos</p>
+                            </div>
+                            <div>
+                            <Table aria-label="Tabla documentos anexos" color={"primary"}
+                            bottomContent={ <div className="flex w-full justify-center">
+                                                <Pagination isCompact showControls showShadow color="secondary" page={page}
+                                                total={pages} onChange={(page) => setPage(page)} />
+                                            </div> }>
+                                <TableHeader>
+                                    <TableColumn>Numero de documento</TableColumn>
+                                    <TableColumn>Tipo de documento</TableColumn>
+                                    <TableColumn>Fecha</TableColumn>
+                                </TableHeader>
+                                <TableBody emptyContent={"No existen documentos"}>
+                                {
+                                    sinArchivos.map((documento)=>(
+                                    <TableRow key={documento.numero} className='text-start'>
+                                        <TableCell>{documento.numero}</TableCell>
+                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.tipo}</TableCell>
+                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.fecha}</TableCell>
+                                        
+                                    </TableRow>
+                                    ))
+                                }
+                                </TableBody>
+                            </Table>
+                            </div>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="danger" variant="light" onPress={onClose}>
+                            Cerrar
+                            </Button>
+                        </ModalFooter>
+                        </>
+                    )}
                     </ModalContent>
                 </Modal>
                 

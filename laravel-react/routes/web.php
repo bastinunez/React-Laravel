@@ -45,15 +45,17 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Auth/Login');
-})->middleware('guest');
+})->middleware('guest')->name('first_page');
 
 // Route::get('/registro', function () {
 //     return Inertia::render('Auth/Register');
 // });
 
+Route::get('/no-habilitado', function () {
+    return Inertia::render('Auth/UsuarioNoHabilitado');
+});
 
-
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','user_state'])->group(function () {
 
     Route::get('/cambiar-contrasena',function(){
         return Inertia::render('Auth/ChangePassword');

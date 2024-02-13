@@ -175,7 +175,7 @@ const AgregarDocumento = ({auth}) => {
 
       <ContentTemplate> 
         <form className='md:p-8' onSubmit={submit} >
-          <div className='md:flex w-full justify-between gap-3 mb-5'>
+          <div className='md:flex w-full justify-between gap-3 mb-1 lg:mb-5'>
             <div className="w-80">
               <InputLabel value={"Selecciona tipo de documento (*)"}></InputLabel>
               <Select opciones={tipos} value={data.tipo_documento} onChange={selectTipoDocumento} required>
@@ -201,7 +201,7 @@ const AgregarDocumento = ({auth}) => {
               <InputError message={errors.direccion_documento} className="mt-2" />
             </div>
           </div>
-          <div className='md:flex w-full justify-between mb-5'>
+          <div className='md:flex w-full justify-between mb-1 lg:mb-5'>
             <div className="">
               <InputLabel value={"Ingresa rut (*)"}></InputLabel>
               <TextInput type={'text'} value={data.rut_documento} onChange={(e) => setData('rut_documento',e.target.value)} ></TextInput>
@@ -226,7 +226,7 @@ const AgregarDocumento = ({auth}) => {
               </div>
               <InputError message={errors.fecha_documento} className="mt-2" />
             </div>
-            <div className="w-80">
+            <div className="w-80 mb-1">
               <InputLabel value={"Agregar archivo (*)"}></InputLabel>
               <input onChange ={(e) => setData('archivo',e.target.files[0])} className='text-tiny md:text-small' type='file' accept='.pdf' />
               <InputError message={errors.archivo} className="mt-2" />

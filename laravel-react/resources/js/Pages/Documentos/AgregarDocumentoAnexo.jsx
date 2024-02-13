@@ -7,10 +7,12 @@ import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import Select from '@/Components/Select'
 import {Button, Divider, ModalContent, Modal, Pagination,Select as NextSelect, SelectItem as NextSelectItem,Checkbox,
-    Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, useDisclosure, Progress} from "@nextui-org/react";
+    Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, useDisclosure, Progress, Tooltip} from "@nextui-org/react";
 import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast'
-import { Head } from '@inertiajs/react';        
+import { Head } from '@inertiajs/react';
+import Icon from '@mdi/react';
+import { mdiLockOutline,mdiHelpCircle,mdiLockOffOutline } from '@mdi/js';
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
 locale('en');
@@ -178,6 +180,21 @@ const AgregarDocumentoAnexo = ({auth}) => {
   useEffect(()=>{
     setStateBtnAgregar(false)
   },[dataAddAnexo])
+
+  const {isOpen:isOpen, onOpen:onOpen, onClose:onClose} = useDisclosure();
+  const { data:dataFuncionario, setData:setDataFuncionario, post:postFuncionario, errors:errorsFuncionario, reset:resetFuncionario} = useForm({
+    nombres: '',
+    apellidos: '',
+  });
+
+  const submitFuncionario = (e) => {
+      e.preventDefault()
+      onOpenProgress()
+      postFuncionario(route('funcionario.store'),{
+          onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);onCloseProgress();onClose();resetFuncionario('nombres');resetFuncionario('apellidos')},
+          onError: (msg) => {showMsg(msg.create,severity.error,summary.error);onCloseProgress()}
+      })
+  }
   
   //Tabla
   const [page, setPage] = React.useState(1);
@@ -210,6 +227,31 @@ const AgregarDocumentoAnexo = ({auth}) => {
                           aria-label="Loading..."
                           className="max-w-md"
                       />
+                  )
+              }
+          </ModalContent>
+      </Modal>
+      <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalContent>
+              {
+                  (onClose)=>(
+                    <form onSubmit={submitFuncionario} className='p-8'>
+                      <div className='xl:flex w-full mb-5 gap-10'>
+                          <div className="w-full me-5">
+                              <InputLabel value={"Ingresa nombres"}></InputLabel>
+                              <TextInput type={'text'} className="w-full" placeholder={"Nombre Nombre"} value={dataFuncionario.nombres} onChange={(e) => setDataFuncionario('nombres',e.target.value)} ></TextInput>
+                              <InputError message={errorsFuncionario.nombres} className="mt-2" />
+                          </div>
+                          <div className="w-full">
+                              <InputLabel value={"Ingresa apellidos"}></InputLabel>
+                              <TextInput type={'text'} className="w-full" placeholder={"Apellido Apellido"} value={dataFuncionario.apellidos} onChange={(e) => setDataFuncionario('apellidos',e.target.value)} ></TextInput>
+                              <InputError message={errorsFuncionario.apellidos} className="mt-2" />
+                          </div>
+                      </div>
+                      <div className='w-full xl:flex gap-10'>
+                          <Button type='submit' color='primary' variant='ghost' className='w-full text-large'>Agregar</Button>
+                      </div>
+                  </form>
                   )
               }
           </ModalContent>
@@ -260,10 +302,16 @@ const AgregarDocumentoAnexo = ({auth}) => {
                         <InputError message={errors_mini.tipo_documento} className="mt-2" />
                         </div>
                         <div className="w-80 lg:me-4">
-                        <InputLabel value={"Autor de documento"}></InputLabel>
-                        <Select opciones={autores} value={data_mini.autor_documento} onChange={(value) => setData_mini('autor_documento', value)}  required>
-                        </Select>
-                        <InputError message={errors_mini.autor_documento} className="mt-2" />
+                        <InputLabel value={"Selecciona autor de documento (*)"}></InputLabel>
+                          <div className='flex'>
+                          <Select opciones={autores} value={data_mini.autor_documento} onChange={(value) => setData_mini('autor_documento', value)} required>
+                          </Select>
+                          <Tooltip content={"¿No encuentra el autor?"}>
+                            <Button className='' isIconOnly startContent={<Icon path={mdiHelpCircle} size={1} />} onPress={onOpen} color='primary'></Button>
+                          </Tooltip>
+                          </div>
+                          
+                          <InputError message={errors_mini.autor_documento} className="mt-2" />
                         </div>
                         <div className="w-80 lg:me-4">
                         <InputLabel value={"Número de documento"}></InputLabel>

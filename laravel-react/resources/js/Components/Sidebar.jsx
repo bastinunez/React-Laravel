@@ -34,6 +34,7 @@ export const Sidebar = ({user}) => {
                     {
                         hasPermission('Ver perfil')? 
                         <>
+                        <Divider className="mt-2 mb-1 bg-white"></Divider>
                         <NavLink href={route('usuario.index',user.id)} tooltip={"Perfil"}
                         active={route().current('usuario.index')} className="py-2 px-2 my-1" >
                              <div className="me-3">

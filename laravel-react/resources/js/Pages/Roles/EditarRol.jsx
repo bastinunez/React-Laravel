@@ -6,7 +6,7 @@ import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import { Head ,usePage,useForm,Link} from '@inertiajs/react'
 import { usePermission } from '@/Composables/Permission';
-import { Button,Dropdown,DropdownItem,DropdownMenu,Chip,Table,TableBody,Modal,ModalBody,ModalContent,
+import { Button,Chip,Table,TableBody,Modal,ModalBody,ModalContent,ModalHeader,ModalFooter,
     TableRow,TableHeader,TableColumn,Pagination,TableCell, useDisclosure, Progress, Select, SelectItem} from '@nextui-org/react'
 import Icon from '@mdi/react';
 import { mdiChevronDown,mdiTrashCanOutline} from '@mdi/js';
@@ -31,6 +31,12 @@ const EditarRol = ({auth}) => {
     const { rol,all_permisos } = usePage().props;
     const permisos_filter = all_permisos.filter(item => !rol.permissions.some(permiso => permiso.name === item.name));
 
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const [modalPlacement, setModalPlacement] = useState("auto");
+    const [titleModal,setTitleModal] = useState('')
+    const [contentModal,setContentModal] = useState('')
+    const [functionName,setFunctionName] = useState('')
+    const [stateBtnModal,setStateBtnModal] = useState(false)
 
     //formularios
     const { data:data, setData:setData, patch:patch, processing:processing, errors:errors, reset:reset} = useForm({
@@ -76,10 +82,11 @@ const EditarRol = ({auth}) => {
             onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
         })
     }
-    const submitPermisosAdd = () => {
+    const submitPermisosAdd = (e) => {
         if (permissionSelect.size>0){
           let datos=""
           onOpenProgress()
+          setStateBtnModal(true)
           if (permissionSelect=="all"){
               datos = permisos_filter.map(permiso => permiso.id)
           }else{
@@ -88,8 +95,8 @@ const EditarRol = ({auth}) => {
           }
           dataPermission.permisos=datos
           patchPermission(route('rol.addPermissions',String(rol.id)),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress();setPermissionSelect('')},
-            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress();setPermissionSelect([]);setStateBtnModal(false)},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
           })
         }else{
           showMsg("No hay seleccion",severity.error,summary.error)
@@ -100,15 +107,17 @@ const EditarRol = ({auth}) => {
         dataPermission.permisos = [nombre]
         dataPermission.opcion = 0
         onOpenProgress()
+        setStateBtnModal(true)
         patchPermission(route('rol.deletePermissions',String(rol.id)),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress()},
-            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
         })
     }
-    const submitPermisosDeleteSeleccion = () => {
+    const submitPermisosDeleteSeleccion = (e) => {
         if (seleccion.size>0){
             let datos=""
             onOpenProgress()
+            setStateBtnModal(true)
             if (seleccion=="all"){
                 datos = permisos_filter.map(permiso => permiso.id)
             }else{
@@ -118,8 +127,8 @@ const EditarRol = ({auth}) => {
             dataPermission.permisos=datos
             dataPermission.opcion = 1
             patchPermission(route('rol.deletePermissions',String(rol.id)),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress();setSeleccion([])},
-            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress();setSeleccion([]);setStateBtnModal(false)},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
             })
         }else{
             showMsg("No hay seleccion",severity.error,summary.error)
@@ -149,27 +158,28 @@ const EditarRol = ({auth}) => {
                     }
                 </ModalContent>
             </Modal>
-            {/* <ContentTemplate>
-                <div>
-                    <div>
-                        <form onSubmit={submit} className=''>
-                            <div className='xl:flex w-full mb-5 xl: gap-5'>
-                                <div className="w-full">
-                                    <InputLabel value={"Ingresa nombre"}></InputLabel>
-                                    <TextInput type={'text'} className="w-full" placeholder={data.nombre} value={data.nombre} onChange={(e) => setData('nombre',e.target.value)} ></TextInput>
-                                    <InputError message={errors.nombre} className="mt-2" />
-                                </div>
-                            </div>
-                            <div className='xl:flex xl:gap-2'>
-                                <Link href={route("rol.index")} className='w-full'>
-                                    <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
-                                </Link>
-                                <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Guardar cambios</Button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </ContentTemplate> */}
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+                    <ModalContent>
+                    {(onClose) => (
+                        <>
+                        <ModalHeader className="flex flex-col gap-1">{titleModal}</ModalHeader>
+                        <ModalBody>
+                            {
+                                <p>{contentModal}</p>
+                            }
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="danger" variant="light" onPress={onClose}>
+                                Cancelar
+                            </Button>
+                            <Button color="primary" disabled={stateBtnModal} onPress={onClose} onClick={()=>functionName()}>
+                                Confirmar
+                            </Button>
+                        </ModalFooter>
+                        </>
+                    )}
+                    </ModalContent>
+                </Modal>
             <ContentTemplate>
                 <div>
                 <div className='w-full mb-8'>
@@ -197,7 +207,10 @@ const EditarRol = ({auth}) => {
                                         </Select>
                                     </div>
                                     <div className='flex items-center'>
-                                        <Button className='w-full text-large' color='primary' onPress={() => submitPermisosAdd()}
+                                        <Button className='w-full text-large' color='primary' onPress={()=>{
+                                                    setFunctionName(() => () => submitPermisosAdd());setTitleModal('Guardar cambios');
+                                                    setContentModal('¿Está seguro de aplicar los cambios?');onOpen();}}  
+                                        //onPress={() => submitPermisosAdd()}
                                         variant='ghost' type='submit'>Agregar permisos selecccionados</Button>
                                     </div>
                                 </>:
@@ -212,7 +225,10 @@ const EditarRol = ({auth}) => {
                         <div className='w-full'>
                             <div className='flex mb-2'>
                                 <div className='w-full justify-end flex'>
-                                    <Button className='' color='danger' variant='flat' onPress={()=>submitPermisosDeleteSeleccion()} >Quitar seleccionados</Button>
+                                    <Button className='' color='danger' variant='flat' onPress={()=>{
+                                                    setFunctionName(() => () => submitPermisosDeleteSeleccion());setTitleModal('Guardar cambios');
+                                                    setContentModal('¿Está seguro de aplicar los cambios?');onOpen();}}  
+                                    >Quitar seleccionados</Button>
                                 </div>
                             </div>
                             <Table aria-label="Tabla documentos" color={"primary"} selectionMode="multiple"
@@ -235,7 +251,10 @@ const EditarRol = ({auth}) => {
                                         <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis text-tiny lg:text-small'>
                                             {
                                             <Button color='danger' endContent={<Icon size={1} path={mdiTrashCanOutline} />} 
-                                            onPress={() => submitPermisosDelete(permiso)} size='sm'></Button>
+                                            onPress={()=>{
+                                                setFunctionName(() => () => submitPermisosDelete(permiso));setTitleModal('Guardar cambios');
+                                                setContentModal('¿Está seguro de aplicar los cambios?');onOpen();}}  
+                                                size='sm'></Button>
                                             }
                                         </TableCell>
                                         </TableRow>
