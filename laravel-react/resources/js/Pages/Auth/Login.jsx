@@ -6,6 +6,9 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
+import Icon from '@mdi/react';
+import { mdiLockOutline,mdiHelpCircle,mdiLockOffOutline } from '@mdi/js';
+import { Button, Popover, PopoverContent, PopoverTrigger } from '@nextui-org/react';
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -24,7 +27,7 @@ export default function Login({ status, canResetPassword }) {
         e.preventDefault();
         //console.log("intenta ir")
         post(route('login'),{
-            onError: () => console.log("error")
+            onError: (e) => console.log(e)
         });
     };
 
@@ -35,11 +38,44 @@ export default function Login({ status, canResetPassword }) {
             {status && <div className="mb-4 font-medium text-sm text-green-600">{status}</div>}
 
             <form onSubmit={submit}>
+                <div className='w-full flex justify-between mb-3'>
+                    <h1 className='text-xl'>Iniciar sesión</h1>
+                    <Popover 
+                        showArrow
+                        backdrop="opaque"
+                        placement="right"
+                        classNames={{
+                        base: [  
+                            // arrow color
+                            "before:bg-default-200"
+                        ],
+                        content: [
+                            "py-3 px-4 border border-default-200",
+                            "bg-gradient-to-br from-white to-default-300",
+                            "dark:from-default-100 dark:to-default-50",
+                        ],
+                        }}
+                    >
+                        <PopoverTrigger>
+                        <Button isIconOnly endContent={<Icon path={mdiHelpCircle} size={1} />}></Button>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                        {(titleProps) => (
+                            <div className="px-1 py-2">
+                            <h3 className="text-medium font-bold" {...titleProps}>
+                                ¿Restauraste la contraseña?
+                            </h3>
+                            <div className="text-small">La contraseña después de restaurar es 12345678</div>
+                            </div>
+                        )}
+                        </PopoverContent>
+                    </Popover>
+                </div>
                 <div>
                     <InputLabel htmlFor="rut" value="Rut" />
 
                     <TextInput
-                        id="rut"
+                        id="rut" placeholder={"XX.XXX.XXX-X"}
                         type="text"
                         name="rut"
                         value={data.rut}
@@ -56,7 +92,7 @@ export default function Login({ status, canResetPassword }) {
                     <InputLabel htmlFor="password" value="Contraseña" />
 
                     <TextInput
-                        id="password"
+                        id="password" placeholder={"Contraseña..."}
                         type="password"
                         name="password"
                         value={data.password}

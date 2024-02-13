@@ -4,8 +4,8 @@ import Authenticated from '@/Layouts/AuthenticatedLayout'
 import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
-import { Head, useForm, Link} from '@inertiajs/react'
-import { Button } from '@nextui-org/react'
+import { Head, useForm, Link, usePage} from '@inertiajs/react'
+import { Button,useDisclosure,Progress, Modal, ModalContent } from '@nextui-org/react'
 import { Toast } from 'primereact/toast';        
 import React,{useRef} from 'react'
 
@@ -26,10 +26,13 @@ const AgregarRol = ({auth}) => {
         nombre: '',
     });
 
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
     const submit = (e) => {
         e.preventDefault()
+        onOpenProgress()
         post(route('rol.store'),{
-            onSuccess: () => console.log("bien")
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress()},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
         })
     }
 
@@ -39,18 +42,32 @@ const AgregarRol = ({auth}) => {
             <Head title='Agregar rol'></Head>
             <TitleTemplate>Agregar rol</TitleTemplate>
             <Toast ref={toast_global} />
+            <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                <ModalContent>
+                    {
+                        (onCloseProgress)=>(
+                            <Progress
+                                size="sm"
+                                isIndeterminate
+                                aria-label="Loading..."
+                                className="max-w-md"
+                            />
+                        )
+                    }
+                </ModalContent>
+            </Modal>
             <ContentTemplate>
                 <div>
-                    <form onSubmit={submit} className='p-8'>
+                    <form onSubmit={submit} className=''>
                         <div className=' w-full mb-5 gap-10'>
                             <InputLabel value={"Ingresa nombre"}></InputLabel>
                             <TextInput type={'text'} className="w-full" placeholder={"Nombre"} value={data.nombre} 
                             onChange={(e) => setData('nombre',e.target.value)} ></TextInput>
                             <InputError message={errors.nombre} className="mt-2" />
                         </div>
-                        <div className='w-full xl:flex gap-10'>
-                            <Link href={route("rol.index")} className='w-full'>
-                            <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                        <div className='w-full flex gap-3'>
+                            <Link href={usePage().props.ziggy.previous} className='w-full'>
+                                <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                             </Link>
                             <Button type='submit' color='primary' variant='ghost' className='w-full text-large'>Agregar</Button>
                         </div>

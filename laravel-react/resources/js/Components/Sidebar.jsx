@@ -1,12 +1,12 @@
 import React,{useEffect, useRef, useState} from "react";
 import { Link } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
-import {Divider,Accordion, AccordionItem,Tooltip} from "@nextui-org/react";
+import {Divider,Accordion, AccordionItem,Button} from "@nextui-org/react";
 import { usePermission } from '@/Composables/Permission';
 import { useSidebarStore,useAccordionStore } from '@/Store/useStore';
 import {User} from "@nextui-org/react";
 import Icon from '@mdi/react';
-import { mdiFileMultiple,mdiAccountCircleOutline, mdiFileDocument,mdiShieldAccountVariantOutline,mdiAccountSettingsOutline,mdiHistory,mdiWrenchCogOutline,mdiAccountGroup,mdiBadgeAccount,mdiOfficeBuildingOutline} from '@mdi/js';
+import { mdiFileMultiple,mdiAccountCircleOutline, mdiMenu,mdiFileDocument,mdiShieldAccountVariantOutline,mdiAccountSettingsOutline,mdiHistory,mdiWrenchCogOutline,mdiAccountGroup,mdiBadgeAccount,mdiOfficeBuildingOutline} from '@mdi/js';
 
 
 export const Sidebar = ({user}) => {
@@ -20,21 +20,23 @@ export const Sidebar = ({user}) => {
     },[selectedKeys])
     return(
         <>
-            <div className={`bg-indigo-900 text-white fixed h-full transition-all p-3 duration-300 ease-in-out ${sidebar ? 'w-72' : 'w-16'}`}>
-                <div className="text-white">
-                    <User name={  <span className=" ps-3">{user.nombres}</span>} 
-                        classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis ${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}
-                        description={(
-                            <span className="text-medium overflow-hidden whitespace-nowrap text-ellipsis ps-3">{user.roles[0]}</span>
-                        )}
-                        avatarProps={null}
-                    />
+            <div className={`bg-slate-700 text-white fixed h-full transition-all p-2 duration-300 ease-in-out  z-50 ${sidebar ? 'w-64 ' : 'w-14 sm:hover:w-64 inset-0'}`}>
+                <div className="text-white flex justify-between overflow-hidden whitespace-nowrap text-ellipsis">
+                    <User name={  <div> <span className="text-inherit text-medium overflow-hidden whitespace-nowrap text-ellipsis">
+                                            <p className="overflow-auto whitespace-nowrap text-ellipsis ps-1">{user.nombres}</p>
+                                        </span>
+                                    </div>} 
+                            classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis `,description:``}}
+                            description={(
+                                <span className="text-medium overflow-hidden whitespace-nowrap text-ellipsis ps-1">{user.roles[0]}</span>
+                            )}
+                        />
                 </div>
-                <Divider className="mt-2 mb-1 bg-white" />
                 <nav className="flex flex-col items-start text-gray-500 ">
                     {
                         hasPermission('Ver perfil')? 
                         <>
+                        <Divider className="mt-2 mb-1 bg-white"></Divider>
                         <NavLink href={route('usuario.index',user.id)} tooltip={"Perfil"}
                         active={route().current('usuario.index')} className="py-2 px-2 my-1" >
                              <div className="me-3">
@@ -47,7 +49,7 @@ export const Sidebar = ({user}) => {
                     {
                         hasPermission('Ver todos documentos')? 
                         <>
-                        <Divider className="my-1 bg-white" />
+                        <Divider className="mt-2 mb-1 bg-white"></Divider>
                         <NavLink className="py-2 px-2 my-1" href={route('documento.index')} tooltip={"Documentos"}
                         active={route().current('documento.index')}>
                             <div className="me-3">
@@ -57,7 +59,6 @@ export const Sidebar = ({user}) => {
                         </NavLink>
                         </>:<></>
                     }
-                    <Divider className="my-2 bg-white" />
                     {
                         hasPermission('Gestion-Ver documentos')? 
                         <>
@@ -138,7 +139,7 @@ export const Sidebar = ({user}) => {
                         hasPermission('Ver historial accion usuario') || hasPermission('Ver historial accion formulario')?
                         <>  
                             <Divider className="my-2 bg-white" />
-                            <Accordion itemClasses={{title:"text-white py-0"}} //defaultExpandedKeys={0}
+                            <Accordion itemClasses={{title:"text-white px-0 py-0",base:"px-0"}} //defaultExpandedKeys={0}
                             selectedKeys={selectedKeys} onSelectionChange={setSelectedKeys}
                             motionProps={{ variants: {
                             enter: {
@@ -176,15 +177,15 @@ export const Sidebar = ({user}) => {
                             },
                         }}>
                             <AccordionItem key={1} aria-label="Accordion 1" title="Historial" isCompact={true}
-                            className="text-white rounded-md"
+                            className="text-white rounded-md overflow-x-auto" classNames={{content:"px-0"}}
                                 startContent={<Icon path={mdiHistory} size={1} />} style={{ overflow: 'hidden', transition: 'width 0.3s'}}>
                                     {
                                         hasPermission('Ver historial documento')? 
                                         <>
                                         <NavLink href={route('historial-documentos.index')} tooltip={"Documentos"}
-                                        active={route().current('historial-documentos.index')} className="py-2 px-2 mb-3">
+                                        active={route().current('historial-documentos.index')} className="py-2 px-0  mb-3">
                                             <div className="me-2">
-                                            <Icon path={mdiHistory} size={1} />
+                                            <Icon path={mdiFileDocument} size={1} />
                                             </div>
                                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Documentos</span>
                                         </NavLink>
@@ -193,9 +194,9 @@ export const Sidebar = ({user}) => {
                                         hasPermission('Ver historial documento anexo')? 
                                         <>
                                         <NavLink href={route('historial-documentos-anexos.index')} tooltip={"Documentos anexos"}
-                                        active={route().current('historial-documentos-anexos.index')} className="py-2 px-2 mb-3">
+                                        active={route().current('historial-documentos-anexos.index')} className="py-2 px-0  mb-3">
                                             <div className="me-2">
-                                            <Icon path={mdiHistory} size={1} />
+                                            <Icon path={mdiFileMultiple} size={1} />
                                             </div>
                                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Documentos anexos</span>
                                         </NavLink>
@@ -204,7 +205,7 @@ export const Sidebar = ({user}) => {
                                         hasPermission('Ver historial accion usuario')? 
                                         <>
                                         <NavLink href={route('historial-accion-usuario.index')} tooltip={"Acción sobre usuario"}
-                                        active={route().current('historial-accion-usuario.index')} className="py-2 px-2 mb-3">
+                                        active={route().current('historial-accion-usuario.index')} className="py-2 px-0  mb-3">
                                             <div className="me-2">
                                             <Icon path={mdiHistory} size={1} />
                                             </div>
@@ -216,7 +217,7 @@ export const Sidebar = ({user}) => {
                                         hasPermission('Ver historial accion formulario')? 
                                         <>
                                         <NavLink href={route('historial-accion-formulario.index')} tooltip={"Acción sobre formulario"}
-                                        active={route().current('historial-accion-formulario.index')} className="py-2 px-2 mb-3">
+                                        active={route().current('historial-accion-formulario.index')} className="py-2 px-0  mb-3">
                                             <div className="me-2">
                                             <Icon path={mdiFileDocument} size={1} />
                                             </div>

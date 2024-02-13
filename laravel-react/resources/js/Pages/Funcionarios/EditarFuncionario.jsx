@@ -6,7 +6,7 @@ import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import { Head ,usePage,useForm,Link} from '@inertiajs/react'
 import { usePermission } from '@/Composables/Permission';
-import { Button } from '@nextui-org/react'
+import { Button, useDisclosure, Progress,Modal,ModalContent} from '@nextui-org/react'
 import { Toast } from 'primereact/toast';       
 import React,{useRef} from 'react'
 
@@ -27,9 +27,7 @@ const EditarFuncionario = ({auth}) => {
     //VARIABLES QUE ENTREGA EL CONTROLADOR
     const { funcionario } = usePage().props;
     
-
-    //QUEDE AQUI FALTA REALIZAR EL POST, MODIFICAR LOS MENSAJES CON TOAST (ES MEJOR DEJARLO GLOBAL EN EL AUTHENTICAD LAYOUT )
-
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
 
     //formularios
     const { data:data, setData:setData, patch:patch, processing:processing, errors:errors, reset:reset} = useForm({
@@ -39,9 +37,10 @@ const EditarFuncionario = ({auth}) => {
 
     const submit = (e) => {
         e.preventDefault()
+        onOpenProgress()
         patch(route('funcionario.update',String(funcionario.id)),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success);reset()},
-            onError: () => {showMsg("Falló",severity.error,summary.error)}
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);reset();onCloseProgress()},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
         })
     }
 
@@ -52,6 +51,20 @@ const EditarFuncionario = ({auth}) => {
             <Head title='Editar Funcionario'></Head>
             <TitleTemplate>Editar Funcionario</TitleTemplate>
             <Toast ref={toast_global}></Toast>
+            <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                <ModalContent>
+                    {
+                        (onCloseProgress)=>(
+                            <Progress
+                                size="sm"
+                                isIndeterminate
+                                aria-label="Loading..."
+                                className="max-w-md"
+                            />
+                        )
+                    }
+                </ModalContent>
+            </Modal>
             <ContentTemplate>
                 <div>
                     <div>
@@ -69,7 +82,7 @@ const EditarFuncionario = ({auth}) => {
                                 </div>
                             </div>
                             <div className='xl:flex'>
-                                <Link href={route("funcionario.index")} className='w-full'>
+                                <Link href={route('funcionario.index')} className='w-full'>
                                     <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                 </Link>
                                 <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Guardar cambios</Button>

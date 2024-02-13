@@ -59,7 +59,7 @@ class FortifyServiceProvider extends ServiceProvider
         });
         Fortify::authenticateUsing(function (Request $request) {
             $user = User::where('rut', $request->rut)->first();
-            if ($user && Hash::check($request->password, $user->password) && $user->estado == 1) {
+            if ($user && Hash::check($request->password, $user->password)) {
                 //if ($user->estado == 1) {
                     return $user;
                 //} else {
@@ -67,9 +67,6 @@ class FortifyServiceProvider extends ServiceProvider
                 //    return back()->with(['error' => 'La cuenta no está habilitada']);
                 //}
             }
-        
-            // Si no se encuentra el usuario o la contraseña es incorrecta, redirigir con mensaje de error
-            //return back()->with(['error' => 'Credenciales incorrectas']);
         });
     }
 }

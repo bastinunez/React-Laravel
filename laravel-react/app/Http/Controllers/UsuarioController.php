@@ -236,16 +236,45 @@ class UsuarioController extends Controller
         $input=$request->all();
         Validator::make($input, [
             'current_password' => ['required', 'string', 'current_password:web'],
-            'nueva_pwd' => ['required','string','regex:/[a-zA-Z@0-9]/'],
+            'nueva_pwd' => ['required','string','regex:/[a-zA-Z@0-9]/','different:current_password'],
         ],[
-            'current_password.current_password' => 'Las contraseñas es igual a la que existe.',
+            'current_password.current_password' => 'La contraseña no coincide con la actual',
+            'current_password.required'=>'Debes ingresar la contraseña por antigua.',
             'nueva_pwd.regex'=>'La contraseña admite letras, números y @.',
+            'nueva_pwd.required'=>'Debes ingresar la nueva contraseña.',
+            'nueva_pwd.different'=>'Debes ingresar una contraseña distinta.',
         ])->validate();
         $user=User::find(Auth::user()->id);
         $user->forceFill([
-            'password' => Hash::make($input['nueva_pwd']),
+            'password' => Hash::make($input['nueva_pwd'])
         ])->save();
         return back()->with("update","Se guardó correctamente la contraseña");
+    }
+
+    public function change_pwd(Request $request)
+    {
+        $input=$request->all();
+        Validator::make($input, [
+            'current_password' => ['required', 'string', 'current_password:web'],
+            'nueva_pwd' => ['required','string','regex:/[a-zA-Z@0-9]/','different:current_password'],
+        ],[
+            'current_password.current_password' => 'La contraseña no coincide con la actual',
+            'current_password.required'=>'Debes ingresar la contraseña por antigua.',
+            'nueva_pwd.regex'=>'La contraseña admite letras, números y @.',
+            'nueva_pwd.required'=>'Debes ingresar la nueva contraseña.',
+            'nueva_pwd.different'=>'Debes ingresar una contraseña distinta.',
+        ])->validate();
+        try{
+            $user=User::find(Auth::user()->id);
+            $user->forceFill([
+                'password' => Hash::make($input['nueva_pwd']),
+                'change_pwd' => 0
+            ])->save();
+            return redirect()->route('dashboard');
+        }catch(\Throwable $th){
+            return back();
+        }
+        
     }
 
     /**

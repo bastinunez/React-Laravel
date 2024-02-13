@@ -3,13 +3,14 @@ import Authenticated from '@/Layouts/AuthenticatedLayout'
 import { usePage ,Link} from '@inertiajs/react';
 import { Viewer,Worker,LoadError,ProgressBar } from '@react-pdf-viewer/core';
 import { zoomPlugin,RenderCurrentScaleProps, RenderZoomInProps, RenderZoomOutProps,} from '@react-pdf-viewer/zoom';
+import { pageNavigationPlugin, RenderGoToPageProps } from '@react-pdf-viewer/page-navigation';
 import {Head} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import TitleTemplate from '@/Components/TitleTemplate';
 import ContentTemplate from '@/Components/ContentTemplate';
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Pagination,
-  Table, TableHeader, TableBody, TableColumn, TableRow, TableCell} from '@nextui-org/react';
+  Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, Chip} from '@nextui-org/react';
 import { Transform } from '@/Composables/Base64toBlob';
 // Import styles
 import '@react-pdf-viewer/zoom/lib/styles/index.css';
@@ -43,6 +44,11 @@ const VisualizadorDocumento = ({auth}) => {
   const zoomPluginInstance = zoomPlugin();
   const { CurrentScale, ZoomIn, ZoomOut } = zoomPluginInstance;
   const {url,link,filename} = Transform(documento.file,documento.mime_file,documento.name_file)
+
+  const pageNavigationPluginInstance = pageNavigationPlugin();
+
+  const { CurrentPageInput, GoToFirstPageButton, GoToLastPageButton, GoToNextPageButton, GoToPreviousPage } =
+      pageNavigationPluginInstance;
   
   //tabla
   const [page, setPage] = React.useState(1);
@@ -110,8 +116,12 @@ const VisualizadorDocumento = ({auth}) => {
           {
             hasPermission('Ver documentos anexos')?
             <>
-              <div className='align-items-center flex'>
-                <Button color='primary' variant='ghost' onPress={onOpen}>Ver documentos anexos</Button>
+              
+              <div className='items-center flex gap-1'>
+                <Link href={usePage().props.ziggy.previous} className='w-full items-center flex'>
+                  <Button className='w-full' color='warning' variant='ghost' >Volver atrás</Button>
+                </Link>
+                <Button color='primary' className='w-full' variant='ghost' onPress={onOpen}>Ver documentos anexos</Button>
               </div>
             </>
             :<></>
@@ -150,6 +160,20 @@ const VisualizadorDocumento = ({auth}) => {
                                 <TableCell>{documento.autor_nombre} {documento.autor_apellido}</TableCell>
                                 <TableCell>{documento.fecha}</TableCell>
                                 <TableCell>
+                                {
+                                  !documento.file?
+                                  <>
+                                    <Chip>No hay archivo</Chip>
+                                  </>
+                                  :<></>
+                                }
+                                {
+                                  !documento.estado=="Habilitado"?
+                                  <>
+                                    <Chip>Documento anulado</Chip>
+                                  </>
+                                  :<></>
+                                }
                                 {
                                     hasPermission('Visualizar documento') && documento.file && documento.estado=="Habilitado"?
                                     <>
@@ -194,9 +218,11 @@ const VisualizadorDocumento = ({auth}) => {
         </ModalContent>
       </Modal>
       <ContentTemplate>
-        <div className=''>
+        <div className='justify-center xl:px-72'>
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
-          <div className="rpv-core__viewer" style={{  border: '1px solid rgba(0, 0, 0, 0.3)', display: 'flex', flexDirection: 'column', height: '100%', }} >
+          <div className="rpv-core__viewer" 
+          style={{  border: '1px solid rgba(0, 0, 0, 0.3)', display: 'flex', 
+          flexDirection: 'column', height: '100%'}} >
               <div className='justify-between' style={{ alignItems: 'center', backgroundColor: '#eeeeee', borderBottom: '1px solid rgba(0, 0, 0, 0.3)',
                       display: 'flex', padding: '4px', }} >
                   {
@@ -212,11 +238,29 @@ const VisualizadorDocumento = ({auth}) => {
                     </>
                     :<></>
                   }
-                  
+
+                  <div className='hidden md:flex'>
+                    <div style={{ padding: '0px 2px' }}>
+                        <GoToFirstPageButton />
+                    </div>
+                    <div style={{ padding: '0px 2px' }}>
+                        <GoToPreviousPage />
+                    </div>
+                    <div style={{ padding: '0px 2px' }}>
+                        <CurrentPageInput />
+                    </div>
+                    <div style={{ padding: '0px 2px' }}>
+                        <GoToNextPageButton />
+                    </div>
+                    <div style={{ padding: '0px 2px' }}>
+                        <GoToLastPageButton />
+                    </div>
+                  </div>
+                
                   <div className='flex items-center'>
                     <ZoomOut>
                       {(props) => (
-                          <Button startContent={<Icon path={mdiMagnifyMinusOutline} size={1} />}
+                          <Button isIconOnly startContent={<Icon path={mdiMagnifyMinusOutline} size={1} />}
                               style={{
                                   backgroundColor: '#357edd',
                                   border: 'none',
@@ -237,7 +281,7 @@ const VisualizadorDocumento = ({auth}) => {
                     </div>
                     <ZoomIn>
                       {(props) => (
-                          <Button  startContent={<Icon path={mdiMagnifyPlusOutline} size={1} />}
+                          <Button isIconOnly startContent={<Icon path={mdiMagnifyPlusOutline} size={1} />}
                               style={{
                                   backgroundColor: '#357edd',
                                   border: 'none',
@@ -254,13 +298,12 @@ const VisualizadorDocumento = ({auth}) => {
                   </div>
                   
               </div>
-              <div style={{ flex: 1, overflow: 'hidden', }} >
-                <Viewer fileUrl={url} theme={{theme:'auto'}} plugins={[zoomPluginInstance]} defaultScale={0.8} 
-                renderError={renderError} renderLoader={(percentages) => (
-                  <div style={{ width: '240px' }}>
-                      <ProgressBar progress={Math.round(percentages)} />
-                  </div>
-                )} />
+              <div style={{ height: '750px' }}
+              //style={{ flex: 1, overflow: 'hidden', }} 
+              >
+                <Viewer  fileUrl={url} plugins={[zoomPluginInstance,pageNavigationPluginInstance]} 
+                //defaultScale={0.8} renderError={renderError} 
+                />
               </div>
           </div>
             

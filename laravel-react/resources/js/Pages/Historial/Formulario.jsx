@@ -10,7 +10,7 @@ import React,{useState,useEffect,useRef,useMemo,useCallback} from 'react'
 import Icon from '@mdi/react';
 import { Calendar } from 'primereact/calendar';
 import Select from '@/Components/Select';
-import { mdiVacuumOutline, mdiMagnify,mdiChevronDown} from '@mdi/js';
+import { mdiVacuumOutline, mdiMagnify,mdiChevronDown, mdiEyeOutline} from '@mdi/js';
 import FilterTemplate from '@/Components/FilterTemplate'
 
 const Formulario = ({auth}) => {
@@ -184,10 +184,10 @@ const Formulario = ({auth}) => {
               </div>
               <div className='lg:flex gap-4 justify-center items-end'>
                 <div className='w-full card mb-1'>
-                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Rango de fecha documento' dateFormat="yy//mm/dd" showIcon value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
+                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Rango de fecha documento' dateFormat="yy//mm/dd" value={filterFechaDoc} onChange={(e) => setFilterFechaDoc(e.value)} selectionMode="range" readOnlyInput />
                 </div>
                 <div className='w-full card mb-1'>
-                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Rango de fecha registro' dateFormat="yy//mm/dd" showIcon value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
+                  <Calendar className='max-h-10 border-0 flex p-0' placeholder='Rango de fecha registro' dateFormat="yy//mm/dd" value={filterFechaCreated} onChange={(e) => setFilterFechaCreated(e.value)} selectionMode="range" readOnlyInput />
                 </div>
                 <div className="flex gap-3">
                   <div>
@@ -253,8 +253,57 @@ const Formulario = ({auth}) => {
                   sortedItems.map((fila,index)=>(
                     <TableRow key={index} className='text-start'>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.responsable.nombres} {fila.responsable.apellidos}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.accion.nombre}</TableCell>
-                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{fila.detalles}</TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
+                      {
+                        fila.accion.nombre === "Crear"?
+                        <>
+                          <Chip className="capitalize" color={'success'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip>
+                        </>:
+                          fila.accion.nombre=== "Editar"?
+                          <>
+                            <Chip className="capitalize" color={'primary'} size="sm" variant="flat">
+                              {fila.accion.nombre}
+                            </Chip>
+                          </>
+                          :
+                          fila.accion.nombre === "Eliminar"?
+                          <><Chip className="capitalize" color={'danger'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :fila.accion.nombre === "Anexar"?
+                          <><Chip className="capitalize" color={'danger'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :fila.accion.nombre === "Desanexar"?
+                          <><Chip className="capitalize" color={'success'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :fila.accion.nombre === "Anular"?
+                          <><Chip className="capitalize" color={'danger'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :fila.accion.nombre === "Habilitar"?
+                          <><Chip className="capitalize" color={'secondary'} size="sm" variant="flat">
+                            {fila.accion.nombre}
+                          </Chip></>
+                          :<></>
+                        
+                      
+                      }  
+                      </TableCell>
+                      <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
+                        {!fila.detalles?
+                        <>
+                          <Chip className="capitalize"  size="sm" variant="flat">
+                            No existen
+                          </Chip>
+                        </>
+                        :<>{fila.detalles}
+                        </>
+                      }  
+                      </TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{new Date(fila.created_at).toLocaleString()}</TableCell>
                     </TableRow>
                   ))

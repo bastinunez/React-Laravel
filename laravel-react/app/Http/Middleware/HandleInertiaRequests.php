@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
 
@@ -35,19 +36,19 @@ class HandleInertiaRequests extends Middleware
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
+                'previous' => fn () => URL::previousPath(),
             ],
             'flash' => [
                 "message"  => fn () => $request->session()->get('message'),
-                'IdDoc' => fn () => $request->session()->get('IdDoc'),
-                'documentos' => fn () => $request->session()->get('documentos'),
-                'FormDocumento' => fn () => $request->session()->get('FormDocumento'),
-                'FormDocMini' => fn () => $request->session()->get('FormDocMini'),
-                'success_form_edit' => fn () => $request->session()->get('success_form_edit'),
-                'success_form_pwd' => fn () => $request->session()->get('success_form_pwd'),
             ],
             'auth' => function () use ($request) {
                 return [
-                    'user' => $request->user() ? : null,
+                    // 'user' => $request->user() ? : null,
+                    'user' => $request->user() ? ["nombres"=>$request->user()->nombres,
+                                "apellidos"=>$request->user()->apellidos,
+                                "rut"=>$request->user()->rut,
+                                "correo"=>$request->user()->correo
+                            ]  : null,
                 ];
             },
             "auth.user.roles" => fn() => $request->user() ? $request->user()->getRoleNames() : null,

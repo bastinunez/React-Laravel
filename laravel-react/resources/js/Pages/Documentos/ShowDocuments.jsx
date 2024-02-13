@@ -175,7 +175,6 @@ const GestionDocumentos = ({auth}) => {
   }, []);
   const onClearMateria = useCallback(()=>{
     setFilterMateria("")
-    console.log("se limpia materia")
     setPage(1)
   },[])
 
@@ -189,7 +188,6 @@ const GestionDocumentos = ({auth}) => {
   }, []);
   const onClearRut = useCallback(()=>{
     setFilterRut("")
-    console.log("se limpia rut")
     setPage(1)
   },[])
 
@@ -231,6 +229,7 @@ const GestionDocumentos = ({auth}) => {
     }
   }
 
+
   return (
     <AuthenticatedLayout 
       user={auth.user}
@@ -260,7 +259,7 @@ const GestionDocumentos = ({auth}) => {
                     startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
                     onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
                   <div className='w-full card'>
-                    <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="yy//mm/dd" showIcon value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
+                    <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="yy//mm/dd" value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
                   </div>
                 </div>
               </div>
@@ -295,7 +294,7 @@ const GestionDocumentos = ({auth}) => {
                         onSelectionChange={setAutorFilter} closeOnSelect={false} selectionMode="multiple" items={autores}>
                         {
                           (autor)=>(
-                            <DropdownItem key={autor.id}>{autor.nombres}</DropdownItem>
+                            <DropdownItem key={autor.id}>{autor.nombres} {autor.apellidos} - {autor.abreviacion}</DropdownItem>
                           )
                         }
                       </DropdownMenu>
@@ -372,7 +371,7 @@ const GestionDocumentos = ({auth}) => {
                     //isIconOnly 
                     onClick={descargarSeleccionados}
                     endContent={<Icon path={mdiFileDownloadOutline} size={1} />}>
-                    <div className='hidden text-tiny md:flex md:text-small'>
+                    <div className='hidden text-tiny lg:flex md:text-small'>
                       Descargar seleccionados
                     </div>
                     </Button>
@@ -415,7 +414,7 @@ const GestionDocumentos = ({auth}) => {
                                       Ver materia
                                   </Button>
                               </DropdownTrigger>
-                              <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
+                              <DropdownMenu closeOnSelect={false} className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
                                 <DropdownItem key={documento.materia} >{documento.materia}</DropdownItem>   
                               </DropdownMenu>
                             </Dropdown>
@@ -438,7 +437,7 @@ const GestionDocumentos = ({auth}) => {
                                       Ver Anexos
                                   </Button>
                               </DropdownTrigger>
-                              <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions" onScroll={true} emptyContent={'No posee'}>
+                              <DropdownMenu closeOnSelect={false} className='h-64 overflow-auto' aria-label="Static Actions" emptyContent={'No posee'}>
                                   {
                                       documento.anexos.map((doc_anexo) => (
                                           <DropdownItem key={doc_anexo.documento_id_anexo} textValue={`Número: ${doc_anexo.datos_anexo.numero}`}>Número: {doc_anexo.datos_anexo.numero}</DropdownItem>
@@ -528,7 +527,7 @@ const GestionDocumentos = ({auth}) => {
                         <TableHeader>
                             <TableColumn>Numero de documento</TableColumn>
                             <TableColumn>Tipo de documento</TableColumn>
-                            <TableColumn>Nombre archivo</TableColumn>
+                            <TableColumn>Fecha</TableColumn>
                         </TableHeader>
                         <TableBody emptyContent={"No existen documentos"}>
                           {
@@ -536,8 +535,7 @@ const GestionDocumentos = ({auth}) => {
                               <TableRow key={documento.numero} className='text-start'>
                                 <TableCell>{documento.numero}</TableCell>
                                 <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.tipo}</TableCell>
-                                <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.file}</TableCell>
-                                
+                                <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.fecha}</TableCell>
                               </TableRow>
                             ))
                           }

@@ -11,11 +11,10 @@ import { Toast } from 'primereact/toast';
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import { Button, Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,
-        Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Checkbox} from '@nextui-org/react';
+        Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Checkbox,Progress} from '@nextui-org/react';
 import Icon from '@mdi/react';
 import { mdiDownloadOutline, mdiTrashCanOutline } from '@mdi/js';
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
-import { Transform } from '@/Composables/Base64toBlob'
 import { Head } from '@inertiajs/react';
 import { DescargarDocumento } from '@/Composables/DownloadPDF'
 locale('en');
@@ -57,6 +56,8 @@ const EditarDocumento = ({auth}) => {
     const datos=documento.anexos.map( anexo => anexo.datos_anexo )
     const [seleccion,setSeleccion] = useState([])
     const [docAnexos,setDocAnexos] = useState(datos)
+    const [sinArchivos,setSinArchivos] = useState([])
+
     const getDocuments = async () => {
         if (documento.id!==0){
           try {
@@ -82,7 +83,7 @@ const EditarDocumento = ({auth}) => {
     const matchDireccion = direcciones.find(direccion => documento.direccion === direccion.nombre)
     const matchTipo = tipos.find(tipo => documento.tipo === tipo.nombre)
 
-    const { data:data, setData:setData, patch:patch, put, errors:errors, reset:reset,post:post  } = useForm({
+    const { data:data, setData:setData, patch:patch, put, errors:errors,progress, reset:reset,post:post  } = useForm({
         rut_documento: documento.rut ? documento.rut:'',
         numero_documento: documento.numero,
         materia_documento: documento.materia?documento.materia:'',
@@ -99,13 +100,14 @@ const EditarDocumento = ({auth}) => {
         autor_documento: '',
         fecha_documento: '',
         tipo_documento: '',
-        id_doc:documento.id
+        id_doc:documento.id,
+        estado:false
     });
     const {data:dataDelete, setData:setDataDelete, delete:deleteAnexo,post:postDelete}=useForm({
         documento_id:documento.id,
         anexos:[]
     });
-    const {data:dataAddAnexo, setData:setDataAddAnexoo, delete:deleteAddAnexo,post:postAddAnexo,reset:resetAddAnexo}=useForm({
+    const {data:dataAddAnexo, setData:setDataAddAnexoo,post:postAddAnexo,reset:resetAddAnexo}=useForm({
         documento_id:documento.id,
         anexos:[]
     });
@@ -135,32 +137,42 @@ const EditarDocumento = ({auth}) => {
         toast_global.current.show({severity:sev, summary:sum, detail:msg, life: 3000});
     }
 
+    const [isProgress,setIsProgress] = useState(false)
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
+    const {isOpen:isOpenArchivos, onOpen:onOpenArchivos, onOpenChange:onOpenChangeArchivos} = useDisclosure();
+
+    const [stateBtnModal,setStateBtnModal] = useState(false)
+    useEffect(()=>{
+        setStateBtnModal(false)
+    },[data,data_mini,seleccion,btnMetadato,btnAnexos,btnAgregarNuevo,btnAgregarExistente])
 
     //post
     const submit = async (e) => {
-        e.preventDefault();
+        // e.preventDefault();
+        //console.log(data)
+        setStateBtnModal(true)
+        onOpenProgress()
         post(route('gestion-documento.update-doc',String(documento.id)),{
-            onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
-            onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
+            onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success);setIsProgress(false);onCloseProgress();setStateBtnModal(false)},
+            onError: (msg) => {showMsg(msg.update,severity.error,summary.error);setIsProgress(false);onCloseProgress();setStateBtnModal(false)}
         });
-        // put(route('gestion-documento.update',String(documento.id)),{
-        //     onSuccess: (msg) => {showMsg(msg.update,severity.success,summary.success)},
-        //     onError: (msg) => {showMsg(msg.update,severity.error,summary.error)}
-        // });
     }
+    const [stateBtnMiniForm,setStateBtnMiniForm] = useState(false)
     const submitMiniForm = (e) => {
         e.preventDefault()
-        console.log(data_mini)
+        setStateBtnMiniForm(true)
+        onOpenProgress()
         post_mini(route('documento-anexo.store'),{
             onSuccess: (msg) => {
-                getDocuments(documento.id);
+                getDocuments(documento.id);setStateBtnModal(true);
                 reset_mini('numero_documento','autor_documento','tipo_documento','fecha_documento')
-                showMsg(msg.create,severity.success,summary.success)
+                showMsg(msg.create,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)
             },
             onError: (errors) => {
-                showMsg(errors.create,severity.error,summary.error)
+                showMsg(errors.create,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)
             }
         })
+
     }
     const submitAgregarAnexo = (e) => {
         e.preventDefault()
@@ -172,50 +184,66 @@ const EditarDocumento = ({auth}) => {
             datos = arraySeleccion.map(doc => doc)
         }
         dataAddAnexo.anexos=datos
+        onOpenProgress()
         setValuesAgregarAnexo(new Set([]))
         postAddAnexo(route('documento-anexo.agregar-existente'),{
             onSuccess: (msg) => {
                 showMsg(msg.add_anexo,severity.success,summary.success)
                 getDocuments(documento.id);
                 resetAddAnexo('anexos');
-                setValuesAgregarAnexo(new Set([]))
+                setValuesAgregarAnexo(new Set([]));onCloseProgress();setStateBtnModal(false)
+                
             },
             onError: (msg) => {
-                showMsg(msg.add_anexo,severity.error,summary.error)
+                showMsg(msg.add_anexo,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)
             }
         })
     }
     
     const quitarDocAnexoSeleccion = () => {
-        let datos=""
-        if (seleccion=="all"){
-            datos = docAnexos.map(doc => doc.id)
+        if (seleccion.length!=0){
+            let datos=""
+            setStateBtnModal(true)
+            if (seleccion=="all"){
+                datos = docAnexos.map(doc => doc.id)
+                console.log("all")
+            }else{
+                const arraySeleccion = Array.from(seleccion)
+                datos = arraySeleccion.map(doc => doc)
+            }
+            dataDelete.anexos=datos
+            onOpenProgress()
+            deleteAnexo(route('documento-anexo.destroy',documento.id),{
+                onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
+                onError: (msg) => {showMsg(msg.destroy,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
+            })
         }else{
-            const arraySeleccion = Array.from(seleccion)
-            datos = arraySeleccion.map(doc => doc)
-        }
-        dataDelete.anexos=datos
-        deleteAnexo(route('documento-anexo.destroy',documento.id),{
-            onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success)},
-            onError: (msg) => {showMsg(msg.destroy,severity.error,summary.error)}
-        })
+            showMsg("No seleccionaste datos",severity.error,summary.error)
+          }
     }
     const quitarDocAnexoButton = (id_anexo) => {
         dataDelete.anexos=[id_anexo]
+        setStateBtnModal(true)
+        onOpenProgress()
         deleteAnexo(route('documento-anexo.destroy',id_anexo),{
-            onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success)},
-            onError: (msg) => { showMsg(msg.destroy,severity.error,summary.error)}
+            onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
+            onError: (msg) => { showMsg(msg.destroy,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
         })
 
     }
 
     const descargarDocAnexoSeleccion = () => {
-        const respSinArchivos = DescargarDocumento(seleccion,docAnexos);
-        if (respSinArchivos.length !== 0){
-            setSinArchivos(respSinArchivos)
-            onOpen()
-        }
-        //console.log(sinArchivos)
+        if (seleccion.length!=0){
+            setStateBtnModal(true)
+            const respSinArchivos = DescargarDocumento(seleccion,docAnexos);
+            if (respSinArchivos.length !== 0){
+                setSinArchivos(respSinArchivos)
+                onOpenArchivos()
+            }
+            setStateBtnModal(false)
+        }else{
+            showMsg("No seleccionaste datos",severity.error,summary.error)
+          }
     }
 
     
@@ -227,6 +255,67 @@ const EditarDocumento = ({auth}) => {
             <div>
                 <TitleTemplate>Editar Documento</TitleTemplate>
                 <Toast ref={toast_global} />
+
+                <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                    <ModalContent>
+                        {
+                            (onCloseProgress)=>(
+                                <Progress
+                                    size="sm"
+                                    isIndeterminate
+                                    aria-label="Loading..."
+                                    className="max-w-md"
+                                />
+                            )
+                        }
+                    </ModalContent>
+                </Modal>
+
+                <Modal isOpen={isOpenArchivos} placement={modalPlacement} onOpenChange={onOpenChangeArchivos} size="xl" >
+                    <ModalContent>
+                    {(onClose) => (
+                        <>
+                        <ModalHeader className="flex flex-col gap-1">Documentos sin archivo</ModalHeader>
+                        <ModalBody>
+                            <div>
+                            <p>Los siguientes documentos no poseen archivos</p>
+                            </div>
+                            <div>
+                            <Table aria-label="Tabla documentos anexos" color={"primary"}
+                            bottomContent={ <div className="flex w-full justify-center">
+                                                <Pagination isCompact showControls showShadow color="secondary" page={page}
+                                                total={pages} onChange={(page) => setPage(page)} />
+                                            </div> }>
+                                <TableHeader>
+                                    <TableColumn>Numero de documento</TableColumn>
+                                    <TableColumn>Tipo de documento</TableColumn>
+                                    <TableColumn>Fecha</TableColumn>
+                                </TableHeader>
+                                <TableBody emptyContent={"No existen documentos"}>
+                                {
+                                    sinArchivos.map((documento)=>(
+                                    <TableRow key={documento.numero} className='text-start'>
+                                        <TableCell>{documento.numero}</TableCell>
+                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.tipo}</TableCell>
+                                        <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.fecha}</TableCell>
+                                        
+                                    </TableRow>
+                                    ))
+                                }
+                                </TableBody>
+                            </Table>
+                            </div>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="danger" variant="light" onPress={onClose}>
+                            Cerrar
+                            </Button>
+                        </ModalFooter>
+                        </>
+                    )}
+                    </ModalContent>
+                </Modal>
+                
                 <ContentTemplate>
                     <div className='md:p-5'>
                         {/* Seleccionar accion (Editar metadatos/editar doc. anexos) */}
@@ -255,7 +344,7 @@ const EditarDocumento = ({auth}) => {
                                 // se muestra formulario de editar metadatos
                                 <>
                                     <form className='md:p-8' onSubmit={submit} >
-                                        <div className='md:flex w-full justify-between mb-5 md:gap-3 '>
+                                        <div className='md:flex w-full justify-between md:mb-5 md:gap-3 '>
                                             <div className="w-full">
                                                 <InputLabel value={"Selecciona tipo de documento"}></InputLabel>
                                                 <Select opciones={tipos} value={data.tipo_documento} onChange={(value) => {setData('tipo_documento', value)}} required>
@@ -275,7 +364,7 @@ const EditarDocumento = ({auth}) => {
                                                 <InputError message={errors.direccion_documento} className="mt-2" />
                                             </div>
                                         </div>
-                                        <div className='w-full justify-between md:flex mb-5 md:gap-3'>
+                                        <div className='w-full justify-between md:flex md:mb-5 md:gap-3'>
                                             <div className="w-full">
                                                 <InputLabel value={"Ingresa rut"}></InputLabel>
                                                 <TextInput type={'text'} className='w-full' value={data.rut_documento} onChange={(e) => setData('rut_documento',e.target.value)} ></TextInput>
@@ -292,7 +381,7 @@ const EditarDocumento = ({auth}) => {
                                                 <InputError message={errors.materia_documento} className="mt-2" />
                                             </div>
                                         </div>
-                                        <div className='w-full md:flex justify-between mb-8  md:gap-3'>
+                                        <div className='w-full md:flex justify-between md:mb-8  md:gap-3'>
                                             <div className="w-full">
                                                 <InputLabel value={"Ingresa fecha"}></InputLabel>
                                                 <div className="card flex justify-content-center">
@@ -300,16 +389,18 @@ const EditarDocumento = ({auth}) => {
                                                 </div>
                                                 <InputError message={errors.fecha_documento} className="mt-2" />
                                             </div>
-                                            <div className="w-full">
+                                            <div className="w-full mb-2">
                                                 <InputLabel value={"Agregar archivo"}></InputLabel>
-                                                <input  onChange ={(e) => setData('archivo',e.target.files[0])} id="inputArchivo"
-                                                    style={{ display: 'none' }}  type='file' accept='.pdf' />
+                                                <input  onChange ={(e) => setData('archivo',e.target.files[0])} type='file' accept='.pdf' id="inputArchivo"
+                                                    style={{ display: 'none' }}  
+                                                    />
                                                  <label htmlFor="inputArchivo" style={{ cursor: 'pointer', padding: '', border: '1px solid #ccc' }}>
                                                     {data.archivo ? `Archivo seleccionado ${documento.name_file}` : 'Seleccionar archivo PDF'}
                                                 </label>
                                                 {/* <input onChange ={(e) => setData('archivo',e.target.files[0])} className='text-tiny md:text-small'  */}
                                                 {/* type='file' accept='.pdf' formEncType="multipart/form-data"/> */}
                                                 <InputError message={errors.archivo} className="mt-2" />
+                                                <Button onPress={()=>setData('archivo','')} color='danger' className='md:ms-1 w-full'>Quitar archivo</Button>
                                             </div>
                                             <div className='w-full'>
                                                 <InputLabel value={"Marque si el documento se encuentra anulado"}></InputLabel>
@@ -317,11 +408,14 @@ const EditarDocumento = ({auth}) => {
                                             </div>
                                         </div>
                                         <div className='w-full flex mb-5 gap-5'>
-                                            <Link href={route("gestion-documento.index")} className='w-full'>
+                                            <Link href={route('gestion-documento.index')} className='w-full'>
                                                 <Button className='w-full text-large' color='warning' size='md' variant='ghost' >Volver atrás</Button>
                                             </Link>
                                             <Tooltip content="Confirmar cambios y agregar" color='success'>
-                                                <Button onPress={onOpen} color='success' variant='ghost' className='w-full text-large' size='md'>Guardar cambios</Button>
+                                                <Button onPress={()=>{
+                                                    setFunctionName(() => () => submit());setTitleModal('Guardar cambios');
+                                                    setContentModal('¿Está seguro de aplicar los cambios?');onOpen();}}  
+                                                color='success' variant='ghost' className='w-full text-large' size='md'>Guardar cambios</Button>
                                             </Tooltip>
                                             
                                         </div>
@@ -335,7 +429,7 @@ const EditarDocumento = ({auth}) => {
                                         <div className='mt-5 w-full'>
                                             <div className='md:flex w-full gap-4'>
                                                 <div className='w-full'>
-                                                    <Button color='secondary' className='w-full text-medium' variant={btnAgregarNuevo?'solid':'ghost'} 
+                                                    <Button color='secondary' className='w-full text-medium' variant={btnAgregarNuevo?'solid':'ghost'}  
                                                     onClick={() => { if(!btnAgregarNuevo){setBtnAgregarExistente(!btnAgregarExistente);setBtnAgregarNuevo(!btnAgregarNuevo)}}} >
                                                         Agregar nuevo documento
                                                     </Button>
@@ -364,33 +458,40 @@ const EditarDocumento = ({auth}) => {
                                             <div className='mt-5'>
                                                 <form onSubmit={submitMiniForm}>
                                                     <div className='md:flex w-full justify-between mb-5 gap-3'>
-                                                        <div className="w-80">
-                                                            <InputLabel value={"Selecciona tipo de documento"}></InputLabel>
+                                                        <div className="w-80 lg:me-4">
+                                                            <InputLabel value={"Tipo de documento"}></InputLabel>
                                                             <Select opciones={tipos} value={data_mini.tipo_documento} onChange={(value) => setData_mini('tipo_documento', value)} required>
                                                             </Select>
                                                             <InputError message={errors_mini.tipo_documento} className="mt-2" />
                                                         </div>
-                                                        <div className="w-80">
-                                                            <InputLabel value={"Selecciona autor de documento"}></InputLabel>
+                                                        <div className="w-80 lg:me-4">
+                                                            <InputLabel value={"Autor de documento"}></InputLabel>
                                                             <Select opciones={autores} value={data_mini.autor_documento} onChange={(value) => setData_mini('autor_documento', value)}  required>
                                                             </Select>
                                                             <InputError message={errors_mini.autor_documento} className="mt-2" />
                                                         </div>
-                                                        <div className="w-80">
-                                                            <InputLabel value={"Ingresa numero de documento"}></InputLabel>
-                                                            <TextInput className={"w-full"} type={'number'} value={data_mini.numero_documento} onChange={(e) => setData_mini('numero_documento',e.target.value)}required ></TextInput>
+                                                        <div className="w-80 lg:me-4">
+                                                            <InputLabel value={"Número de documento"}></InputLabel>
+                                                            <TextInput className={"w-full"} placeholder={"Ingresa número"} type={'number'} value={data_mini.numero_documento} onChange={(e) => setData_mini('numero_documento',e.target.value)}required ></TextInput>
                                                             <InputError message={errors_mini.numero_documento} className="mt-2" />
                                                         </div>
-                                                        <div className="w-80">
-                                                            <InputLabel value={"Ingresa fecha"}></InputLabel>
+                                                        <div className="w-80 lg:me-4">
+                                                            <InputLabel value={"Fecha"}></InputLabel>
                                                             <div className="card flex justify-content-center">
-                                                                <Calendar value={data_mini.fecha_documento} locale="es" inputStyle={{"padding":"0.5rem "}} required onChange={(e) => setData_mini('fecha_documento',e.target.value)} readOnlyInput />
+                                                                <Calendar value={data_mini.fecha_documento} placeholder={"Ingresa fecha"} locale="es" inputStyle={{"padding":"0.5rem "}} required onChange={(e) => setData_mini('fecha_documento',e.target.value)} readOnlyInput />
                                                             </div>
                                                             <InputError message={errors_mini.fecha_documento} className="mt-2" />
                                                         </div>
+                                                        <div className='w-80 lg:me-4'>
+                                                            <InputLabel value={"¿Se encuentra anulado?"}></InputLabel>
+                                                            <Checkbox value={data_mini.estado} onChange={(e) => setData_mini('estado',e.target.checked)}  color="danger">Anulado</Checkbox>
+                                                        </div>
                                                     </div>
-                                                    <div className='mt-3'>
-                                                        <Button id='submit_miniform' type='submit' color='primary' 
+                                                    <div className='w-full md:flex gap-4 mt-3'>
+                                                        <Link href={route('gestion-documento.index')} className='w-full'>
+                                                            <Button className='w-full text-large' color='warning' size='md' variant='ghost' >Volver atrás</Button>
+                                                        </Link>
+                                                        <Button id='submit_miniform' disabled={stateBtnMiniForm} color='primary' type='submit'
                                                         variant='ghost'  className='w-full text-large' size='md'>Agregar documento anexo</Button>
                                                     </div>
                                                 </form>
@@ -424,7 +525,7 @@ const EditarDocumento = ({auth}) => {
                                                     </div>
                                                     <div className='flex items-center '>
                                                         <Button type='submit' className="w-full me-2" color='primary' variant='ghost'>Anexar documentos</Button>
-                                                        <Link href={route("gestion-documento.index")} className='w-full'>
+                                                        <Link href={route('gestion-documento.index')} className='w-full'>
                                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                                         </Link>
                                                     </div>
@@ -432,6 +533,7 @@ const EditarDocumento = ({auth}) => {
                                             </div>
                                         </>
                                     }
+                                    
                                     <Divider className='mt-5'></Divider>
                                     {/* Tabla con los documentos actuales */}
                                     <div className='mt-5'>
@@ -447,7 +549,9 @@ const EditarDocumento = ({auth}) => {
                                                     //onPress={quitarDocAnexoSeleccion} 
                                                     startContent={<Icon path={mdiTrashCanOutline} size={1} />}>
                                                         <p className='md:flex hidden'>Quitar seleccionados</p> </Button>
-                                                    <Button color='primary' variant='solid' onPress={descargarDocAnexoSeleccion}
+                                                    <Button color='primary' variant='solid' onPress={()=>{
+                                                                            setFunctionName(() => () => descargarDocAnexoSeleccion());setTitleModal('Descargar documentos anexos');
+                                                                            setContentModal('¿Está seguro de descargar los documentos?');onOpen();}} 
                                                     startContent={<Icon path={mdiDownloadOutline} size={1} />}>
                                                         <p className='md:flex hidden'>Descargar seleccionados</p></Button>
                                                 </div>
@@ -519,7 +623,7 @@ const EditarDocumento = ({auth}) => {
                             <Button color="danger" variant="light" onPress={onClose}>
                                 Cancelar
                             </Button>
-                            <Button color="primary" onPress={onClose} onClick={()=>functionName()}>
+                            <Button color="primary" disabled={stateBtnModal} onPress={onClose} onClick={()=>functionName()}>
                                 Confirmar
                             </Button>
                         </ModalFooter>

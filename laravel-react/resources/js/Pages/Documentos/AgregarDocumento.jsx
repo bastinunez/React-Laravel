@@ -6,13 +6,16 @@ import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import Select from '@/Components/Select'
-import {Button, Divider, Input, Tooltip, Pagination,Select as NextSelect, SelectItem as NextSelectItem,Checkbox,
-    Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, } from "@nextui-org/react";
+import {Button, Modal,ModalBody,ModalContent,ModalFooter,ModalHeader, Tooltip, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,Checkbox,
+    Popover,PopoverContent,PopoverTrigger } from "@nextui-org/react";
 import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast'
 import { Head } from '@inertiajs/react';        
 import { usePage ,Link,useForm} from '@inertiajs/react';
+import Icon from '@mdi/react';
+import { mdiLockOutline,mdiHelpCircle,mdiLockOffOutline } from '@mdi/js';
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
+
 locale('en');
 addLocale('es', {
   firstDayOfWeek: 1,
@@ -36,7 +39,7 @@ const AgregarDocumento = ({auth}) => {
   const [docAnexos,setDocAnexos] = useState([])
 
   //formularios
-  const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset} = useForm({
+  const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset,progress} = useForm({
     rut_documento: '',
     numero_documento: '',
     materia_documento: '',
@@ -55,9 +58,6 @@ const AgregarDocumento = ({auth}) => {
   const selectAutorDocumento = (value) => {  setData('autor_documento',value) };
   const selectDireccionDocumento = (value) => { setData('direccion_documento',value) };
 
-  const [btnAgregarNuevo,setBtnAgregarNuevo] = useState(true)
-  const [btnAgregarExistente,setBtnAgregarExistente] = useState(false)
-
   useEffect(() => {
     if (flash.FormDocumento=="Success"){
       changeStateForm()
@@ -75,6 +75,9 @@ const AgregarDocumento = ({auth}) => {
   }, [flash.documentos]);
 
 
+  //progress
+  const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
+
   //seleccion agregar doocs
   const [valuesAgregarAnexo, setValuesAgregarAnexo] = useState(new Set([]));
   const handleSelectionChange = (e) => {
@@ -89,17 +92,20 @@ const AgregarDocumento = ({auth}) => {
   }
 
   //post
+  const [stateBtn,setStateBtn] = useState(false)
   const submit = async (e) => {
     e.preventDefault();
+    setStateBtn(true)
+    onOpenProgress()
     post(route('gestion-documento.store'),{
       onSuccess: (msg) => { 
-        reset('materia_documento'); showMsg(msg.success,severity.success,summary.success)},
+        reset('materia_documento'); setStateBtn(false);showMsg(msg.success,severity.success,summary.success);onCloseProgress()},
       onError: (errors) => {
-        showMsg(errors.create,severity.error,summary.error)
+        setStateBtn(false)
+        showMsg(errors.create,severity.error,summary.error);onCloseProgress()
       }
     });
   }
-  
   
   //Tabla
   const [page, setPage] = React.useState(1);
@@ -114,6 +120,24 @@ const AgregarDocumento = ({auth}) => {
     return docAnexos.slice(start, end);
   }, [page, docAnexos]);
 
+  const {isOpen:isOpen, onOpen:onOpen, onClose:onClose} = useDisclosure();
+
+    //formularios
+    const { data:dataFuncionario, setData:setDataFuncionario, post:postFuncionario, errors:errorsFuncionario, reset:resetFuncionario} = useForm({
+        nombres: '',
+        apellidos: '',
+    });
+
+    const submitFuncionario = (e) => {
+        e.preventDefault()
+        onOpenProgress()
+        postFuncionario(route('funcionario.store'),{
+            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);onCloseProgress();onClose();resetFuncionario('nombres');resetFuncionario('apellidos')},
+            onError: (msg) => {showMsg(msg.create,severity.error,summary.error);onCloseProgress()}
+        })
+    }
+
+
   return (
     <Authenticated  user={auth.user}
     header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Agregar documento</h2>}>
@@ -122,10 +146,36 @@ const AgregarDocumento = ({auth}) => {
       <TitleTemplate>
         Agregar documento
       </TitleTemplate>
-      <ContentTemplate>
-        <h2>Formulario</h2>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalContent>
+              {
+                  (onClose)=>(
+                    <form onSubmit={submitFuncionario} className='p-8'>
+                      <div className='xl:flex w-full mb-5 gap-10'>
+                          <div className="w-full me-5">
+                              <InputLabel value={"Ingresa nombres"}></InputLabel>
+                              <TextInput type={'text'} className="w-full" placeholder={"Nombre Nombre"} value={dataFuncionario.nombres} onChange={(e) => setDataFuncionario('nombres',e.target.value)} ></TextInput>
+                              <InputError message={errorsFuncionario.nombres} className="mt-2" />
+                          </div>
+                          <div className="w-full">
+                              <InputLabel value={"Ingresa apellidos"}></InputLabel>
+                              <TextInput type={'text'} className="w-full" placeholder={"Apellido Apellido"} value={dataFuncionario.apellidos} onChange={(e) => setDataFuncionario('apellidos',e.target.value)} ></TextInput>
+                              <InputError message={errorsFuncionario.apellidos} className="mt-2" />
+                          </div>
+                      </div>
+                      <div className='w-full xl:flex gap-10'>
+                          <Button type='submit' color='primary' variant='ghost' className='w-full text-large'>Agregar</Button>
+                      </div>
+                  </form>
+                  )
+              }
+          </ModalContent>
+      </Modal>
+
+      <ContentTemplate> 
         <form className='md:p-8' onSubmit={submit} >
-          <div className='md:flex w-full justify-between gap-3 mb-5'>
+          <div className='md:flex w-full justify-between gap-3 mb-1 lg:mb-5'>
             <div className="w-80">
               <InputLabel value={"Selecciona tipo de documento (*)"}></InputLabel>
               <Select opciones={tipos} value={data.tipo_documento} onChange={selectTipoDocumento} required>
@@ -134,8 +184,14 @@ const AgregarDocumento = ({auth}) => {
             </div>
             <div className="w-80">
               <InputLabel value={"Selecciona autor de documento (*)"}></InputLabel>
+              <div className='flex'>
               <Select opciones={autores} value={data.autor_documento} onChange={selectAutorDocumento} required>
               </Select>
+              <Tooltip content={"¿No encuentra el autor?"}>
+                <Button className='' isIconOnly startContent={<Icon path={mdiHelpCircle} size={1} />} onPress={onOpen} color='primary'></Button>
+              </Tooltip>
+              </div>
+              
               <InputError message={errors.autor_documento} className="mt-2" />
             </div>
             <div className="w-80">
@@ -145,7 +201,7 @@ const AgregarDocumento = ({auth}) => {
               <InputError message={errors.direccion_documento} className="mt-2" />
             </div>
           </div>
-          <div className='md:flex w-full justify-between mb-5'>
+          <div className='md:flex w-full justify-between mb-1 lg:mb-5'>
             <div className="">
               <InputLabel value={"Ingresa rut (*)"}></InputLabel>
               <TextInput type={'text'} value={data.rut_documento} onChange={(e) => setData('rut_documento',e.target.value)} ></TextInput>
@@ -170,7 +226,7 @@ const AgregarDocumento = ({auth}) => {
               </div>
               <InputError message={errors.fecha_documento} className="mt-2" />
             </div>
-            <div className="w-80">
+            <div className="w-80 mb-1">
               <InputLabel value={"Agregar archivo (*)"}></InputLabel>
               <input onChange ={(e) => setData('archivo',e.target.files[0])} className='text-tiny md:text-small' type='file' accept='.pdf' />
               <InputError message={errors.archivo} className="mt-2" />
@@ -180,12 +236,12 @@ const AgregarDocumento = ({auth}) => {
               <Checkbox value={data.estado} onChange={(e) => setData('estado',e.target.checked)}  color="danger">Anulado</Checkbox>
             </div>
           </div>
-          <div className='md:flex w-full mb-5 md:gap-8'>
-            <Link href={route("gestion-documento.index")} className='w-full'>
+          <div className='flex w-full mb-5 gap-3 md:gap-8'>
+            <Link href={route('gestion-documento.index')} className='w-full'>
               <Button className='w-full text-large mb-1' color='warning' variant='ghost' >Volver atrás</Button>
             </Link>
             <Tooltip content="Confirmar y agregar" color='success'>
-              <Button type='submit' color='success' variant='ghost' className='w-full text-large' size='md'>Agregar</Button>
+              <Button type='submit' disabled={stateBtn} color='success' variant='ghost' className='w-full text-large' size='md'>Agregar</Button>
             </Tooltip>
           </div>
           

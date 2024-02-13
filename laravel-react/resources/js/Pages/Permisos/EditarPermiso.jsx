@@ -6,7 +6,7 @@ import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import { Head ,usePage,useForm,Link} from '@inertiajs/react'
 import { usePermission } from '@/Composables/Permission';
-import { Button } from '@nextui-org/react'
+import { Button,useDisclosure,Progress,Modal,ModalContent } from '@nextui-org/react'
 import { Toast } from 'primereact/toast';       
 import React,{useRef} from 'react'
 
@@ -35,11 +35,14 @@ const EditarPermiso = ({auth}) => {
         nombre: permiso.name,
     });
 
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
+
     const submit = (e) => {
         e.preventDefault()
+        onOpenProgress()
         patch(route('permiso.update',String(permiso.id)),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
-            onError: () => {showMsg("Falló",severity.error,summary.error)}
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress()},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
         })
     }
 
@@ -50,6 +53,20 @@ const EditarPermiso = ({auth}) => {
             <Head title='Editar permiso'></Head>
             <TitleTemplate>Editar permiso</TitleTemplate>
             <Toast ref={toast_global}></Toast>
+            <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                <ModalContent>
+                    {
+                        (onCloseProgress)=>(
+                            <Progress
+                                size="sm"
+                                isIndeterminate
+                                aria-label="Loading..."
+                                className="max-w-md"
+                            />
+                        )
+                    }
+                </ModalContent>
+            </Modal>
             <ContentTemplate>
                 <div>
                     <div>
@@ -62,7 +79,7 @@ const EditarPermiso = ({auth}) => {
                                 </div>
                             </div>
                             <div className='xl:flex xl:gap-2'>
-                                <Link href={route("permiso.index")} className='w-full'>
+                                <Link href={usePage().props.ziggy.previous} className='w-full'>
                                     <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                 </Link>
                                 <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Guardar cambios</Button>

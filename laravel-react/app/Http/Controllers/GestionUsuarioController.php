@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission as ModelsPermission;
 use Spatie\Permission\Models\Role;
 
 class GestionUsuarioController extends Controller
@@ -237,7 +238,7 @@ class GestionUsuarioController extends Controller
             return Inertia::render("Usuarios/EditarUsuario",[
                 "usuario"=> new UserSharedResource($usuario),
                 'roles'=>RoleResource::collection(Role::all()),
-                'permisos'=>PermissionResource::collection(Permission::all())
+                'permisos'=>PermissionResource::collection(ModelsPermission::all())
             ]);
         }else{
             return back();
@@ -270,8 +271,8 @@ class GestionUsuarioController extends Controller
                 'usuario_id'=>$usuario->id,
                 'responsable'=>$user_id,
                 'accion'=>3,
-                'detalles'=>"Actualiza metadatos"
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                //'detalles'=>"Actualiza metadatos"
+                'detalles'=>"Actualiza nombres y apellidos: " . $request->nombres . " " . $request->apellidos
             ]);
 
             return redirect()->back()->with("update","Se guardó correctamente los cambios");
@@ -288,7 +289,8 @@ class GestionUsuarioController extends Controller
     {
         $user=User::find($id);
         $user->forceFill([
-            'password' => 12345678,
+            'password' => Hash::make('12345678') ,
+            'change_pwd'=>1
         ])->save();
 
         $user_id=Auth::id();

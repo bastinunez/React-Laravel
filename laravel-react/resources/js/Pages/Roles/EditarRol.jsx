@@ -6,8 +6,8 @@ import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import { Head ,usePage,useForm,Link} from '@inertiajs/react'
 import { usePermission } from '@/Composables/Permission';
-import { Button,Dropdown,DropdownItem,DropdownMenu,DropdownTrigger,Table,TableBody,
-    TableRow,TableHeader,TableColumn,Pagination,TableCell } from '@nextui-org/react'
+import { Button,Chip,Table,TableBody,Modal,ModalBody,ModalContent,ModalHeader,ModalFooter,
+    TableRow,TableHeader,TableColumn,Pagination,TableCell, useDisclosure, Progress, Select, SelectItem} from '@nextui-org/react'
 import Icon from '@mdi/react';
 import { mdiChevronDown,mdiTrashCanOutline} from '@mdi/js';
 import { Toast } from 'primereact/toast';       
@@ -31,6 +31,12 @@ const EditarRol = ({auth}) => {
     const { rol,all_permisos } = usePage().props;
     const permisos_filter = all_permisos.filter(item => !rol.permissions.some(permiso => permiso.name === item.name));
 
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const [modalPlacement, setModalPlacement] = useState("auto");
+    const [titleModal,setTitleModal] = useState('')
+    const [contentModal,setContentModal] = useState('')
+    const [functionName,setFunctionName] = useState('')
+    const [stateBtnModal,setStateBtnModal] = useState(false)
 
     //formularios
     const { data:data, setData:setData, patch:patch, processing:processing, errors:errors, reset:reset} = useForm({
@@ -64,18 +70,23 @@ const EditarRol = ({auth}) => {
         return sortDescriptor.direction === "descending" ? -cmp : cmp;
         });
     }, [sortDescriptor, items]);
-    const [permissionSelect, setPermissionSelect] = useState("");
+    const [permissionSelect, setPermissionSelect] = useState([]);
+
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
 
     const submit = (e) => {
         e.preventDefault()
+        onOpenProgress()
         patch(route('rol.update',String(rol.id)),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
-            onError: () => {showMsg("Falló",severity.error,summary.error)}
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress()},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
         })
     }
-    const submitPermisosAdd = () => {
+    const submitPermisosAdd = (e) => {
         if (permissionSelect.size>0){
           let datos=""
+          onOpenProgress()
+          setStateBtnModal(true)
           if (permissionSelect=="all"){
               datos = permisos_filter.map(permiso => permiso.id)
           }else{
@@ -84,8 +95,8 @@ const EditarRol = ({auth}) => {
           }
           dataPermission.permisos=datos
           patchPermission(route('rol.addPermissions',String(rol.id)),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
-            onError: () => {showMsg("Falló",severity.error,summary.error)}
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress();setPermissionSelect([]);setStateBtnModal(false)},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
           })
         }else{
           showMsg("No hay seleccion",severity.error,summary.error)
@@ -93,33 +104,39 @@ const EditarRol = ({auth}) => {
        
     }
     const submitPermisosDelete = (nombre) => {
-    dataPermission.permisos = [nombre]
-    dataPermission.opcion = 0
-    patchPermission(route('rol.deletePermissions',String(rol.id)),{
-        onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
-        onError: () => {showMsg("Falló",severity.error,summary.error)}
-    })
-    }
-    const submitPermisosDeleteSeleccion = () => {
-    if (seleccion.size>0){
-        let datos=""
-        if (seleccion=="all"){
-            datos = permisos_filter.map(permiso => permiso.id)
-        }else{
-            const arraySeleccion = Array.from(seleccion)
-            datos = arraySeleccion.map(permiso => permiso)
-        }
-        dataPermission.permisos=datos
-        dataPermission.opcion = 1
+        dataPermission.permisos = [nombre]
+        dataPermission.opcion = 0
+        onOpenProgress()
+        setStateBtnModal(true)
         patchPermission(route('rol.deletePermissions',String(rol.id)),{
-        onSuccess: () => {showMsg("Exito",severity.success,summary.success)},
-        onError: () => {showMsg("Falló",severity.error,summary.error)}
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
         })
-    }else{
-        showMsg("No hay seleccion",severity.error,summary.error)
     }
-    
+    const submitPermisosDeleteSeleccion = (e) => {
+        if (seleccion.size>0){
+            let datos=""
+            onOpenProgress()
+            setStateBtnModal(true)
+            if (seleccion=="all"){
+                datos = permisos_filter.map(permiso => permiso.id)
+            }else{
+                const arraySeleccion = Array.from(seleccion)
+                datos = arraySeleccion.map(permiso => permiso)
+            }
+            dataPermission.permisos=datos
+            dataPermission.opcion = 1
+            patchPermission(route('rol.deletePermissions',String(rol.id)),{
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress();setSeleccion([]);setStateBtnModal(false)},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
+            })
+        }else{
+            showMsg("No hay seleccion",severity.error,summary.error)
+        }
     }
+    const handleSelectionChange = (e) => {
+        setPermissionSelect(new Set(e.target.value.split(",")));
+    };
 
     return (
         <Authenticated user={auth.user}
@@ -127,61 +144,91 @@ const EditarRol = ({auth}) => {
             <Head title='Editar rol'></Head>
             <TitleTemplate>Editar rol</TitleTemplate>
             <Toast ref={toast_global}></Toast>
-            <ContentTemplate>
-                <div>
-                    <div>
-                        <form onSubmit={submit} className='p-8'>
-                            <div className='xl:flex w-full mb-5 xl: gap-5'>
-                                <div className="w-full xl:me-5">
-                                    <InputLabel value={"Ingresa nombre"}></InputLabel>
-                                    <TextInput type={'text'} className="w-full" placeholder={data.nombre} value={data.nombre} onChange={(e) => setData('nombre',e.target.value)} ></TextInput>
-                                    <InputError message={errors.nombre} className="mt-2" />
-                                </div>
-                            </div>
-                            <div className='xl:flex xl:gap-2'>
-                                <Link href={route("rol.index")} className='w-full'>
-                                    <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
-                                </Link>
-                                <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Guardar cambios</Button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </ContentTemplate>
+            <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                <ModalContent>
+                    {
+                        (onCloseProgress)=>(
+                            <Progress
+                                size="sm"
+                                isIndeterminate
+                                aria-label="Loading..."
+                                className="max-w-md"
+                            />
+                        )
+                    }
+                </ModalContent>
+            </Modal>
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+                    <ModalContent>
+                    {(onClose) => (
+                        <>
+                        <ModalHeader className="flex flex-col gap-1">{titleModal}</ModalHeader>
+                        <ModalBody>
+                            {
+                                <p>{contentModal}</p>
+                            }
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="danger" variant="light" onPress={onClose}>
+                                Cancelar
+                            </Button>
+                            <Button color="primary" disabled={stateBtnModal} onPress={onClose} onClick={()=>functionName()}>
+                                Confirmar
+                            </Button>
+                        </ModalFooter>
+                        </>
+                    )}
+                    </ModalContent>
+                </Modal>
             <ContentTemplate>
                 <div>
                 <div className='w-full mb-8'>
                             <InputLabel value={"Seleccionar permisos para agregar: "} className='flex items-center me-5'></InputLabel>
-                            <div className='w-full flex gap-8'>
-                              <div>
-                                <Dropdown>
-                                  <DropdownTrigger className="hidden sm:flex">
-                                    <Button endContent={<Icon path={mdiChevronDown} size={1} />} variant="flat">
-                                      Permisos
-                                    </Button>
-                                  </DropdownTrigger>
-                                  <DropdownMenu   aria-label="Table Columns" id='permission' selectedKeys={permissionSelect} style={{maxHeight:"300px"}} className='overflow-hidden whitespace-nowrap overflow-y-scroll'
-                                    onSelectionChange={setPermissionSelect} closeOnSelect={false} selectionMode="multiple" items={permisos_filter}>
-                                    {
-                                      (permiso)=>(
-                                        <DropdownItem key={permiso.name}>{permiso.name}</DropdownItem>
-                                      )
-                                    }
-                                  </DropdownMenu>
-                                </Dropdown>
-                              </div>
-                              <div>
-                                <Button className='w-full text-large' color='primary' onPress={() => submitPermisosAdd()}
-                                variant='ghost' type='submit'>Agregar permisos selecccionados</Button>
-                              </div>
+                            <div className='w-full lg:flex gap-8'>
+                            {
+                                permisos_filter.length!=0?
+                                <>
+                                  <div className='w-full'>
+                                        <Select label="Permisos: " selectionMode="multiple" placeholder="Seleccionar permisos..."
+                                            selectedKeys={permissionSelect} className="max-w-xs md:max-w-md xl:max-w-5xl" onChange={handleSelectionChange}>
+                                            {
+                                                permisos_filter.map((permiso)=>(
+                                                    <SelectItem key={permiso.name} textValue={permiso.name}>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-small">{"Permiso: " +permiso.name}</span>
+                                                            {/* <span className="text-tiny">
+                                                                {"Autor: "+ doc.autor +" | Tipo: "+doc.tipo+" | Dirección: "+ doc.direccion + " | Fecha: "+doc.fecha}
+                                                            </span> */}
+                                                        </div>
+                                                    </SelectItem>
+                                                ))
+                                            }
+                                            
+                                        </Select>
+                                    </div>
+                                    <div className='flex items-center'>
+                                        <Button className='w-full text-large' color='primary' onPress={()=>{
+                                                    setFunctionName(() => () => submitPermisosAdd());setTitleModal('Guardar cambios');
+                                                    setContentModal('¿Está seguro de aplicar los cambios?');onOpen();}}  
+                                        //onPress={() => submitPermisosAdd()}
+                                        variant='ghost' type='submit'>Agregar permisos selecccionados</Button>
+                                    </div>
+                                </>:
+                                <>
+                                  <Chip>Ya tienes todos los permisos</Chip>
+                                </>
+                              }
+                              
                             </div>
-                            
                         </div>
                     <div>
                         <div className='w-full'>
                             <div className='flex mb-2'>
                                 <div className='w-full justify-end flex'>
-                                    <Button className='' color='danger' variant='flat' onPress={()=>submitPermisosDeleteSeleccion()} >Quitar seleccionados</Button>
+                                    <Button className='' color='danger' variant='flat' onPress={()=>{
+                                                    setFunctionName(() => () => submitPermisosDeleteSeleccion());setTitleModal('Guardar cambios');
+                                                    setContentModal('¿Está seguro de aplicar los cambios?');onOpen();}}  
+                                    >Quitar seleccionados</Button>
                                 </div>
                             </div>
                             <Table aria-label="Tabla documentos" color={"primary"} selectionMode="multiple"
@@ -204,7 +251,10 @@ const EditarRol = ({auth}) => {
                                         <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis text-tiny lg:text-small'>
                                             {
                                             <Button color='danger' endContent={<Icon size={1} path={mdiTrashCanOutline} />} 
-                                            onPress={() => submitPermisosDelete(permiso)} size='sm'></Button>
+                                            onPress={()=>{
+                                                setFunctionName(() => () => submitPermisosDelete(permiso));setTitleModal('Guardar cambios');
+                                                setContentModal('¿Está seguro de aplicar los cambios?');onOpen();}}  
+                                                size='sm'></Button>
                                             }
                                         </TableCell>
                                         </TableRow>
@@ -212,6 +262,11 @@ const EditarRol = ({auth}) => {
                                     }
                                 </TableBody>
                             </Table>
+                        </div>
+                        <div>
+                            <Link href={route('rol.index')} className='w-full'>
+                                <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                            </Link>
                         </div>
                     </div>
                 </div>

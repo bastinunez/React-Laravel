@@ -4,8 +4,8 @@ import Authenticated from '@/Layouts/AuthenticatedLayout'
 import InputLabel from '@/Components/InputLabel'
 import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
-import { Head, useForm, Link} from '@inertiajs/react'
-import { Button } from '@nextui-org/react'
+import { Head, useForm, Link, usePage} from '@inertiajs/react'
+import { Button,useDisclosure,Progress,Modal,ModalContent } from '@nextui-org/react'
 import { Toast } from 'primereact/toast';        
 import React,{useRef} from 'react'
 
@@ -20,9 +20,7 @@ const AgregarFuncionario = ({auth}) => {
         toast_global.current.show({severity:sev, summary:sum, detail:msg, life: 3000});
     }
 
-
-    //QUEDE AQUI FALTA REALIZAR EL POST, MODIFICAR LOS MENSAJES CON TOAST (ES MEJOR DEJARLO GLOBAL EN EL AUTHENTICAD LAYOUT )
-
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
 
     //formularios
     const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset} = useForm({
@@ -32,9 +30,10 @@ const AgregarFuncionario = ({auth}) => {
 
     const submit = (e) => {
         e.preventDefault()
+        onOpenProgress()
         post(route('funcionario.store'),{
-            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success)},
-            onError: (msg) => {showMsg(msg.create,severity.error,summary.error)}
+            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);onCloseProgress()},
+            onError: (msg) => {showMsg(msg.create,severity.error,summary.error);onCloseProgress()}
         })
     }
 
@@ -44,6 +43,20 @@ const AgregarFuncionario = ({auth}) => {
             <Head title='Agregar Funcionario'></Head>
             <TitleTemplate>Agregar funcionario</TitleTemplate>
             <Toast ref={toast_global} />
+            <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                <ModalContent>
+                    {
+                        (onCloseProgress)=>(
+                            <Progress
+                                size="sm"
+                                isIndeterminate
+                                aria-label="Loading..."
+                                className="max-w-md"
+                            />
+                        )
+                    }
+                </ModalContent>
+            </Modal>
             <ContentTemplate>
                 <div>
                     <form onSubmit={submit} className='p-8'>
@@ -60,7 +73,7 @@ const AgregarFuncionario = ({auth}) => {
                             </div>
                         </div>
                         <div className='w-full xl:flex gap-10'>
-                            <Link href={route("funcionario.index")} className='w-full'>
+                            <Link href={route('funcionario.index')} className='w-full'>
                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                             </Link>
                             <Button type='submit' color='primary' variant='ghost' className='w-full text-large'>Agregar</Button>

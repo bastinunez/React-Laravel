@@ -9,7 +9,7 @@ import { usePage ,Link, useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import Select from '@/Components/Select';
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
-    Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Tooltip,
+    Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Tooltip, Progress,
     Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure}  from "@nextui-org/react";
 import Icon from '@mdi/react';
 import { mdiFileEyeOutline, mdiVacuumOutline, 
@@ -122,7 +122,7 @@ const Gestion = ({auth}) => {
                         <h1 className='text-large md:text-2xl'>Resultados</h1>
                     </div>
                     <div className='flex '>
-                        {
+                        {/* {
                             hasPermission('Gestion-Crear rol')?
                             <>
                             <Link href={route('rol.create')}>
@@ -136,7 +136,7 @@ const Gestion = ({auth}) => {
                                 </Tooltip>
                             </Link>
                             </>:<></>
-                        }
+                        } */}
                     </div>
                 </div>
                 <div className='w-full'>
@@ -170,7 +170,7 @@ const Gestion = ({auth}) => {
                                                         Ver permisos
                                                     </Button>
                                                 </DropdownTrigger>
-                                                <DropdownMenu className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
+                                                <DropdownMenu closeOnSelect={false} className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
                                                     {
                                                         rol.permisos.map((permiso) => (
                                                             <DropdownItem key={permiso.id} textValue={`${permiso.name}`}>{permiso.name}</DropdownItem>

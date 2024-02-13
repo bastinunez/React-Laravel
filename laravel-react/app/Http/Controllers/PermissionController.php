@@ -7,6 +7,7 @@ use App\Models\HistorialFormulario;
 use App\Models\Permission as ModelsPermission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
 
@@ -20,7 +21,7 @@ class PermissionController extends Controller
         $current_user=Auth::user();
         if ($current_user->hasPermissionTo('Gestion-Permisos')){
             return Inertia::render('Permisos/Gestion',[
-                "all_permisos"=>PermissionResource::collection(Permission::all())
+                "all_permisos"=>PermissionResource::collection(Permission::all()),
             ]);
         }else{
             return back();
@@ -45,6 +46,13 @@ class PermissionController extends Controller
      */
     public function store(Request $request)
     {
+        $input=$request->all();
+        Validator::make($input,[
+            'nombre'=>['unique:permissions,name','required','string']
+        ],[
+            'nombre.unique'=>'El nombre del permiso ya existe',
+            'nombre.required'=>'El nombre es requerido'
+        ])->validate();
         try{
             $direccion = Permission::create([
                 "name"=>$request->nombre,

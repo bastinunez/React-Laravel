@@ -9,7 +9,7 @@ import { usePage ,Link, useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import Select from '@/Components/Select';
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
-    Input, Tooltip,}  from "@nextui-org/react";
+    Input, Tooltip,Dropdown,DropdownItem,DropdownMenu,DropdownTrigger}  from "@nextui-org/react";
 import Icon from '@mdi/react';
 import { mdiPencilBoxOutline,mdiMagnify,mdiVacuumOutline,mdiPlus} from '@mdi/js';
 
@@ -18,13 +18,14 @@ const Gestion = ({auth}) => {
     const {hasRoles,hasPermission} = usePermission()
 
     //VARIABLES QUE ENTREGA EL CONTROLADOR
-    const { all_permisos } = usePage().props;
+    const { all_permisos} = usePage().props;
+
     const [permisos,setPermisos] = useState(all_permisos)
 
     const columnas = [
         {name: "ID", uid: "id", sortable: true},
         {name: "Nombre", uid: "nombre", sortable: true},
-        {name: "Acciones", uid: "accion"},
+        {name: "Roles", uid: "roles"},
     ];
     
     const [filterNombre,setFilterNombre] = useState('');
@@ -157,21 +158,42 @@ const Gestion = ({auth}) => {
                                         <TableCell className='overflow-auto whitespace-nowrap text-ellipsis'>{permiso.name}</TableCell>
                                         <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                                             {
-                                                hasPermission('Gestion-Editar permiso')?
-                                                <>
-                                                  <Tooltip content={"Editar"} color='warning'>
-                                                    <Link href={route('permiso.edit',String(permiso.id))} >
-                                                      <Button className="me-1" size='sm' color='warning' variant='flat'> 
-                                                        {/* active={route().current('documento.visualizar')} */}
-                                                      <Icon path={mdiPencilBoxOutline} size={1}/>
-                                                        
-                                                      </Button>
-                                                    </Link>
-                                                  </Tooltip>
-                                                </>:
-                                                <></>
+                                            permiso.roles.length!==0?
+                                            <>
+                                                <Dropdown  type='listbox'> 
+                                                    <DropdownTrigger>
+                                                        <Button variant="bordered" size='sm'>
+                                                            Ver roles
+                                                        </Button>
+                                                    </DropdownTrigger>
+                                                    <DropdownMenu closeOnSelect={false} className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>
+                                                        {
+                                                            permiso.roles.map((rol) => (
+                                                                <DropdownItem key={rol.id} textValue={`Nombre: ${rol.name}`}>Nombre: {rol.name}</DropdownItem>
+                                                            ))
+                                                        }
+                                                    </DropdownMenu>
+                                            </Dropdown>
+                                            </>:
+                                            <><Chip>No posee</Chip></>
                                             }
+                                            
                                         </TableCell>
+                                            {
+                                                // hasPermission('Gestion-Editar permiso')?
+                                                // <>
+                                                //   <Tooltip content={"Editar"} color='warning'>
+                                                //     <Link href={route('permiso.edit',String(permiso.id))} >
+                                                //       <Button className="me-1" size='sm' color='warning' variant='flat'> 
+                                                //         {/* active={route().current('documento.visualizar')} */}
+                                                //       <Icon path={mdiPencilBoxOutline} size={1}/>
+                                                        
+                                                //       </Button>
+                                                //     </Link>
+                                                //   </Tooltip>
+                                                // </>:
+                                                // <></>
+                                            }
                                     </TableRow>
                                 ))
                             }

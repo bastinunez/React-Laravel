@@ -12,7 +12,7 @@ import { Toast } from 'primereact/toast';
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import { Button, Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,
-    Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Input} from '@nextui-org/react';
+    Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Input,Progress} from '@nextui-org/react';
 import Icon from '@mdi/react';
 import { mdiDownloadOutline, mdiTrashCanOutline } from '@mdi/js';
 import * as XLSX from "xlsx";
@@ -58,82 +58,91 @@ const AgregarUsuario = ({auth}) => {
         toast_global.current.show({severity:sev, summary:sum, detail:msg, life: 3000});
     }
 
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
+
     const submit = (e) => {
         e.preventDefault()
+        onOpenProgress()
         post(route('gestion-usuarios.store'),{
-            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success)},
-            onError: (msg) => {showMsg(msg.create,severity.error,summary.error)},
+            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);onCloseProgress()},
+            onError: (msg) => {showMsg(msg.create,severity.error,summary.error);onCloseProgress()},
         })
     }
 
     const submitExcel = (e) => {
         e.preventDefault()
         //console.log(dataExcel)
+        if (dataExcel.archivo){
+            onOpenProgress()
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(dataExcel.archivo);
+            reader.onload = async (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: "array" });
+                // Suponiendo que el primer sheet (hoja) contiene los datos
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const usuarios = XLSX.utils.sheet_to_json(sheet);
 
-        const reader = new FileReader();
-        reader.readAsArrayBuffer(dataExcel.archivo);
-        reader.onload = async (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: "array" });
-            // Suponiendo que el primer sheet (hoja) contiene los datos
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const usuarios = XLSX.utils.sheet_to_json(sheet);
-
-            let cargarUsuarios = true;
-            // Ahora puedes procesar los datos y realizar la llamada a la API
-            let cont_i=1
-            for (const usuario of usuarios) {
-                if (!usuario.apellidos || !usuario.nombres || !usuario.rut || !usuario.role) {
-                    setDataModal(`Hay datos vacíos para un usuario, revisa el archivo. Fila: ${cont_i}`)
-                    onOpen()
-                    cargarUsuarios = false;
-                    return;
-                } else {
-                  try {
-                    const response = await axios.get(`/api/find-user/${usuario.rut}`);
-                    if (response.data.filas.length!=0) {
-                        setDataModal(`El usuario con rut: ${usuario.rut} ya se encuentra registrado, modifica para seguir`)
+                let cargarUsuarios = true;
+                // Ahora puedes procesar los datos y realizar la llamada a la API
+                let cont_i=1
+                for (const usuario of usuarios) {
+                    if (!usuario.apellidos || !usuario.nombres || !usuario.rut || !usuario.role) {
+                        setDataModal(`Hay datos vacíos para un usuario, revisa el archivo. Fila: ${cont_i}`)
                         onOpen()
                         cargarUsuarios = false;
                         return;
-                    }else{
-                        //console.log("No se encuentra puede seguir")
+                    } else {
+                    try {
+                        const response = await axios.get(`/api/find-user/${usuario.rut}`);
+                        if (response.data.filas.length!=0) {
+                            setDataModal(`El usuario con rut: ${usuario.rut} ya se encuentra registrado, modifica para seguir`)
+                            onOpen()
+                            cargarUsuarios = false;
+                            return;
+                        }else{
+                        }
+                    } catch (error) {
                     }
-                  } catch (error) {
-                    console.error(error);
-                  }
+                    }
+                    cont_i++
                 }
-                cont_i++
+                if(cargarUsuarios){
+                    try {
+                        usuarios.forEach(async (usuario) => {
+                            dataExcel.nombres=usuario.nombres
+                            dataExcel.apellidos=usuario.apellidos
+                            dataExcel.rut=usuario.rut
+                            if (usuario.role=="Usuario"){
+                                dataExcel.rol=1
+                            }else if (usuario.role=="Digitador"){
+                                dataExcel.rol=2
+                            }else if (usuario.role=="Administrador"){
+                                dataExcel.rol=3
+                            }
+                            else{
+                                setDataModal(`Nombre incorrecto de rol: ${dataExcel.nombres} ${dataExcel.apellidos}`)
+                                onOpen()
+                            }
+                            if (dataExcel.rol==1 || dataExcel.rol==2 || dataExcel.rol==3){
+                                await postExcel(route('gestion-usuarios.store'),{
+                                    onSuccess: (msg) => {showMsg("Todos fueron cargados con",severity.success,summary.success)},
+                                    onError: (msg) => {showMsg(`Hubo un error, pero los usuarios fueron cargados hasta antes del usuario con rut: ${dataExcel.rut}`,severity.error,summary.error);},
+                                })
+                            }
+                        });
+                        onCloseProgress()
+                    } catch (error) {
+                        console.log(error)
+                    }
+                } 
             }
-            if(cargarUsuarios){
-                try {
-                  usuarios.forEach(async (usuario) => {
-                    dataExcel.nombres=usuario.nombres
-                    dataExcel.apellidos=usuario.apellidos
-                    dataExcel.rut=usuario.rut
-                    if (usuario.role=="Usuario"){
-                        dataExcel.rol=1
-                    }else if (usuario.role=="Digitador"){
-                        dataExcel.rol=2
-                    }else if (usuario.role=="Administrador"){
-                        dataExcel.rol=3
-                    }
-                    else{
-                        setDataModal(`Nombre incorrecto de rol: ${dataExcel.nombres} ${dataExcel.apellidos}`)
-                        onOpen()
-                    }
-                    if (dataExcel.rol==1 || dataExcel.rol==2 || dataExcel.rol==3){
-                        postExcel(route('gestion-usuarios.store'),{
-                            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success)},
-                            onError: (msg) => {showMsg(msg.create,severity.error,summary.error)},
-                        })
-                    }
-                  });
-                } catch (error) {
-                    
-                }
-              } 
+            onCloseProgress()
+        }else{
+            setDataModal(`No hay archivo`)
+            onOpen()
         }
+        
     }
 
     const getTemplate = (e) => {
@@ -148,9 +157,6 @@ const AgregarUsuario = ({auth}) => {
         document.body.removeChild(link);
     }
     
-    const borrarExcel = () =>{
-
-    }
 
 
     return (
@@ -159,8 +165,22 @@ const AgregarUsuario = ({auth}) => {
             <Head title="Agregar Usuario"></Head>
             <TitleTemplate>Agregar usuario</TitleTemplate>
             <Toast ref={toast_global}></Toast>
+            <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                <ModalContent>
+                    {
+                        (onCloseProgress)=>(
+                            <Progress
+                                size="sm"
+                                isIndeterminate
+                                aria-label="Loading..."
+                                className="max-w-md"
+                            />
+                        )
+                    }
+                </ModalContent>
+            </Modal>
             <ContentTemplate>
-                <div className='p-8'>
+                <div className=''>
                     {/* Seleccionar accion */}
                     <div className='xl:flex w-full xl:gap-4'>
                         {
@@ -195,8 +215,10 @@ const AgregarUsuario = ({auth}) => {
                         }
                        
                     </div>
-                    <Divider className='mt-10 w-full'></Divider>
-                    <div className='mt-10 w-full'>
+                    <div className='py-2 lg;py-5'>
+                        <Divider></Divider>
+                    </div>
+                    <div className=' w-full'>
                         {
                             btnAgregarManual?
                             //se muestra formulario de agregar usuario
@@ -225,8 +247,8 @@ const AgregarUsuario = ({auth}) => {
                                             <InputError message={errors.rol} className="mt-2" />
                                         </div>
                                     </div>
-                                    <div className='flex w-full gap-10'>
-                                        <Link href={route("gestion-usuarios.index")} className='w-full'>
+                                    <div className='flex w-full gap-3'>
+                                        <Link href={route('gestion-usuarios.index')} className='w-full'>
                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                         </Link>
                                         <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Registrar</Button>
@@ -239,19 +261,19 @@ const AgregarUsuario = ({auth}) => {
                                 <form onSubmit={submitExcel}>
                                     <div className='justify-between flex mb-4'>
                                         <div className='w-full justify-center xl:flex mx-auto'>
-                                            <div className='xl:me-2 mb-3 md:mb-0'>
+                                            <div className='xl:me-2 mb-2 md:mb-0'>
                                                 <InputLabel value={"Subir archivo"}></InputLabel>
                                                 <Input type='file' accept='.xls, .xlsx' onChange ={(e) => setDataExcel('archivo',e.target.files[0])} >
                                                 </Input>
                                                 <InputError message={errors.archivo} className="mt-2" />
                                             </div>
                                             <div className='flex items-end'>
-                                                <Button className='w-full' color='secondary' size='lg' onPress={()=>getTemplate()}>Descargar plantilla</Button>
+                                                <Button className='w-full' color='secondary'  onPress={()=>getTemplate()}>Descargar plantilla</Button>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='mt-3 md:flex gap-3'>
-                                        <Link href={route("gestion-usuarios.index")} className='w-full'>
+                                    <div className='mt-4 flex gap-3'>
+                                        <Link href={route('gestion-usuarios.index')} className='w-full'>
                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                         </Link>
                                         <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Subir archivo</Button>

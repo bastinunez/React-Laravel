@@ -19,7 +19,6 @@ class UserSharedResource extends JsonResource
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
             'correo' => $this->correo,
-            'correo' => $this->correo,
             'rut' => $this->rut,
             'estado' => $this->estadoRelacion->nombre,
             'roles' => $this->getRoleNames(),

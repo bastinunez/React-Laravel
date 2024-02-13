@@ -6,7 +6,7 @@ import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import { Head ,usePage,useForm,Link} from '@inertiajs/react'
 import { usePermission } from '@/Composables/Permission';
-import { Button } from '@nextui-org/react'
+import { Button,useDisclosure,Modal,ModalContent,Progress } from '@nextui-org/react'
 import { Toast } from 'primereact/toast';       
 import React,{useRef} from 'react'
 
@@ -28,8 +28,7 @@ const EditarDireccion = ({auth}) => {
     const { direccion } = usePage().props;
     
 
-    //QUEDE AQUI FALTA REALIZAR EL POST, MODIFICAR LOS MENSAJES CON TOAST (ES MEJOR DEJARLO GLOBAL EN EL AUTHENTICAD LAYOUT )
-
+    const {isOpen:isOpenProgress, onOpen:onOpenProgress, onClose:onCloseProgress} = useDisclosure();
 
     //formularios
     const { data:data, setData:setData, patch:patch, processing:processing, errors:errors, reset:reset} = useForm({
@@ -38,9 +37,10 @@ const EditarDireccion = ({auth}) => {
 
     const submit = (e) => {
         e.preventDefault()
+        onOpenProgress()
         patch(route('direccion.update',String(direccion.id)),{
-            onSuccess: () => {showMsg("Exito",severity.success,summary.success);},
-            onError: () => {showMsg("Falló",severity.error,summary.error)}
+            onSuccess: () => {showMsg("Exito",severity.success,summary.success);onCloseProgress()},
+            onError: () => {showMsg("Falló",severity.error,summary.error);onCloseProgress()}
         })
     }
 
@@ -51,6 +51,20 @@ const EditarDireccion = ({auth}) => {
             <Head title='Editar direccion'></Head>
             <TitleTemplate>Editar direccion</TitleTemplate>
             <Toast ref={toast_global}></Toast>
+            <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+                <ModalContent>
+                    {
+                        (onCloseProgress)=>(
+                            <Progress
+                                size="sm"
+                                isIndeterminate
+                                aria-label="Loading..."
+                                className="max-w-md"
+                            />
+                        )
+                    }
+                </ModalContent>
+            </Modal>
             <ContentTemplate>
                 <div>
                     <div>
@@ -63,8 +77,8 @@ const EditarDireccion = ({auth}) => {
                                 </div>
                             </div>
                             <div className='w-full md:flex gap-10'>
-                                <Link href={route("direccion.index")} className='w-full'>
-                                <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                                <Link href={route('direccion.index')} className='w-full'>
+                                    <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                 </Link>
                                 <Button className='w-full' color='primary' variant='ghost' type='submit'>Guardar cambios</Button>
                             </div>
