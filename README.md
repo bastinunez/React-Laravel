@@ -62,6 +62,7 @@
             - En el archivo.env editar las credenciales de la base de datos que tendrá.
             - En la terminal de Laragon ubicarse en la carpeta laravel-react y utilizar lo siguientes comandos:
                 - php artisan key:generate
+                - npm install
                 - npm run build
                 - composer install
             - Abrir la carpeta en el directorio public, copiar la carpeta build que se genera y crear otro directorio llamado documentos con los mismos datos de build.
