@@ -72,71 +72,77 @@ const AgregarUsuario = ({auth}) => {
     const submitExcel = (e) => {
         e.preventDefault()
         //console.log(dataExcel)
-        onOpenProgress()
-        const reader = new FileReader();
-        reader.readAsArrayBuffer(dataExcel.archivo);
-        reader.onload = async (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: "array" });
-            // Suponiendo que el primer sheet (hoja) contiene los datos
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const usuarios = XLSX.utils.sheet_to_json(sheet);
+        if (dataExcel.archivo){
+            onOpenProgress()
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(dataExcel.archivo);
+            reader.onload = async (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: "array" });
+                // Suponiendo que el primer sheet (hoja) contiene los datos
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const usuarios = XLSX.utils.sheet_to_json(sheet);
 
-            let cargarUsuarios = true;
-            // Ahora puedes procesar los datos y realizar la llamada a la API
-            let cont_i=1
-            for (const usuario of usuarios) {
-                if (!usuario.apellidos || !usuario.nombres || !usuario.rut || !usuario.role) {
-                    setDataModal(`Hay datos vacíos para un usuario, revisa el archivo. Fila: ${cont_i}`)
-                    onOpen()
-                    cargarUsuarios = false;
-                    return;
-                } else {
-                  try {
-                    const response = await axios.get(`/api/find-user/${usuario.rut}`);
-                    if (response.data.filas.length!=0) {
-                        setDataModal(`El usuario con rut: ${usuario.rut} ya se encuentra registrado, modifica para seguir`)
+                let cargarUsuarios = true;
+                // Ahora puedes procesar los datos y realizar la llamada a la API
+                let cont_i=1
+                for (const usuario of usuarios) {
+                    if (!usuario.apellidos || !usuario.nombres || !usuario.rut || !usuario.role) {
+                        setDataModal(`Hay datos vacíos para un usuario, revisa el archivo. Fila: ${cont_i}`)
                         onOpen()
                         cargarUsuarios = false;
                         return;
-                    }else{
-                        //console.log("No se encuentra puede seguir")
+                    } else {
+                    try {
+                        const response = await axios.get(`/api/find-user/${usuario.rut}`);
+                        if (response.data.filas.length!=0) {
+                            setDataModal(`El usuario con rut: ${usuario.rut} ya se encuentra registrado, modifica para seguir`)
+                            onOpen()
+                            cargarUsuarios = false;
+                            return;
+                        }else{
+                        }
+                    } catch (error) {
                     }
-                  } catch (error) {
-                    console.error(error);
-                  }
+                    }
+                    cont_i++
                 }
-                cont_i++
+                if(cargarUsuarios){
+                    try {
+                        usuarios.forEach(async (usuario) => {
+                            dataExcel.nombres=usuario.nombres
+                            dataExcel.apellidos=usuario.apellidos
+                            dataExcel.rut=usuario.rut
+                            if (usuario.role=="Usuario"){
+                                dataExcel.rol=1
+                            }else if (usuario.role=="Digitador"){
+                                dataExcel.rol=2
+                            }else if (usuario.role=="Administrador"){
+                                dataExcel.rol=3
+                            }
+                            else{
+                                setDataModal(`Nombre incorrecto de rol: ${dataExcel.nombres} ${dataExcel.apellidos}`)
+                                onOpen()
+                            }
+                            if (dataExcel.rol==1 || dataExcel.rol==2 || dataExcel.rol==3){
+                                await postExcel(route('gestion-usuarios.store'),{
+                                    onSuccess: (msg) => {showMsg("Todos fueron cargados con",severity.success,summary.success)},
+                                    onError: (msg) => {showMsg(`Hubo un error, pero los usuarios fueron cargados hasta antes del usuario con rut: ${dataExcel.rut}`,severity.error,summary.error);},
+                                })
+                            }
+                        });
+                        onCloseProgress()
+                    } catch (error) {
+                        console.log(error)
+                    }
+                } 
             }
-            if(cargarUsuarios){
-                try {
-                  usuarios.forEach(async (usuario) => {
-                    dataExcel.nombres=usuario.nombres
-                    dataExcel.apellidos=usuario.apellidos
-                    dataExcel.rut=usuario.rut
-                    if (usuario.role=="Usuario"){
-                        dataExcel.rol=1
-                    }else if (usuario.role=="Digitador"){
-                        dataExcel.rol=2
-                    }else if (usuario.role=="Administrador"){
-                        dataExcel.rol=3
-                    }
-                    else{
-                        setDataModal(`Nombre incorrecto de rol: ${dataExcel.nombres} ${dataExcel.apellidos}`)
-                        onOpen()
-                    }
-                    if (dataExcel.rol==1 || dataExcel.rol==2 || dataExcel.rol==3){
-                        postExcel(route('gestion-usuarios.store'),{
-                            onSuccess: (msg) => {showMsg(msg.create,severity.success,summary.success);onCloseProgress()},
-                            onError: (msg) => {showMsg(msg.create,severity.error,summary.error);onCloseProgress()},
-                        })
-                    }
-                  });
-                } catch (error) {
-                    
-                }
-              } 
+            onCloseProgress()
+        }else{
+            setDataModal(`No hay archivo`)
+            onOpen()
         }
+        
     }
 
     const getTemplate = (e) => {
@@ -242,7 +248,7 @@ const AgregarUsuario = ({auth}) => {
                                         </div>
                                     </div>
                                     <div className='flex w-full gap-3'>
-                                        <Link href={usePage().props.ziggy.previous} className='w-full'>
+                                        <Link href={route('gestion-usuarios.index')} className='w-full'>
                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                         </Link>
                                         <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Registrar</Button>
@@ -267,7 +273,7 @@ const AgregarUsuario = ({auth}) => {
                                         </div>
                                     </div>
                                     <div className='mt-4 flex gap-3'>
-                                        <Link href={usePage().props.ziggy.previous} className='w-full'>
+                                        <Link href={route('gestion-usuarios.index')} className='w-full'>
                                             <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                         </Link>
                                         <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Subir archivo</Button>

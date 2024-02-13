@@ -271,8 +271,8 @@ class GestionUsuarioController extends Controller
                 'usuario_id'=>$usuario->id,
                 'responsable'=>$user_id,
                 'accion'=>3,
-                'detalles'=>"Actualiza metadatos"
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
+                //'detalles'=>"Actualiza metadatos"
+                'detalles'=>"Actualiza nombres y apellidos: " . $request->nombres . " " . $request->apellidos
             ]);
 
             return redirect()->back()->with("update","Se guardó correctamente los cambios");

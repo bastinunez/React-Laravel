@@ -21,14 +21,16 @@ export const Sidebar = ({user}) => {
     return(
         <>
             <div className={`bg-slate-700 text-white fixed h-full transition-all p-2 duration-300 ease-in-out  z-50 ${sidebar ? 'w-64 ' : 'w-14 sm:hover:w-64 inset-0'}`}>
-                <div className="text-white flex justify-between">
-                    <User name={  <span className=" ps-3">{user.nombres}</span>} 
-                        classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis  ${sidebar ? '' : 'hidden'}`,description:`${sidebar ? '' : 'hidden'}`}}
-                        description={(
-                            <span className="text-medium overflow-hidden whitespace-nowrap text-ellipsis ps-3">{user.roles[0]}</span>
-                        )}
-                    />
-                   
+                <div className="text-white flex justify-between overflow-hidden whitespace-nowrap text-ellipsis">
+                    <User name={  <div> <span className="text-inherit text-medium overflow-hidden whitespace-nowrap text-ellipsis">
+                                            <p className="overflow-auto whitespace-nowrap text-ellipsis ps-1">{user.nombres}</p>
+                                        </span>
+                                    </div>} 
+                            classNames={{name:`text-medium overflow-hidden whitespace-nowrap text-ellipsis `,description:``}}
+                            description={(
+                                <span className="text-medium overflow-hidden whitespace-nowrap text-ellipsis ps-1">{user.roles[0]}</span>
+                            )}
+                        />
                 </div>
                 <nav className="flex flex-col items-start text-gray-500 ">
                     {

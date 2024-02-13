@@ -384,7 +384,7 @@ const GestionDocumentos = ({auth}) => {
                         onSelectionChange={setAutorFilter} closeOnSelect={false} selectionMode="multiple" items={autores}>
                         {
                           (autor)=>(
-                            <DropdownItem key={autor.id}>{autor.nombres}</DropdownItem>
+                            <DropdownItem key={autor.id}>{autor.nombres} {autor.apellidos} - {autor.abreviacion}</DropdownItem>
                           )
                         }
                       </DropdownMenu>
