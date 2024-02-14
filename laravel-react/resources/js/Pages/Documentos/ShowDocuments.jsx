@@ -15,6 +15,19 @@ import Select from '@/Components/Select';
 import { Head } from '@inertiajs/react';
 import { Toast } from 'primereact/toast';  
 import { DescargarDocumento } from '@/Composables/DownloadPDF';
+import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
+locale('en');
+addLocale('es', {
+  firstDayOfWeek: 1,
+  dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+  dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+  dayNamesMin: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
+  monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+  monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+  today: 'Hoy',
+  clear: 'Limpiar',
+  //...
+});
 
 
 const GestionDocumentos = ({auth}) => {
@@ -79,13 +92,13 @@ const GestionDocumentos = ({auth}) => {
   const filteredItems = useMemo(() => {
     let filteredDocumentos = [...documentos];
     if (hasSearchFilterNumero) {
-      filteredDocumentos = filteredDocumentos.filter((documento) => documento.numero == parseInt(filterNumero));
+      filteredDocumentos = filteredDocumentos.filter((documento) => documento.numero.includes(filterNumero));
     }
     if (hasSearchFilterMateria) {
-      filteredDocumentos = filteredDocumentos.filter((documento) => documento.materia == filterMateria);
+      filteredDocumentos = filteredDocumentos.filter((documento) => documento.materia.toLowerCase().includes(filterMateria.toLowerCase()));
     }
     if (hasSearchFilterRut) {
-      filteredDocumentos = filteredDocumentos.filter((documento) => documento.rut == filterRut);
+      filteredDocumentos = filteredDocumentos.filter((documento) => documento.rut?.includes(filterRut));
     }
     if (filterFecha){
       filteredDocumentos = filteredDocumentos.filter((documento) => {
@@ -259,7 +272,7 @@ const GestionDocumentos = ({auth}) => {
                     startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
                     onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
                   <div className='w-full card'>
-                    <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="yy//mm/dd" value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
+                    <Calendar locale="es" className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="dd/mm/yy" value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
                   </div>
                 </div>
               </div>

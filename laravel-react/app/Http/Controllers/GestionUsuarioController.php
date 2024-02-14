@@ -62,7 +62,6 @@ class GestionUsuarioController extends Controller
     }
 
     public function get_user($rut){
-        //dd($request->rut);
         // Obtener los IDs de los documentos anexos relacionados con el documento dado
         $usuario = User::where('rut',$rut)->get();
 
@@ -78,7 +77,7 @@ class GestionUsuarioController extends Controller
         Validator::make($input, [
             'nombres' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+$/'],
             'apellidos' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+$/'],
-            'rut' => ['required', 'regex:/^[0-9]{1,2}\.[0-9]{3}\.[0-9]{3}-[0-9kK]{1}$/'],
+            'rut' => ['required','unique:usuarios,rut', 'regex:/^0*(\d{1,3}(?:\.\d{3})*|\d{1,3})-[\dK]$/'],
             'rol' => ['required']
         ],[
             'nombres.regex'=>'Ingresa los nombres correctamente: Nombre Nombre',
@@ -88,6 +87,8 @@ class GestionUsuarioController extends Controller
             'apellidos.string'=>'Ingresa cadena de carácteres',
             'apellidos.max'=>'Superaste la cantidad de carácteres',
             'rut.regex'=>'Ingresa el rut correctamente: XX.XXX.XXX-X',
+            'rut.unique'=>'Ya existe un usuario con el rut ingresado.',
+            'rut.required'=>'Debes ingresar el rut'
         ])->validate();
 
 
@@ -166,7 +167,6 @@ class GestionUsuarioController extends Controller
                     'responsable'=>$user_id,
                     'accion'=>2,
                     'detalles'=>"Crea manualmente el usuario"
-                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
                 ]);
                 return redirect()->back()->with(["create"=>"Usuario agregado exitosamente"]);
             }catch (\Illuminate\Database\QueryException $e) {
@@ -251,6 +251,7 @@ class GestionUsuarioController extends Controller
         Validator::make($input, [
             'nombres' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+$/'],
             'apellidos' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+$/'],
+            'rut' => ['required','unique:usuarios,rut', 'regex:/^0*(\d{1,3}(?:\.\d{3})*|\d{1,3})-[\dK]$/'],
         ],[
             'nombres.regex'=>'Ingresa los nombres correctamente: Nombre Nombre',
             'nombres.string'=>'Ingresa cadena de carácteres',
@@ -258,28 +259,36 @@ class GestionUsuarioController extends Controller
             'apellidos.regex'=>'Ingresa los apellidos correctamente: Apellido Apellido',
             'apellidos.string'=>'Ingresa cadena de carácteres',
             'apellidos.max'=>'Superaste la cantidad de carácteres',
+            'rut.regex'=>'Ingresa el rut correctamente: XX.XXX.XXX-X',
+            'rut.unique'=>'Ya existe un usuario con el rut ingresado.',
+            'rut.required'=>'Debes ingresar el rut'
         ])->validate();
-        try{
-            $usuario = User::find($id);
-            $usuario->update([
-                'nombres' => $input['nombres'],
-                'apellidos' => $input['apellidos']
-            ]);
-
-            $user_id=Auth::id();
-            HistorialUsuario::create([
-                'usuario_id'=>$usuario->id,
-                'responsable'=>$user_id,
-                'accion'=>3,
-                //'detalles'=>"Actualiza metadatos"
-                'detalles'=>"Actualiza nombres y apellidos: " . $request->nombres . " " . $request->apellidos
-            ]);
-
-            return redirect()->back()->with("update","Se guardó correctamente los cambios");
-            
-        }catch (\Throwable $th){
-            return redirect()->back()->withError("update","No se pudo guardar");
+        if ($this->validarRutChileno($input['rut'])){
+            try{
+                $usuario = User::find($id);
+                $usuario->update([
+                    'nombres' => $input['nombres'],
+                    'apellidos' => $input['apellidos']
+                ]);
+    
+                $user_id=Auth::id();
+                HistorialUsuario::create([
+                    'usuario_id'=>$usuario->id,
+                    'responsable'=>$user_id,
+                    'accion'=>3,
+                    //'detalles'=>"Actualiza metadatos"
+                    'detalles'=>"Actualiza nombres y apellidos: " . $request->nombres . " " . $request->apellidos
+                ]);
+    
+                return redirect()->back()->with(["update"=>"Se guardó correctamente los cambios"]);
+                
+            }catch (\Throwable $th){
+                return redirect()->back()->withError(["update"=>"No se pudo guardar"]);
+            }
+        }else{
+            return redirect()->back()->withErrors(["update"=>"Rut no válido"]);
         }
+        
     }
 
     /**
@@ -299,9 +308,8 @@ class GestionUsuarioController extends Controller
             'responsable'=>$user_id,
             'accion'=>3,
             'detalles'=>"Restaura contraseña"
-            //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
         ]);
-        return redirect()->back()->with("update","Se restauró correctamente");
+        return redirect()->back()->with(["update"=>"Se restauró correctamente"]);
     }
 
     public function updateCollection(Request $request, string $id)
@@ -321,9 +329,9 @@ class GestionUsuarioController extends Controller
                     'responsable'=>$user_id,
                     'accion'=>8,
                     'detalles'=>"Habilita usuario"
-                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
                 ]);
             }
+        //AQUI SE DESHABILITA
         }elseif ($opcion==2){
             foreach($users as $user_id){
                 $usuario = User::find($user_id);
@@ -336,7 +344,6 @@ class GestionUsuarioController extends Controller
                     'responsable'=>$user_id,
                     'accion'=>7,
                     'detalles'=>"Anula usuario"
-                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
                 ]);
             }
         }
@@ -348,12 +355,7 @@ class GestionUsuarioController extends Controller
         $opcion=$request->opcion;
         $permisos=$request->permisos;
         $user = User::find($id);
-        //dd($user);
         
-        //dd($user->getAllPermissions());
-        //dd($user->roles, $user->hasPermissionTo('prueba1'));
-        //dd($user->syncPermissions($permisos));
-        // //dd($permisos);
         if ($opcion==0){
             foreach($permisos as $permiso){
                 $user->revokePermissionTo($permiso);
@@ -364,7 +366,6 @@ class GestionUsuarioController extends Controller
                     'responsable'=>$user_id,
                     'accion'=>2,
                     'detalles'=>"Se le quita el  permiso: ".$permiso
-                    //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
                 ]);
             }
             
@@ -376,14 +377,7 @@ class GestionUsuarioController extends Controller
                 'responsable'=>$user_id,
                 'accion'=>2,
                 'detalles'=>"Se le otorgan permisos: " .implode(', ', $permisos)
-                //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
             ]);
-            // foreach($permisos as $permiso){
-            //     $permision_name=Permission::find($permiso);
-            //     //$user->syncPermissions($permision_name->name);
-            //     // $user->givePermissionTo($permision_name);
-            //     // $user->save();
-            // }
         }
         $usuario= new UserSharedResource($user);
         return redirect()->back()->with(['update'=>'Se pudo cambiar los permisos seleccionados','usuario'=>$usuario]);
@@ -399,7 +393,6 @@ class GestionUsuarioController extends Controller
             'responsable'=>$user_id,
             'accion'=>2,
             'detalles'=>"Nuevo rol: ".$role->name
-            //'detalles'=>"Actualiza parámetros: " . $request->fecha_documento!==null? "fecha" : ""
         ]);
         return redirect()->back()->with(['update'=>'Se pudo cambiar el rol']);
     }

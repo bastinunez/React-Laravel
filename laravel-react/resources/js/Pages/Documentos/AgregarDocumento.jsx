@@ -19,10 +19,10 @@ import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOptio
 locale('en');
 addLocale('es', {
   firstDayOfWeek: 1,
-  dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+  dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
   dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
   dayNamesMin: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
-  monthNames: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+  monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
   monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
   today: 'Hoy',
   clear: 'Limpiar',
@@ -102,7 +102,7 @@ const AgregarDocumento = ({auth}) => {
         reset('materia_documento'); setStateBtn(false);showMsg(msg.success,severity.success,summary.success);onCloseProgress()},
       onError: (errors) => {
         setStateBtn(false)
-        showMsg(errors.create,severity.error,summary.error);onCloseProgress()
+        showMsg(errors.create,severity.error,summary.error);onCloseProgress();setStateBtn(false)
       }
     });
   }
@@ -201,20 +201,20 @@ const AgregarDocumento = ({auth}) => {
               <InputError message={errors.direccion_documento} className="mt-2" />
             </div>
           </div>
-          <div className='md:flex w-full justify-between mb-1 lg:mb-5'>
-            <div className="">
+          <div className='md:flex w-full justify-between mb-1 lg:mb-5 gap-16'>
+            <div className="w-80">
               <InputLabel value={"Ingresa rut (*)"}></InputLabel>
-              <TextInput type={'text'} value={data.rut_documento} onChange={(e) => setData('rut_documento',e.target.value)} ></TextInput>
+              <TextInput type={'text'} className="w-full" placeholder={'Debe contener guión y puntos'} value={data.rut_documento} onChange={(e) => setData('rut_documento',e.target.value)} ></TextInput>
               <InputError message={errors.rut_documento} className="mt-2" />
             </div>
-            <div className="">
+            <div className="w-80">
               <InputLabel value={"Ingresa numero de documento (*)"}></InputLabel>
-              <TextInput type={'number'} value={data.numero_documento} onChange={(e) => setData('numero_documento',e.target.value)}required ></TextInput>
+              <TextInput type={'number'} className="w-full" value={data.numero_documento} onChange={(e) => setData('numero_documento',e.target.value)}required ></TextInput>
               <InputError message={errors.numero_documento} className="mt-2" />
             </div>
-            <div className=''>
+            <div className='w-80'>
               <InputLabel value={"Ingresa materia de documento"}></InputLabel>
-              <TextInput type={'text'} value={data.materia_documento} onChange={(e) => setData('materia_documento',e.target.value)} ></TextInput>
+              <TextInput type={'text'} className="w-full" value={data.materia_documento} onChange={(e) => setData('materia_documento',e.target.value)} ></TextInput>
               <InputError message={errors.materia_documento} className="mt-2" />
             </div>
           </div>
@@ -222,7 +222,7 @@ const AgregarDocumento = ({auth}) => {
             <div className="w-80">
               <InputLabel value={"Ingresa fecha (*)"}></InputLabel>
               <div className="card flex justify-content-center">
-                <Calendar value={data.fecha_documento} locale="es"  required onChange={(e) => setData('fecha_documento',e.target.value)} readOnlyInput />
+                <Calendar value={data.fecha_documento} locale="es" dateFormat="dd/mm/yy" inputStyle={{"padding":"0.5rem "}}  required onChange={(e) => setData('fecha_documento',e.target.value)} readOnlyInput />
               </div>
               <InputError message={errors.fecha_documento} className="mt-2" />
             </div>

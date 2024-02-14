@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('documento', function (Blueprint $table) {
             $table->id();
-            $table->integer('numero');
+            $table->string('numero', 30)->nullable();
             $table->foreignId('tipo')->constrained('tipo_documento')->onUpdate('cascade');
             $table->date('fecha');
             $table->integer('anno');

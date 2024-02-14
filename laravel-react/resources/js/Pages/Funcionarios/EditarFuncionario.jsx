@@ -68,7 +68,7 @@ const EditarFuncionario = ({auth}) => {
             <ContentTemplate>
                 <div>
                     <div>
-                        <form onSubmit={submit} className='p-8'>
+                        <form onSubmit={submit} className=''>
                             <div className='xl:flex w-full mb-5 xl: gap-5'>
                                 <div className="w-full xl:me-5">
                                     <InputLabel value={"Ingresa nombres"}></InputLabel>
@@ -81,7 +81,7 @@ const EditarFuncionario = ({auth}) => {
                                     <InputError message={errors.apellidos} className="mt-2" />
                                 </div>
                             </div>
-                            <div className='xl:flex'>
+                            <div className='flex gap-1'>
                                 <Link href={route('funcionario.index')} className='w-full'>
                                     <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                 </Link>

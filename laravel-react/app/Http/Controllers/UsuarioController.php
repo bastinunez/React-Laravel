@@ -23,7 +23,7 @@ class UsuarioController extends Controller
 {
     /**
      * Display a listing of the resource.
-     */
+     */ 
     public function index()
     {
         return Inertia::render('Usuarios/Perfil');
@@ -31,15 +31,8 @@ class UsuarioController extends Controller
 
     public function gestion_index()
     {
-        //$usuarios = User::with('roles', 'permissions')->get();
-        //dd(UsuarioResource::collection($usuarios));
         $usuarios = User::all();
-        // $prueba=new UserSharedResource($usuarios);
-        // dd($prueba->permissions);
-        // Obtener roles y permisos usando las relaciones definidas en tu modelo User
-        //dd($usuarios->load('roles.permissions'));
         $usuarios->load('roles.permissions');
-        //dd(UsuarioResource::collection($usuarios));
         return Inertia::render('Usuarios/ShowUsers',[
             'usuarios'=>UsuarioResource::collection($usuarios),
             'estados'=>Estado::all(),
@@ -61,79 +54,8 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
-        $input=$request->all();
-        Validator::make($input, [
-            'nombres' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+)+$/'],
-            'apellidos' => ['required', 'string', 'max:40','regex:/^[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:\s[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+)+$/'],
-            'rut' => ['required', 'regex:/^[0-9]{1,2}\.[0-9]{3}\.[0-9]{3}-[0-9kK]{1}$/'],
-            'rol' => ['required']
-        ],[
-            'nombres.regex'=>'Ingresa los nombres correctamente: Nombre Nombre',
-            'nombres.string'=>'Ingresa cadena de carácteres',
-            'nombres.max'=>'Superaste la cantidad de carácteres',
-            'apellidos.regex'=>'Ingresa los apellidos correctamente: Apellido Apellido',
-            'apellidos.string'=>'Ingresa cadena de carácteres',
-            'apellidos.max'=>'Superaste la cantidad de carácteres',
-            'rut.regex'=>'Ingresa el rut correctamente: XX.XXX.XXX-X',
-        ])->validate();
-
-
-        
-        if ($this->validarRutChileno($input['rut'])) {
-            //iniciales
-            $nombreArray = explode(' ', $input['nombres']);
-            $inicialesNombres = '';
-            foreach ($nombreArray as $nombre) {
-                $inicialesNombres .= ucfirst(strtoupper(substr($nombre, 0, 1)));
-            }
-            $apellidoArray = explode(' ', $input['apellidos']);
-            $inicialesApellidos = '';
-            foreach ($apellidoArray as $apellido) {
-                $inicialesApellidos .= ucfirst(strtoupper(substr($apellido, 0, 1)));
-            }
-            $iniciales = $inicialesNombres . $inicialesApellidos;
-
-            //rol (no es necesario)
-            $rol="";
-            if ($input['rol']==1){
-                $rol='Usuario';
-            }
-            elseif ($input['rol']==2){
-                $rol='Digitador';
-            }
-            else{
-                $rol='Administrador';
-            }
-
-            //correo
-            $nombres = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ñ'], ['a', 'e', 'i', 'o', 'u', 'n'], $input["nombres"]);
-            $apellidos = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ñ'], ['a', 'e', 'i', 'o', 'u', 'n'], $input["apellidos"]);
-            $nombresArray = explode(" ", $nombres);
-            $primerNombre = strtolower(substr($nombresArray[0], 0, 2));
-            $apellidosArray = explode(" ", $apellidos);
-            $apellidosCompletos = strtolower(implode("", $apellidosArray));
-            $resultado = $primerNombre . $apellidosCompletos;
-            $dominio="@gdoc.cl";
-            $correo=$resultado . $dominio;
-
-            User::create([
-                'nombres' => $input['nombres'],
-                'apellidos' => $input['apellidos'],
-                'rut' => $input['rut'],
-                'iniciales' => $iniciales,
-                'correo' => $correo,
-                'rol'=> $input['rol'],
-                'estado' => true,
-                'change_pwd' => true,
-                'password' => 12345678
-            ])->assignRole($rol);
-            return redirect()->back()->with(["FormPostUser"=>"Success"]);
-        }else{
-            return redirect()->back()->withErrors(["FormPostUser"=>"Error"]);
-        }
+      
     }
-        
-    
 
     public function validarRutChileno($rut) {
         $rut = preg_replace('/[^k0-9]/i', '', $rut);
@@ -174,7 +96,7 @@ class UsuarioController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * El usuario cambia sus metadatos
      */
     public function edit_data(Request $request)
     {
@@ -198,40 +120,18 @@ class UsuarioController extends Controller
                 'apellidos' => $input['apellidos']
             ]);
             
-            return redirect()->back()->with("success_form_edit","Se guardó correctamente los cambios");
+            return redirect()->back()->with(["update"=>"Se guardó correctamente los cambios"]);
             
         }catch (\Throwable $th){
-            return redirect()->back()->with("error","No se pudo guardar");
+            return redirect()->back()->with(["update"=>"No se pudo guardar"]);
         }
        
     }
 
-    public function updateCollection(Request $request, string $id)
-    {
-        $opcion=$request->opcion;
-        $users=$request->id_users;
-        //AQUI SE HABILITA
-        if($opcion==1){
-            foreach($users as $user_id){
-                $usuario = User::find($user_id);
-                $usuario->estado = $opcion;
-                $usuario->save();
-            }
-        }elseif ($opcion==2){
-            foreach($users as $user_id){
-                $usuario = User::find($user_id);
-                $usuario->estado = $opcion;
-                $usuario->save();
-            }
-        }
-        $usuarios = UsuarioResource::collection(User::all());
-        return redirect()->back()->with(['actualizar'=>'Se pudo cambiar los estados de los seleccionados','usuarios'=>$usuarios]);
-    }
-
     /**
-     * Update the specified resource in storage.
+     * El usuario cambia su contraseña en el perfil
      */
-    public function update_pwd(Request $request)
+    public function update_pwd(Request $request) 
     {
         $input=$request->all();
         Validator::make($input, [
@@ -248,9 +148,12 @@ class UsuarioController extends Controller
         $user->forceFill([
             'password' => Hash::make($input['nueva_pwd'])
         ])->save();
-        return back()->with("update","Se guardó correctamente la contraseña");
+        return back()->with(["update"=>"Se guardó correctamente la contraseña"]);
     }
 
+    /**
+     * El usuario restaura la contraseña y debe cambiar su contraseña para poder iniciar
+     */
     public function change_pwd(Request $request)
     {
         $input=$request->all();

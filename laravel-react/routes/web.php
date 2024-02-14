@@ -79,7 +79,7 @@ Route::middleware(['auth','user_state'])->group(function () {
         Route::post('documento-descargar', [DocumentoController::class, 'descargar'])->name('documento.descargar');
     
         
-        Route::post('/gestion-documento/update-doc/{mensaje}',[GestionDocumentoController::class,'prueba'])->name('gestion-documento.update-doc');
+        Route::post('/gestion-documento/update-doc/{mensaje}',[GestionDocumentoController::class,'updateMetadata'])->name('gestion-documento.update-doc');
         Route::patch('/gestion-documento/update-collection/{mensaje}',[GestionDocumentoController::class,'updateCollection'])->name('gestion-documento.update-collection');
         Route::resource('gestion-documento', GestionDocumentoController::class)->names('gestion-documento');
         Route::post('/documento-anexo/agregar-existente', [DocumentoAnexoController::class, 'store_existent'])->name('documento-anexo.agregar-existente');
