@@ -112,7 +112,7 @@ class DocumentoAnexoController extends Controller
             'autor_documento'=> ['required','numeric'],
             'fecha_documento'=>['required','date'],
             'id_doc'=>['required','numeric'],
-            'archivo' => ['file', 'mimes:png,jpg,pdf', 'max:2048']
+            'archivo' => ['file', 'mimes:pdf', 'max:2048']
         ],[
             'tipo_documento.required'=>'Debe ingresar el tipo de documento',
             'tipo_documento.numeric'=>'Debe seleccionar un tipo',
@@ -124,7 +124,7 @@ class DocumentoAnexoController extends Controller
             'fecha_documento.required'=>'Debe ingresar la fecha',
             'fecha_documento.date'=>'Debe ingresar una fecha',
             'archivo.file' => 'Debe ingresar un archivo',
-            'archivo.mimes' => 'El archivo debe ser de tipo: png, jpg, pdf',
+            'archivo.mimes' => 'El archivo debe ser de tipo: pdf',
             'archivo.max' => 'El tamaño máximo permitido es 2 MB',
         ])->validate();
         $year = new DateTime($input['fecha_documento']);
@@ -134,8 +134,8 @@ class DocumentoAnexoController extends Controller
         $doc = file_get_contents($path);
         $base64 = base64_encode($doc);
         $mime = $request->file('archivo')->getClientMimeType();
-
-        $nombre_file=($input['numero_documento']).'-'.($year).'-'.($input['autor_documento']).'-'.($input['tipo_documento']);
+        $tipo=TipoDocumento::find($request->tipo_documento);
+        $nombre_file=($tipo->nombre.' '.$input['numero_documento'] . "-" . $year);
         try {
 
             $id_documento=DB::table("documento")->insertGetId([
@@ -146,6 +146,7 @@ class DocumentoAnexoController extends Controller
                 'name_file'=> $nombre_file.'.'.$ext,
                 'file' => $base64,
                 'mime_file'=> $mime,
+                'materia'=>$request->materia_documento ? $request->materia_documento:'',
                 'direccion' => 1,
                 "anno" => $year,
                 "estado" => $request->estado == 0 ? 1 : 2,

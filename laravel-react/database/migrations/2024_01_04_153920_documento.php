@@ -16,7 +16,7 @@ return new class extends Migration
             $table->date('fecha');
             $table->integer('anno');
             $table->string('rut', 30)->nullable();
-            $table->longText('materia')->nullable();
+            $table->longText('materia');
             $table->foreignId('estado')->constrained('estado')->onUpdate('cascade');
             $table->foreignId('direccion')->nullable()->constrained('direccion')->onUpdate('cascade');
             $table->foreignId('autor')->constrained('funcionario')->onUpdate('cascade');
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('name_file')->nullable();
             $table->string('mime_file')->nullable();
 
-            $table->unique(['numero', 'tipo', 'anno', 'autor']);
+            $table->unique(['numero', 'tipo', 'anno', 'autor','materia']);
         });
         DB::statement("ALTER TABLE documento ADD file MEDIUMBLOB");
     }

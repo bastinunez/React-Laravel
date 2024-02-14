@@ -7,7 +7,7 @@ import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import Select from '@/Components/Select'
 import {Button, Divider, ModalContent, Modal,ModalBody,ModalHeader,ModalFooter, Pagination,Select as NextSelect, SelectItem as NextSelectItem,Checkbox,
-    Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, useDisclosure, Progress, Tooltip} from "@nextui-org/react";
+    Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, useDisclosure, Progress, Tooltip,Autocomplete, AutocompleteItem} from "@nextui-org/react";
 import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast'
 import { Head } from '@inertiajs/react';
@@ -61,6 +61,7 @@ const AgregarDocumentoAnexo = ({auth}) => {
     tipo_documento: 'DEFAULT',
     id_doc:doc.id,
     archivo:'',
+    materia_documento: ' ',
     estado:false
   });
   const {data:dataAddAnexo, setData:setDataAddAnexoo, delete:deleteAddAnexo,post:postAddAnexo,reset:resetAddAnexo}=useForm({
@@ -128,7 +129,6 @@ const AgregarDocumentoAnexo = ({auth}) => {
     }
     setStateBtnMiniForm(true)
     onOpenProgress()
-    //console.log(data_mini)
     post_mini(route('documento-anexo.store'),{
       onSuccess: (msg) => {
         showMsg(msg.create,severity.success,summary.success)
@@ -259,29 +259,29 @@ const AgregarDocumentoAnexo = ({auth}) => {
           </ModalContent>
       </Modal>
       <Modal isOpen={isOpenVerDoc} onOpenChange={onOpenChangeVerDoc}>
-                    <ModalContent>
-                        {
-                            (onClose)=>(
-                                <>
-                                    <ModalHeader>Información de documento padre</ModalHeader>
-                                    <ModalBody>
-                                        <div>
-                                                <p>Numero: {doc.numero}</p>
-                                                <p>Fecha: {doc.fecha}</p>
-                                                <p>Autor: {doc.autor}</p>
-                                                <p>Tipo: {doc.tipo}</p>
-                                            </div>
-                                    </ModalBody>
-                                    <ModalFooter>
-                                        <Button color="danger" variant="light" onPress={onClose}>
-                                        Cerrar
-                                        </Button>
-                                    </ModalFooter>
-                                </>
-                            )
-                        }
-                    </ModalContent>
-                </Modal>
+          <ModalContent>
+            {
+              (onClose)=>(
+                  <>
+                    <ModalHeader>Información de documento padre</ModalHeader>
+                    <ModalBody>
+                        <div>
+                                <p>Numero: {doc.numero}</p>
+                                <p>Fecha: {doc.fecha}</p>
+                                <p>Autor: {doc.autor}</p>
+                                <p>Tipo: {doc.tipo}</p>
+                            </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" variant="light" onPress={onClose}>
+                        Cerrar
+                        </Button>
+                    </ModalFooter>
+                  </>
+              )
+            }
+          </ModalContent>
+      </Modal>
       <ContentTemplate>
         <div className='xl:p-5'>
             <div className='w-full'>
@@ -337,7 +337,7 @@ const AgregarDocumentoAnexo = ({auth}) => {
                     <>
                     <form onSubmit={submitMiniForm}>
                     <div className=''>
-                      <div className='lg:flex w-full justify-between mb-2 md:gap-4'>
+                      <div className='lg:flex w-full justify-between mb-2 md:gap-2'>
                         <div className="w-80 lg:me-4">
                             <InputLabel value={"Tipo de documento"}></InputLabel>
                             <Select opciones={tipos} value={data_mini.tipo_documento} onChange={(value) => setData_mini('tipo_documento', value)} required>
@@ -360,6 +360,10 @@ const AgregarDocumentoAnexo = ({auth}) => {
                             <TextInput className={"w-full"} type={'number'} placeholder={"Ingrese número"} value={data_mini.numero_documento} onChange={(e) => setData_mini('numero_documento',e.target.value)}required ></TextInput>
                             <InputError message={errors_mini.numero_documento} className="mt-2" />
                           </div>
+                          <div className=' lg:me-4'>
+                            <InputLabel value={"¿Se encuentra anulado?"}></InputLabel>
+                            <Checkbox value={data_mini.estado} onChange={(e) => setData_mini('estado',e.target.checked)} className='mt-1' color="danger">Anulado</Checkbox>
+                          </div>
                         </div>
                       <div className='lg:flex w-full justify-between mb-2 md:gap-4'>
                         <div className="w-80 lg:me-4">
@@ -370,14 +374,15 @@ const AgregarDocumentoAnexo = ({auth}) => {
                             </div>
                             <InputError message={errors_mini.fecha_documento} className="mt-2" />
                           </div>
-                          <div className='w-80 lg:me-4'>
-                            <InputLabel value={"¿Se encuentra anulado?"}></InputLabel>
-                            <Checkbox value={data_mini.estado} onChange={(e) => setData_mini('estado',e.target.checked)} className='mt-1' color="danger">Anulado</Checkbox>
-                          </div>
                           <div className="w-80 mb-1">
-                            <InputLabel value={"Agregar archivo (*)"}></InputLabel>
+                            <InputLabel value={"Agregar archivo PDF (*)"}></InputLabel>
                             <input onChange ={(e) => setData_mini('archivo',e.target.files[0])} className='text-tiny md:text-small' type='file' accept='.pdf' />
                             <InputError message={errors_mini.archivo} className="mt-2" />
+                          </div>
+                          <div className='w-80'>
+                            <InputLabel value={"Ingresa materia de documento"}></InputLabel>
+                            <TextInput type={'text'} className="w-full" value={data_mini.materia_documento} onChange={(e) => setData_mini('materia_documento',e.target.value)} ></TextInput>
+                            <InputError message={errors_mini.materia_documento} className="mt-2" />
                           </div>
                         </div>
                     </div>
@@ -412,6 +417,31 @@ const AgregarDocumentoAnexo = ({auth}) => {
                                     )
                                 }
                             </NextSelect>
+                            <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
+                              <Autocomplete 
+                                label="Select an animal" 
+                                className="max-w-xs" 
+                              >
+                                {documentos.map((doc) => (
+                                  <AutocompleteItem key={doc.id} value={doc.numero}>
+                                    <div className="flex flex-col">
+                                        <span className="text-small">{"Documento número: " +doc.numero +" | Tipo: " +doc.tipo}</span>
+                                        <span className="text-tiny">
+                                            {"Autor: "+ doc.autor +" | Dirección: "+ doc.direccion + " | Fecha: "+doc.fecha}
+                                        </span>
+                                    </div>
+                                  </AutocompleteItem>
+                                ))}
+                              </Autocomplete>
+                              <Autocomplete
+                                label="Favorite Animal"
+                                placeholder="Search an animal"
+                                className="max-w-xs"
+                                defaultItems={documentos}
+                              >
+                                {(doc) => <AutocompleteItem key={doc.id}>{doc.numero}</AutocompleteItem>}
+                              </Autocomplete>
+                            </div>
                         </div>
                         <div className='md:flex items-center xl:gap-5'>
                             <Button type='text' size='md' className="w-full" color='primary' variant='ghost'>Anexar documentos</Button>

@@ -42,7 +42,7 @@ const AgregarDocumento = ({auth}) => {
   const { data:data, setData:setData, post:post, processing:processing, errors:errors, reset:reset,progress} = useForm({
     rut_documento: '',
     numero_documento: '',
-    materia_documento: '',
+    materia_documento: ' ',
     autor_documento: 'DEFAULT',
     direccion_documento: 'DEFAULT',
     archivo: "",
@@ -227,7 +227,7 @@ const AgregarDocumento = ({auth}) => {
               <InputError message={errors.fecha_documento} className="mt-2" />
             </div>
             <div className="w-80 mb-1">
-              <InputLabel value={"Agregar archivo (*)"}></InputLabel>
+              <InputLabel value={"Agregar archivo PDF (*)"}></InputLabel>
               <input onChange ={(e) => setData('archivo',e.target.files[0])} className='text-tiny md:text-small' type='file' accept='.pdf' />
               <InputError message={errors.archivo} className="mt-2" />
             </div>

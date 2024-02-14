@@ -100,6 +100,7 @@ const EditarDocumento = ({auth}) => {
         fecha_documento: '',
         tipo_documento: '',
         id_doc:documento.id,
+        materia_documento: ' ',
         estado:false
     });
     const {data:dataDelete, setData:setDataDelete, delete:deleteAnexo}=useForm({
@@ -148,8 +149,9 @@ const EditarDocumento = ({auth}) => {
 
     //post
     const submit = async (e) => {
-        // e.preventDefault();
-        //console.log(data)
+        if (data.materia_documento==" "){
+            data.materia_documento='Sin materia'
+          }
         setStateBtnModal(true)
         onOpenProgress()
         post(route('gestion-documento.update-doc',String(documento.id)),{
@@ -162,6 +164,9 @@ const EditarDocumento = ({auth}) => {
         e.preventDefault()
         setStateBtnMiniForm(true)
         onOpenProgress()
+        if (data_mini.materia_documento==" "){
+            data_mini.materia_documento='Sin materia'
+          }
         post_mini(route('documento-anexo.store'),{
             onSuccess: (msg) => {
                 getDocuments(documento.id);setStateBtnModal(true);
@@ -246,7 +251,6 @@ const EditarDocumento = ({auth}) => {
           }
     }
 
-    
 
     return (
         <Authenticated user={auth.user}

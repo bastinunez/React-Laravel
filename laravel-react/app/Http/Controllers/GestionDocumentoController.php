@@ -66,7 +66,6 @@ class GestionDocumentoController extends Controller
         $input = $request->all();
         $input['fecha_documento'] = new DateTime($input['fecha_documento']);
         $input['fecha_documento'] = $input['fecha_documento']->format('Y-m-d');
-
         Validator::make($input,[
             'tipo_documento'=> ['required','numeric'],
             'numero_documento'=> ['required','numeric','gt:0'],
@@ -74,7 +73,7 @@ class GestionDocumentoController extends Controller
             'fecha_documento'=>['required','date'],
             'direccion_documento'=> ['numeric'],
             'rut_documento'=>['regex:/^0*(\d{1,3}(?:\.\d{3})*|\d{1,3})-[\dK]$/'],
-            'archivo' => ['file', 'mimes:png,jpg,pdf', 'max:2048']
+            'archivo' => ['file', 'mimes:pdf', 'max:2048']
         ],[
             'tipo_documento.required'=>'Debe ingresar el tipo de documento',
             'tipo_documento.numeric'=>'Debe seleccionar un tipo',
@@ -85,14 +84,15 @@ class GestionDocumentoController extends Controller
             'autor_documento.numeric'=>'Debe seleccionar autor',
             'direccion_documento.required'=>'Debe ingresar dirección',
             'direccion_documento.numeric'=>'Debe seleccionar direccion',
-            'rut_documento.regex'=>'Debe ingresar un formato rut (12.345.678-0).',
+            'rut_documento.regex'=>'Debe ingresar un formato rut (12.345.678-K).',
             'fecha_documento.required'=>'Debe ingresar la fecha',
             'fecha_documento.date'=>'Debe ingresar una fecha',
             'archivo.file' => 'Debe ingresar un archivo',
-            'archivo.mimes' => 'El archivo debe ser de tipo: png, jpg, pdf',
+            'archivo.mimes' => 'El archivo debe ser de tipo: pdf',
             'archivo.max' => 'El tamaño máximo permitido es 2 MB',
         ])->validate();
 
+        $tipo=TipoDocumento::find($request->tipo_documento);
         if($this->validarRutChileno($input['rut_documento'])){
             $year = new DateTime($input['fecha_documento']);
             $year = $year->format('Y');
@@ -104,7 +104,7 @@ class GestionDocumentoController extends Controller
             $base64 = base64_encode($doc);
             $mime = $request->file('archivo')->getClientMimeType();
 
-            $nombre_file=($input['numero_documento']).'-'.($year).'-'.($input['autor_documento']).'-'.($input['tipo_documento']);
+            $nombre_file=($tipo->nombre.' '.$input['numero_documento'] . "-" . $year);
             
             try {
 
@@ -115,7 +115,7 @@ class GestionDocumentoController extends Controller
                     "fecha" => $input['fecha_documento'],
                     "anno" => $year,
                     "rut" => $input['rut_documento'],
-                    "materia" => $input['materia_documento'],
+                    "materia" => $input['materia_documento'] ? $input['materia_documento']: '',
                     "estado" => $request->estado == 0 ? 1 : 2,
                     "direccion" => $input['direccion_documento'],
                     'name_file'=> $nombre_file.'.'.$ext,
@@ -200,9 +200,10 @@ class GestionDocumentoController extends Controller
             $documentosPadresIds = DocumentoAnexo::where('documento_id_anexo', $id)
             ->pluck('documento_id')
             ->toArray();
+            $union = array_merge($documentosAnexosIds,$documentosPadresIds);
 
             // Obtener todos los documentos que NO están en la lista de IDs obtenidos
-            $documentosFiltrados = Documento::whereNotIn('id', [$documentosAnexosIds,$documentosPadresIds])
+            $documentosFiltrados = Documento::whereNotIn('id', $union)
                 ->get();
     
             $documentosTransformados = DocumentoResource::collection($documentosFiltrados);
@@ -242,7 +243,7 @@ class GestionDocumentoController extends Controller
             'rut_documento'=>'sometimes|nullable|regex:/^0*(\d{1,3}(?:\.\d{3})*|\d{1,3})-[\dK]$/',
             'archivo' => ['sometimes','nullable', 
                 $boolean?null:'file', 
-                $boolean?null:'mimes:png,jpg,pdf', 
+                $boolean?null:'mimes:pdf', 
                 $boolean?null:'max:2048'],
             'tipo_documento.required'=>'Debe ingresar el tipo de documento',
             'numero_documento.required'=>'Debe ingresar el número de documento',
@@ -250,7 +251,7 @@ class GestionDocumentoController extends Controller
             'numero_documento.gt'=>'Debe ingresar un número mayor que 0',
             'autor_documento.required'=>'Debe ingresar un autor',
             'direccion_documento.numeric'=>'Debe ingresar un número',
-            'rut_documento.regex'=>'Debe ingresar un formato rut',
+            'rut_documento.regex'=>'Debe ingresar un formato rut (12.345.678-K)',
             'fecha_documento.required'=>'Debe ingresar la fecha',
             'fecha_documento.date'=>'Debe ingresar una fecha',
             'archivo.file' => 'Debe ingresar un archivo',
@@ -286,7 +287,7 @@ class GestionDocumentoController extends Controller
                     $documento->save();
                 }
                 if ($request->materia!==null) {
-                    $documento->materia=$request->materia_documento;
+                    $documento->materia=$request->materia_documento ? $request->materia_documento: '';
                     $documento->save();
                 }
                 if ($request->autor_documento!==null) {
@@ -304,12 +305,13 @@ class GestionDocumentoController extends Controller
                     }else{
                         $year=$documento->anno;
                     }
+                    $tipo=TipoDocumento::find($request->tipo_documento);
                     $path = $request->file('archivo')->getRealPath();
                     $ext = $request->file('archivo')->extension();
                     $doc = file_get_contents($path);
                     $base64 = base64_encode($doc);
                     $mime = $request->file('archivo')->getClientMimeType();
-                    $nombre_file=($input['numero_documento']).'-'.($year).'-'.($input['autor_documento']).'-'.($input['tipo_documento']);
+                    $nombre_file=($tipo->nombre.' '.$input['numero_documento'] . "-" . $year);
                     
                     $documento->file=$base64;
                     $documento->mime_file=$mime;
