@@ -15,7 +15,19 @@ import Select from '@/Components/Select';
 import { Head } from '@inertiajs/react';
 import { Toast } from 'primereact/toast';  
 import { DescargarDocumento } from '@/Composables/DownloadPDF';
-import { calcLength } from 'framer-motion';
+import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
+locale('en');
+addLocale('es', {
+  firstDayOfWeek: 1,
+  dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+  dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+  dayNamesMin: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
+  monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+  monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+  today: 'Hoy',
+  clear: 'Limpiar',
+  //...
+});
 
 
 const GestionDocumentos = ({auth}) => {
@@ -84,13 +96,13 @@ const GestionDocumentos = ({auth}) => {
   const filteredItems = useMemo(() => {
     let filteredDocumentos = [...documentos];
     if (hasSearchFilterNumero) {
-      filteredDocumentos = filteredDocumentos.filter((documento) => documento.numero == parseInt(filterNumero));
+      filteredDocumentos = filteredDocumentos.filter((documento) => documento.numero.includes(filterNumero));
     }
     if (hasSearchFilterMateria) {
-      filteredDocumentos = filteredDocumentos.filter((documento) => documento.materia == filterMateria);
+      filteredDocumentos = filteredDocumentos.filter((documento) => documento.materia.toLowerCase().includes(filterMateria.toLowerCase()));
     }
     if (hasSearchFilterRut) {
-      filteredDocumentos = filteredDocumentos.filter((documento) => documento.rut == filterRut);
+      filteredDocumentos = filteredDocumentos.filter((documento) => documento.rut?.includes(filterRut));
     }
     if (filterFecha){
       filteredDocumentos = filteredDocumentos.filter((documento) => {
@@ -266,8 +278,8 @@ const GestionDocumentos = ({auth}) => {
       }
       dataEstado.id_docs=datos
       patchEstado(route('gestion-documento.update-collection',0),{
-        onSuccess:(msg)=>{getDocumentos();showMsg("Exito",severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
-        onError:()=>{showMsg("Falló",severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
+        onSuccess:(msg)=>{getDocumentos();showMsg(msg.update,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
+        onError:(msg)=>{showMsg(msg.update,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
       })
     }else{
       showMsg("No seleccionaste datos",severity.error,summary.error)
@@ -295,8 +307,8 @@ const GestionDocumentos = ({auth}) => {
       }
       dataEstado.id_docs=datos
       patchEstado(route('gestion-documento.update-collection',0),{
-        onSuccess:(msg)=>{getDocumentos();showMsg("Exito",severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
-        onError:()=>{showMsg("Error",severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
+        onSuccess:(msg)=>{getDocumentos();showMsg(msg.update,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
+        onError:(msg)=>{showMsg(msg.update,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
       })
     }else{
       showMsg("No seleccionaste datos",severity.error,summary.error)
@@ -348,8 +360,8 @@ const GestionDocumentos = ({auth}) => {
                     startContent={<Icon path={mdiMagnify} size={1} />} value={filterRut}
                     onClear={() => onClearRut()} onValueChange={onSearchChangeRut} />
                   <div className='w-full card'>
-                    <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' 
-                    dateFormat="yy//mm/dd"  value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
+                    <Calendar className='max-h-12 border-0 flex p-0' placeholder='Seleccione fecha' dateFormat="dd/mm/yy" locale="es"
+                     value={filterFecha} onChange={(e) => setFilterFecha(e.value)} selectionMode="range" readOnlyInput />
                   </div>
                 </div>
               </div>

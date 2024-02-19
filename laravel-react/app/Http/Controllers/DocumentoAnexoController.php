@@ -39,7 +39,6 @@ class DocumentoAnexoController extends Controller
             // Obtener todos los documentos que NO están en la lista de IDs obtenidos
             $documentosFiltrados = Documento::whereNotIn('id', $documentosAnexosIds)
                 ->get();
-    
             $documentosTransformados = DocumentoResource::collection($documentosFiltrados);
             return Inertia::render("Documentos/AgregarDocumentoAnexo",[
                 "all_docs"=>$documentosTransformados,
@@ -112,7 +111,8 @@ class DocumentoAnexoController extends Controller
             'numero_documento'=> ['required','numeric','gt:0'],
             'autor_documento'=> ['required','numeric'],
             'fecha_documento'=>['required','date'],
-            'id_doc'=>['required','numeric']
+            'id_doc'=>['required','numeric'],
+            'archivo' => ['file', 'mimes:pdf', 'max:2048']
         ],[
             'tipo_documento.required'=>'Debe ingresar el tipo de documento',
             'tipo_documento.numeric'=>'Debe seleccionar un tipo',
@@ -123,18 +123,30 @@ class DocumentoAnexoController extends Controller
             'autor_documento.numeric'=>'Debe seleccionar un autor',
             'fecha_documento.required'=>'Debe ingresar la fecha',
             'fecha_documento.date'=>'Debe ingresar una fecha',
+            'archivo.file' => 'Debe ingresar un archivo',
+            'archivo.mimes' => 'El archivo debe ser de tipo: pdf',
+            'archivo.max' => 'El tamaño máximo permitido es 2 MB',
         ])->validate();
         $year = new DateTime($input['fecha_documento']);
         $year = $year->format('Y');
-        $nombre_file=($input['numero_documento']).'-'.($year).'-'.($input['autor_documento']).'-'.($input['tipo_documento']);
+        $path = $request->file('archivo')->getRealPath();
+        $ext = $request->file('archivo')->extension();
+        $doc = file_get_contents($path);
+        $base64 = base64_encode($doc);
+        $mime = $request->file('archivo')->getClientMimeType();
+        $tipo=TipoDocumento::find($request->tipo_documento);
+        $nombre_file=($tipo->nombre.' '.$input['numero_documento'] . "-" . $year);
         try {
 
             $id_documento=DB::table("documento")->insertGetId([
                 "tipo" => $input['tipo_documento'],
-                "numero" => $input['numero_documento'],
+                "numero" => $input['numero_documento'] . "/" . $year,
                 "autor" => $input['autor_documento'],
                 "fecha" => $input['fecha_documento'],
-                'name_file'=> $nombre_file.'.pdf',
+                'name_file'=> $nombre_file.'.'.$ext,
+                'file' => $base64,
+                'mime_file'=> $mime,
+                'materia'=>$request->materia_documento ? $request->materia_documento:'',
                 'direccion' => 1,
                 "anno" => $year,
                 "estado" => $request->estado == 0 ? 1 : 2,
@@ -199,7 +211,7 @@ class DocumentoAnexoController extends Controller
                 'autores'=>Funcionario::all(),
                 'tipos'=>TipoDocumento::all(),
                 'estados'=>Estado::all(),
-                "id_doc"=>$id
+                "doc"=> new DocumentoResource(Documento::find($id))
             ]);
         }else{
             return back();

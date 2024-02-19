@@ -9,7 +9,7 @@ import { usePermission } from '@/Composables/Permission';
 import { Button,Chip,Table,TableBody,Modal,ModalBody,ModalContent,ModalHeader,ModalFooter,
     TableRow,TableHeader,TableColumn,Pagination,TableCell, useDisclosure, Progress, Select, SelectItem} from '@nextui-org/react'
 import Icon from '@mdi/react';
-import { mdiChevronDown,mdiTrashCanOutline} from '@mdi/js';
+import { mdiPlus, mdiRestore,mdiTrashCanOutline} from '@mdi/js';
 import { Toast } from 'primereact/toast';       
 import React,{useRef,useState,useMemo,useCallback} from 'react'
 
@@ -184,21 +184,18 @@ const EditarRol = ({auth}) => {
                 <div>
                 <div className='w-full mb-8'>
                             <InputLabel value={"Seleccionar permisos para agregar: "} className='flex items-center me-5'></InputLabel>
-                            <div className='w-full lg:flex gap-8'>
+                            <div className='w-full lg:flex gap-5'>
                             {
                                 permisos_filter.length!=0?
                                 <>
                                   <div className='w-full'>
                                         <Select label="Permisos: " selectionMode="multiple" placeholder="Seleccionar permisos..."
-                                            selectedKeys={permissionSelect} className="max-w-xs md:max-w-md xl:max-w-5xl" onChange={handleSelectionChange}>
+                                            selectedKeys={permissionSelect} className="max-w-xs md:max-w-md xl:max-w-3xl" onChange={handleSelectionChange}>
                                             {
                                                 permisos_filter.map((permiso)=>(
                                                     <SelectItem key={permiso.name} textValue={permiso.name}>
                                                         <div className="flex flex-col">
                                                             <span className="text-small">{"Permiso: " +permiso.name}</span>
-                                                            {/* <span className="text-tiny">
-                                                                {"Autor: "+ doc.autor +" | Tipo: "+doc.tipo+" | Dirección: "+ doc.direccion + " | Fecha: "+doc.fecha}
-                                                            </span> */}
                                                         </div>
                                                     </SelectItem>
                                                 ))
@@ -206,12 +203,13 @@ const EditarRol = ({auth}) => {
                                             
                                         </Select>
                                     </div>
-                                    <div className='flex items-center'>
+                                    <div className='flex w-full items-center gap-1'>
+                                        <Button onPress={()=>setPermissionSelect([])} color='warning' variant='ghost' 
+                                        className='w-full text-large'  startContent={<Icon path={mdiRestore} size={1} />}>Restaurar</Button>
                                         <Button className='w-full text-large' color='primary' onPress={()=>{
                                                     setFunctionName(() => () => submitPermisosAdd());setTitleModal('Guardar cambios');
                                                     setContentModal('¿Está seguro de aplicar los cambios?');onOpen();}}  
-                                        //onPress={() => submitPermisosAdd()}
-                                        variant='ghost' type='submit'>Agregar permisos selecccionados</Button>
+                                        startContent={<Icon path={mdiPlus} size={1} />} variant='ghost' type='submit'>Agregar</Button>
                                     </div>
                                 </>:
                                 <>
@@ -220,13 +218,17 @@ const EditarRol = ({auth}) => {
                               }
                               
                             </div>
+                            <p className="text-small text-default-500">Seleccionados: {Array.from(permissionSelect).join(", ")}</p>
                         </div>
                     <div>
                         <div className='w-full'>
                             <div className='flex mb-2'>
-                                <div className='w-full justify-end flex'>
-                                    <Button className='' color='danger' variant='flat' onPress={()=>{
-                                                    setFunctionName(() => () => submitPermisosDeleteSeleccion());setTitleModal('Guardar cambios');
+                                <div className='w-full justify-end gap-1 flex'>
+                                        <Link href={usePage().props.ziggy.previous} className=''>
+                                        <Button className='text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                                    </Link>
+                                    <Button className='text-large' color='danger' variant='flat'
+                                    onPress={()=>{   setFunctionName(() => () => submitPermisosDeleteSeleccion());setTitleModal('Guardar cambios');
                                                     setContentModal('¿Está seguro de aplicar los cambios?');onOpen();}}  
                                     >Quitar seleccionados</Button>
                                 </div>

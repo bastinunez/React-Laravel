@@ -16,32 +16,44 @@ class UsuarioSeeder extends Seeder
      */
     public function run(): void
     {
-        $usuarios = [
-            [
-                'nombres' => 'Ana María',
-                'apellidos' => 'López Rodríguez',
-                'iniciales' => 'AMLR',
-                'correo' => 'amaria@gdoc.cl',
-                'password' => Hash::make('digitador'),
-                'rut' => '23.456.789-0',
-                'rol' => 2,
-                'estado' => 2,
-                'change_pwd' => false
-            ],
-        ];
+        $digitador = User::create([
+            'nombres' => 'Ana María',
+            'apellidos' => 'López Rodríguez',
+            'iniciales' => 'AMLR',
+            'correo' => 'amaria@gdoc.cl',
+            'password' => Hash::make('digitador'),
+            'rut' => '23.456.789-0',
+            'rol' => 2,
+            'estado' => 2,
+            'change_pwd' => false
+        ])->assignRole("Digitador");
 
-        $usuario = User::create([
-            'nombres' => 'Administrador Administrador',
-            'apellidos' => 'Administrador Administrador',
-            'iniciales' => 'AAAA',
-            'correo' => 'admin1@gdoc.cl',
+        $admin_uno = User::create([
+            'nombres' => 'Bastián Orlando',
+            'apellidos' => 'Núñez Castro',
+            'iniciales' => 'BONC',
+            'correo' => 'bnunez@gdoc.cl',
             'password' => Hash::make('administrador'),
             'rut' => '20.185.866-6',
             'rol' => 3,
             'estado' => 1,
             'change_pwd' => false
         ])->assignRole("Administrador");
-        $usuario2 = User::create([
+
+        $admin_dos = User::create([
+            'nombres' => 'Rino Eduardo',
+            'apellidos' => 'Raggi Núñez',
+            'iniciales' => 'RERN',
+            'correo' => 'rraggi@gdoc.cl',
+            'password' => Hash::make('administrador'),
+            'rut' => '16.023.927-1',
+            'rol' => 3,
+            'estado' => 1,
+            'change_pwd' => false
+        ])->assignRole("Administrador");
+
+
+        $usuario_uno = User::create([
             'nombres' => 'Usuario Usuario',
             'apellidos' => 'Usuario Usuario',
             'iniciales' => 'UUUU',
@@ -52,29 +64,7 @@ class UsuarioSeeder extends Seeder
             'estado' => 1,
             'change_pwd' => false
         ])->assignRole("Usuario");
-        
-        foreach ($usuarios as $usuarioData) {
-            $usuario = User::create($usuarioData);
 
-            // Asignar roles
-            if (isset($usuarioData['rol'])) {
-                $rol = $this->obtenerNombreRol($usuarioData['rol']); // Función para obtener el nombre del rol según tu lógica
-                $usuario->assignRole($rol);
-            }
-        }
     }
 
-    public function obtenerNombreRol($rolId)
-    {
-        // Lógica para mapear el ID del rol a su nombre
-        // Puedes cambiar esto según la lógica de tus roles
-        switch ($rolId) {
-            case 1:
-                return 'Usuario';
-            case 2:
-                return 'Digitador';
-            case 3:
-                return 'Administrador';
-        }
-    }
 }

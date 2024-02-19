@@ -68,19 +68,19 @@ const EditarDireccion = ({auth}) => {
             <ContentTemplate>
                 <div>
                     <div>
-                        <form onSubmit={submit} className='p-8'>
+                        <form onSubmit={submit} className=''>
                             <div className='flex w-full mb-5 gap-5'>
-                                <div className="w-full me-5">
+                                <div className="w-full">
                                     <InputLabel value={"Ingresa nombre"}></InputLabel>
                                     <TextInput type={'text'} className="w-full" placeholder={data.nombre} value={data.nombre} onChange={(e) => setData('nombre',e.target.value)} ></TextInput>
                                     <InputError message={errors.nombre} className="mt-2" />
                                 </div>
                             </div>
-                            <div className='w-full md:flex gap-10'>
+                            <div className='w-full flex gap-1'>
                                 <Link href={route('direccion.index')} className='w-full'>
                                     <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
                                 </Link>
-                                <Button className='w-full' color='primary' variant='ghost' type='submit'>Guardar cambios</Button>
+                                <Button className='w-full text-large' color='primary' variant='ghost' type='submit'>Guardar cambios</Button>
                             </div>
                         </form>
                     </div>

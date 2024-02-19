@@ -12,7 +12,7 @@ import {Button, Radio,RadioGroup, Table,TableCell,TableRow,Pagination,
   Select,SelectItem, Progress,
   Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Chip, TableHeader, TableBody, TableColumn, Divider,}  from "@nextui-org/react";
 import Icon from '@mdi/react';
-import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiPencilBoxOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline, mdiTrashCan, mdiTrashCanOutline} from '@mdi/js';
+import { mdiNoteEditOutline, mdiRestore,mdiPlus, mdiTrashCanOutline} from '@mdi/js';
 import { Calendar } from 'primereact/calendar';
 import { Head } from '@inertiajs/react';
 import { Toast } from 'primereact/toast'; 
@@ -143,7 +143,6 @@ const EditarUsuario = ({auth}) => {
     }else{
       showMsg("No hay seleccion",severity.error,summary.error);onCloseProgress()
     }
-    
   }
   const submitUpdateData = (e) => {
     onOpenProgress()
@@ -192,21 +191,21 @@ const EditarUsuario = ({auth}) => {
         </Modal>
         <ContentTemplate>
             <div className='lg:p-8'>
-              <div className='lg:flex w-full gap-4'>
+              <div className='flex w-full gap-4'>
                 <div className='w-full'>
                     <Button color='secondary' className='w-full text-medium' variant={btnMetadato?'solid':'ghost'} 
+                    startContent={<Icon path={mdiNoteEditOutline} size={1} />}
                     onClick={() => { if(!btnMetadato){setBtnRolesPermisos(!btnRolesPermisos);setBtnMetadato(!btnMetadato)}}} >
-                        Editar metadatos de usuario
+                      <p className='flex sm:hidden'>Metadatos</p>
+                      <p className='hidden sm:flex'>Editar metadatos de usuario</p>
                     </Button>
                 </div>
                 <div className='w-full'>
                     <Button color='secondary' className='w-full text-medium'  variant={btnRolesPermisos?'solid':'ghost'} 
-                    onClick={() => {
-                        if (!btnRolesPermisos){
-                            setBtnRolesPermisos(!btnRolesPermisos);setBtnMetadato(!btnMetadato)
-                        }
-                        }} >
-                        Roles y permisos
+                    onClick={() => { if (!btnRolesPermisos){ setBtnRolesPermisos(!btnRolesPermisos);setBtnMetadato(!btnMetadato) } }} 
+                    startContent={<Icon path={mdiNoteEditOutline} size={1} />}>
+                      <p className='flex sm:hidden'>Permisos</p>
+                      <p className='hidden sm:flex'>Roles y permisos</p>
                     </Button>
                 </div>
               </div>
@@ -233,7 +232,7 @@ const EditarUsuario = ({auth}) => {
                         </div>
                         <div className='w-full mb-5'>
                             <InputLabel value={"Rut"}></InputLabel>
-                            <TextInput className="w-full" disabled={true} type={'text'} value={dataEdit.rut} ></TextInput>
+                            <TextInput className="w-full" type={'text'} value={dataEdit.rut} ></TextInput>
                         </div>
                       </div>
                       <div className='w-full flex gap-5'>
@@ -297,11 +296,13 @@ const EditarUsuario = ({auth}) => {
                                       
                                   </Select>
                                 </div>
-                                <div>
+                                <div className='flex w-full items-center gap-1'>
+                                  <Button onPress={()=>setPermissionSelect([])} color='warning' variant='ghost' 
+                                  className='w-full text-large'  startContent={<Icon path={mdiRestore} size={1} />}>Restaurar</Button>
                                   <Button className='w-full text-large' color='primary' onPress={()=>{
-                                          setFunctionName(() => () => submitPermisosAdd());setTitleModal('Agregar permisos');
-                                          setContentModal('¿Está seguro de agregar los permisos seleccionados?');onOpen();}} 
-                                  variant='ghost' type='submit'>Agregar permisos selecccionados</Button>
+                                              setFunctionName(() => () => submitPermisosAdd());setTitleModal('Guardar cambios');
+                                              setContentModal('¿Está seguro de aplicar los cambios?');onOpen();}}  
+                                  startContent={<Icon path={mdiPlus} size={1} />} variant='ghost' type='submit'>Agregar</Button>
                                 </div>
                                 </>:
                                 <>
@@ -310,13 +311,17 @@ const EditarUsuario = ({auth}) => {
                               }
                               
                             </div>
+                            <p className="text-small text-default-500">Seleccionados: {Array.from(permissionSelect).join(", ")}</p>
                             
                         </div>
                       </div>
                       <div className='w-full'>
                         <div className='flex mb-2'>
-                          <div className='w-full justify-end flex'>
-                            <Button className='' color='danger' variant='flat' onPress={()=>{
+                          <div className='w-full justify-end flex gap-1'>
+                            <Link href={usePage().props.ziggy.previous} className=''>
+                                  <Button className='text-large' color='warning' variant='ghost' >Volver atrás</Button>
+                            </Link>
+                            <Button className='text-large' color='danger' variant='flat' onPress={()=>{
                                         setFunctionName(() => () => submitPermisosDeleteSeleccion());setTitleModal('Eliminar permisos');
                                         setContentModal('¿Está seguro de eliminar los permisos seleccionados?');onOpen();}} 
                             >Quitar seleccionados</Button>
@@ -354,11 +359,6 @@ const EditarUsuario = ({auth}) => {
                           </TableBody>
                         </Table>
                       </div>
-                    </div>
-                    <div className='w-full flex gap-5'>
-                      <Link href={usePage().props.ziggy.previous} className='w-full'>
-                            <Button className='w-full text-large' color='warning' variant='ghost' >Volver atrás</Button>
-                      </Link>
                     </div>
                   </div>
                   </>
