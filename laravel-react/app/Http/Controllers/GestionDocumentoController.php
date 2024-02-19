@@ -73,7 +73,7 @@ class GestionDocumentoController extends Controller
             'fecha_documento'=>['required','date'],
             'direccion_documento'=> ['numeric'],
             'rut_documento'=>['regex:/^0*(\d{1,3}(?:\.\d{3})*|\d{1,3})-[\dK]$/'],
-            'archivo' => ['file', 'mimes:pdf', 'max:2048']
+            //'archivo' => ['file', 'mimes:pdf', 'max:2048']
         ],[
             'tipo_documento.required'=>'Debe ingresar el tipo de documento',
             'tipo_documento.numeric'=>'Debe seleccionar un tipo',
@@ -118,7 +118,8 @@ class GestionDocumentoController extends Controller
                     "materia" => $input['materia_documento'] ? $input['materia_documento']: '',
                     "estado" => $request->estado == 0 ? 1 : 2,
                     "direccion" => $input['direccion_documento'],
-                    'name_file'=> $nombre_file.'.'.$ext,
+                    // 'name_file'=> $nombre_file.'.'.$ext,
+                    'name_file'=> $nombre_file,
                     'file' => $base64,
                     'mime_file'=> $mime
                 ]);

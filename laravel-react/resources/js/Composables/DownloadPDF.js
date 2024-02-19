@@ -3,7 +3,8 @@ import { saveAs } from "save-as";
 
 const base64toBlob = (data,extension) => {
     // Cut the prefix `data:application/pdf;base64` from the raw base 64
-    const base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
+    console.log(extension)
+    const base64WithoutPrefix = data.substr(`data:${extension};base64,`.length);
 
     const bytes = atob(base64WithoutPrefix);
     let length = bytes.length;
@@ -13,7 +14,19 @@ const base64toBlob = (data,extension) => {
         out[length] = bytes.charCodeAt(length);
     }
 
-    return new Blob([out], { type: 'application/pdf' });
+    return new Blob([out], { type: extension });
+
+    // const base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
+
+    // const bytes = atob(base64WithoutPrefix);
+    // let length = bytes.length;
+    // let out = new Uint8Array(length);
+
+    // while (length--) {
+    //     out[length] = bytes.charCodeAt(length);
+    // }
+
+    // return new Blob([out], { type: 'application/pdf' });
 };
 
 export const DescargarDocumento = (seleccion,documentos) => {

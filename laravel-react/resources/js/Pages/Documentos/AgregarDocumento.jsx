@@ -228,7 +228,7 @@ const AgregarDocumento = ({auth}) => {
             </div>
             <div className="w-80 mb-1">
               <InputLabel value={"Agregar archivo PDF (*)"}></InputLabel>
-              <input onChange ={(e) => setData('archivo',e.target.files[0])} className='text-tiny md:text-small' type='file' accept='.pdf' />
+              <input onChange ={(e) => setData('archivo',e.target.files[0])} className='text-tiny md:text-small' type='file' accept='.pdf, .docx, .docx' />
               <InputError message={errors.archivo} className="mt-2" />
             </div>
             <div className='w-80'>
