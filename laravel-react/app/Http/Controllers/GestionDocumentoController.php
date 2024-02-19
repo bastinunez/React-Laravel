@@ -118,7 +118,7 @@ class GestionDocumentoController extends Controller
                     "materia" => $input['materia_documento'] ? $input['materia_documento']: '',
                     "estado" => $request->estado == 0 ? 1 : 2,
                     "direccion" => $input['direccion_documento'],
-                    'name_file'=> $nombre_file.'.'.$ext,
+                    'name_file'=> $nombre_file,
                     'file' => $base64,
                     'mime_file'=> $mime
                 ]);
@@ -315,7 +315,7 @@ class GestionDocumentoController extends Controller
                     
                     $documento->file=$base64;
                     $documento->mime_file=$mime;
-                    $documento->name_file=$nombre_file.'.'.$ext;
+                    $documento->name_file=$nombre_file;
                     $documento->save();
                 }
                 if ($request->archivo == null){

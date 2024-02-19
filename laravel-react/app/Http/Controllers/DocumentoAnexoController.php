@@ -143,7 +143,7 @@ class DocumentoAnexoController extends Controller
                 "numero" => $input['numero_documento'] . "/" . $year,
                 "autor" => $input['autor_documento'],
                 "fecha" => $input['fecha_documento'],
-                'name_file'=> $nombre_file.'.'.$ext,
+                'name_file'=> $nombre_file,
                 'file' => $base64,
                 'mime_file'=> $mime,
                 'materia'=>$request->materia_documento ? $request->materia_documento:'',

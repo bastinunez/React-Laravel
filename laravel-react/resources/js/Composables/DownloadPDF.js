@@ -1,10 +1,10 @@
 import JSZip from "jszip";
 import { saveAs } from "save-as";
+import mime from 'mime';
 
 const base64toBlob = (data,extension) => {
     // Cut the prefix `data:application/pdf;base64` from the raw base 64
-    const base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
-
+    const base64WithoutPrefix = data.substr(`data:${extension};base64,`.length);
     const bytes = atob(base64WithoutPrefix);
     let length = bytes.length;
     let out = new Uint8Array(length);
@@ -13,7 +13,18 @@ const base64toBlob = (data,extension) => {
         out[length] = bytes.charCodeAt(length);
     }
 
-    return new Blob([out], { type: 'application/pdf' });
+    return new Blob([out], { type: extension });
+    // const base64WithoutPrefix = data.substr('data:application/pdf;base64,'.length);
+    // console.log("tipo:",mime.getExtension(all_documents[0].mime_file)); 
+    // const bytes = atob(base64WithoutPrefix);
+    // let length = bytes.length;
+    // let out = new Uint8Array(length);
+
+    // while (length--) {
+    //     out[length] = bytes.charCodeAt(length);
+    // }
+
+    // return new Blob([out], { type: 'application/pdf' });
 };
 
 export const DescargarDocumento = (seleccion,documentos) => {
@@ -34,19 +45,21 @@ export const DescargarDocumento = (seleccion,documentos) => {
     for (let i = 0; i < datos.length; i++) {
         // Zip file with the file name.
         if (datos[i].file){
+            const ext =mime.getExtension(datos[i].mime_file);
             if (datos[i].anexos.length>0){
                 const blob = base64toBlob(datos[i].file,datos[i].mime_file);
-                zip.file(`${datos[i].name_file}/${datos[i].name_file}`,blob)
+                zip.file(`${datos[i].name_file}/${datos[i].name_file}.${ext}`,blob)
 
                 for (let j = 0;j<datos[i].anexos.length;j++){
                     const doc_anexo = datos[i].anexos[j].datos_anexo
                     const blob_anexo = base64toBlob(doc_anexo.file,doc_anexo.mime_file);
-                    zip.file(`${datos[i].name_file}/Anexos/${datos[i].anexos[j].datos_anexo.name_file}`,blob_anexo)
+                    const ext_mini =mime.getExtension(doc_anexo.mime_file);
+                    zip.file(`${datos[i].name_file}/Anexos/${datos[i].anexos[j].datos_anexo.name_file}.${ext_mini}`,blob_anexo)
                 }
             }else{
                 const blob = base64toBlob(datos[i].file,datos[i].mime_file);
                 const url = URL.createObjectURL(blob);
-                zip.file(`${datos[i].name_file}/${datos[i].name_file}`, blob);
+                zip.file(`${datos[i].name_file}/${datos[i].name_file}.${ext}`, blob);
             }
         }else{
             //console.log("No tenia archivo el documento n° ",datos[i].numero)
