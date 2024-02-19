@@ -398,7 +398,7 @@ const EditarUsuario = ({auth}) => {
                     <InputLabel value={"Restaurar contraseña"}></InputLabel>
                     <Button color='danger' onPress={()=>{
                         setFunctionName(() => () => submitRestaurarPwd());setTitleModal('Restaurar contraseña');
-                        setContentModal('¿Está seguro de restaurar la contraseña del usuario?');onOpen();}} 
+                        setContentModal('¿Está seguro de restaurar la contraseña del usuario? (Contraseña restaurada sería: 12345678)');onOpen();}} 
                     className='w-full mt-3' variant='flat'>Presione para restaurar</Button>
                     
                 </div>
