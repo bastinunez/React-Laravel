@@ -4,6 +4,29 @@
 - `Funcionalidad 1`: Visualizar, descargar y gestionar documentos PDF.
 - `Funcionalidad 2`: Gestión de roles y permisos.
 
+## Instalación sin Docker
+### Windows
+#### Requisitos:
+    - Laragon (APACHE)
+    - PHP >=8.1
+    - Git GUI Client* (Sirve para copiar el repositorio más cómodamente, de lo contrario debe descargar toda la carpeta y ubicarla donde le sea más cómodo para Laragon)
+#### Instalación:
+    - Descargar aplicación de Laragon e instalar
+    - Habilitar el servicio de APACHE (puertos 80 y 443)
+    - Configurar carpeta "Root" según donde se encuentre el proyecto. Ejemplo: /ruta/a/proyecto/**laravel-react/public/**
+#### Manual de uso
+    - Crear un archivo .env con los mismos parámetros del archivo .env.example.
+    - En el archivo .env editar las credenciales de la base de datos que tendrá.
+    - En la terminal de Laragon ubicarse en la carpeta laravel-react y utilizar lo siguientes comandos:
+        ```
+        php artisan key:generate
+        npm install
+        npm run build
+        composer install
+        ```
+    - Iniciar el servicio de apache
+    - Reemplazar el archivo auto.build.test.conf en sites-enabled de Laragon por el **contenido** (de la línea 3 en adelante) que se encuentra en la carpeta raíz de este proyecto también llamado auto.build.test.conf. **En la primera línea mantener la ruta donde tienes tu proyecto, esta ruta debe terminar en .../public**
+    - Reiniciar el servicio y entrar a la página build.test
 
 ## Instalación usando Docker
 ### Instalacion:
@@ -57,28 +80,6 @@
         ```
     - En el navegador ingresar el localhost:80 (Esto hay que modificar para dar nombre dominio y SSL certificado)
 
-## Instalación sin Docker
-### Windows
-#### Requisitos:
-    - Laragon (APACHE)
-    - PHP >=8.1
-#### Instalación:
-    - Descargar aplicación de Laragon e instalar
-    - Habilitar el servicio de APACHE (puertos 80 y 443)
-    - Configurar carpeta "Root" según donde se encuentre el proyecto. Ejemplo: /ruta/a/proyecto/**laravel-react/public/**
-#### Manual de uso
-    - Crear un archivo .env con los mismos parámetros del archivo .env.example.
-    - En el archivo .env editar las credenciales de la base de datos que tendrá.
-    - En la terminal de Laragon ubicarse en la carpeta laravel-react y utilizar lo siguientes comandos:
-        ```
-        php artisan key:generate
-        npm install
-        npm run build
-        composer install
-        ```
-    - Iniciar el servicio de apache
-    - Reemplazar el archivo auto.build.test.conf en sites-enabled de Laragon por el **contenido** (de la línea 3 en adelante) que se encuentra en la carpeta raíz de este proyecto también llamado auto.build.test.conf. **En la primera línea mantener la ruta donde tienes tu proyecto, esta ruta debe terminar en .../public**
-    - Reiniciar el servicio y entrar a la página build.test
 
 
 ## Cambiar seeders (Sólo antes de iniciar la aplicación):
