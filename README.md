@@ -1,6 +1,11 @@
-# Proyecto-practica-1
+# Gestor de Documentos - Proyecto Práctica 1
 
-- ## Usando Docker
+## 🛠️ Funcionalidades del proyecto
+- `Funcionalidad 1`: Visualizar, descargar y gestionar documentos PDF.
+- `Funcionalidad 2`: Gestión de roles y permisos.
+
+
+- ## Instalación usando Docker
     - ### Instalacion:
         - #### Windows (no es la mejor opción con Docker):
             - Requisitos:
@@ -27,28 +32,30 @@
         - #### Linux (Ubuntu):
             - Para otras distribuciones: https://docs.docker.com/engine/install/
             - Add Docker's official GPG key:
-
+                ```
                 sudo apt-get update
                 sudo apt-get install ca-certificates curl gnupg
                 sudo install -m 0755 -d /etc/apt/keyrings
                 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
                 sudo chmod a+r /etc/apt/keyrings/docker.gpg
+                ```
 
             - Add the repository to Apt sources:
-            
+                ```
                 echo \
                 "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
                 $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
                 sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
                 sudo apt-get update
-            - sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+                ```
+            - ```sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin```
             - (Para verificar la instalación) sudo docker run hello-world
     - ### Manual de uso:
         - Ubicarse en la carpeta raiz (donde se encuentra el archivo docker-compose.yml) y abrir terminal: 
-            - docker-compose up -d --build
+            - ```docker-compose up -d --build```
         - En el navegador ingresar el localhost:80 (Esto hay que modificar para dar nombre dominio y SSL certificado)
 
-- ## Sin Docker
+- ## Instalación sin Docker
     - ### Windows
         - #### Requisitos:
             - Laragon (APACHE)
@@ -59,12 +66,22 @@
             - Configurar carpeta "Root" según donde se encuentre el proyecto. Ejemplo: /ruta/a/proyecto/**laravel-react/public/**
         - #### Manual de uso
             - Crear un archivo .env con los mismos parámetros del archivo .env.example.
-            - En el archivo.env editar las credenciales de la base de datos que tendrá.
+            - En el archivo .env editar las credenciales de la base de datos que tendrá.
             - En la terminal de Laragon ubicarse en la carpeta laravel-react y utilizar lo siguientes comandos:
-                - php artisan key:generate
-                - npm run build
-                - composer install
-            - Abrir la carpeta en el directorio public, copiar la carpeta build que se genera y crear otro directorio llamado documentos con los mismos datos de build.
+                ```
+                php artisan key:generate
+                npm run build
+                composer install
+                ```
             - Iniciar el servicio de apache
-            - Reemplazar el archivo auto.documentos.test.conf en sites-enabled de laragon por el **contenido** que se encuentra en la carpeta raíz de este proyecto también llamado auto.documentos.test.conf. **En la primera línea mantener la ruta donde tienes tu proyecto, esta ruta debe terminar en .../public**
-            - Reiniciar el servicio y entrar a la página documentos.test
+            - Reemplazar el archivo auto.build.test.conf en sites-enabled de Laragon por el **contenido** (de la línea 3 en adelante) que se encuentra en la carpeta raíz de este proyecto también llamado auto.build.test.conf. **En la primera línea mantener la ruta donde tienes tu proyecto, esta ruta debe terminar en .../public**
+            - Reiniciar el servicio y entrar a la página build.test
+
+
+## Cambiar seeders (Sólo antes de iniciar la aplicación)
+    - Para cambiar los datos por defecto de la aplicación de las distintas tablas dirigirse a la carpeta /database/seeders y modificar los archivos según requiera.
+    - Esto es necesario para crear las credenciales de los administradores desde un principio.
+    - Después de modificar los archivos, en una terminal ubicada en la carpeta raíz laravel-react:
+        ```
+        php artisan migrate:refresh --seed
+        ```
