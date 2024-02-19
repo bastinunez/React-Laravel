@@ -417,31 +417,6 @@ const AgregarDocumentoAnexo = ({auth}) => {
                                     )
                                 }
                             </NextSelect>
-                            <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-                              <Autocomplete 
-                                label="Select an animal" 
-                                className="max-w-xs" 
-                              >
-                                {documentos.map((doc) => (
-                                  <AutocompleteItem key={doc.id} value={doc.numero}>
-                                    <div className="flex flex-col">
-                                        <span className="text-small">{"Documento número: " +doc.numero +" | Tipo: " +doc.tipo}</span>
-                                        <span className="text-tiny">
-                                            {"Autor: "+ doc.autor +" | Dirección: "+ doc.direccion + " | Fecha: "+doc.fecha}
-                                        </span>
-                                    </div>
-                                  </AutocompleteItem>
-                                ))}
-                              </Autocomplete>
-                              <Autocomplete
-                                label="Favorite Animal"
-                                placeholder="Search an animal"
-                                className="max-w-xs"
-                                defaultItems={documentos}
-                              >
-                                {(doc) => <AutocompleteItem key={doc.id}>{doc.numero}</AutocompleteItem>}
-                              </Autocomplete>
-                            </div>
                         </div>
                         <div className='md:flex items-center xl:gap-5'>
                             <Button type='text' size='md' className="w-full" color='primary' variant='ghost'>Anexar documentos</Button>
