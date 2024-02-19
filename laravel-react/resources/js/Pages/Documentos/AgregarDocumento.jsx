@@ -7,7 +7,7 @@ import InputError from '@/Components/InputError';
 import TextInput from '@/Components/TextInput'
 import Select from '@/Components/Select'
 import {Button, Modal,ModalBody,ModalContent,ModalFooter,ModalHeader, Tooltip, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,Checkbox,
-    Popover,PopoverContent,PopoverTrigger } from "@nextui-org/react";
+    Progress,PopoverContent,PopoverTrigger } from "@nextui-org/react";
 import { Calendar } from 'primereact/calendar';
 import { Toast } from 'primereact/toast'
 import { Head } from '@inertiajs/react';        
@@ -168,6 +168,20 @@ const AgregarDocumento = ({auth}) => {
                           <Button type='submit' color='primary' variant='ghost' className='w-full text-large'>Agregar</Button>
                       </div>
                   </form>
+                  )
+              }
+          </ModalContent>
+      </Modal>
+      <Modal isOpen={isOpenProgress} onClose={onCloseProgress}>
+          <ModalContent>
+              {
+                  (onCloseProgress)=>(
+                      <Progress
+                          size="sm"
+                          isIndeterminate
+                          aria-label="Loading..."
+                          className="max-w-md"
+                      />
                   )
               }
           </ModalContent>
