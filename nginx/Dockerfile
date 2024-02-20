@@ -1,4 +1,4 @@
-FROM nginx
+FROM nginx:1.24
 
 RUN  echo "daemon off;" >> /etc/nginx/nginx.conf
 
