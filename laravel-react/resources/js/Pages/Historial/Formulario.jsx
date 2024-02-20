@@ -1,7 +1,7 @@
 import ContentTemplate from '@/Components/ContentTemplate'
 import TitleTemplate from '@/Components/TitleTemplate'
 import Authenticated from '@/Layouts/AuthenticatedLayout'
-import { Head,usePage } from '@inertiajs/react'
+import { Head,useForm,usePage } from '@inertiajs/react'
 import { Toast } from 'primereact/toast'
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
   Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
@@ -158,12 +158,17 @@ const Formulario = ({auth}) => {
     setFilterDetalles('')
   }
 
+  const {delete:deleteHistorial} = useForm()
+  const eliminarTodos = () => {
+    deleteHistorial(route('historial-accion-formulario.delete-all'))
+  }
+
   return (
     <Authenticated user={auth.user}>
-      <Head title="Historial sobre formulario" />
+      <Head title="Historial general" />
       <Toast ref={toast_global}></Toast>
       <TitleTemplate>
-        Historial sobre formulario
+        Historial general
       </TitleTemplate>
       <FilterTemplate>
           <div className="flex flex-col gap-4">
@@ -232,6 +237,9 @@ const Formulario = ({auth}) => {
           </div>
         </FilterTemplate>
       <ContentTemplate>
+        <div className='flex justify-end mb-1'>
+            <Button onPress={() => eliminarTodos()} color='danger'>Eliminar datos</Button>
+        </div>
         <div>
             <div>
             <Table aria-label="Tabla historial" color={"primary"}

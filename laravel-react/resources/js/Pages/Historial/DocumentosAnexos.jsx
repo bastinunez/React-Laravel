@@ -1,7 +1,7 @@
 import ContentTemplate from '@/Components/ContentTemplate'
 import TitleTemplate from '@/Components/TitleTemplate'
 import Authenticated from '@/Layouts/AuthenticatedLayout'
-import { Head,Link,usePage } from '@inertiajs/react'
+import { Head,Link,useForm,usePage } from '@inertiajs/react'
 import { Toast } from 'primereact/toast'
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
   Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
@@ -173,6 +173,11 @@ const DocumentosAnexos = ({auth}) => {
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const [datosModal,setDatosModal] = useState([])
 
+  const {delete:deleteHistorial} = useForm()
+  const eliminarTodos = () => {
+    deleteHistorial(route('historial-documentos-anexos.delete-all'))
+  }
+
   return (
     <Authenticated user={auth.user}>
       <Head title="Historial de documentos anexos" />
@@ -283,6 +288,9 @@ const DocumentosAnexos = ({auth}) => {
           </div>
         </FilterTemplate>
       <ContentTemplate>
+        <div className='flex justify-end mb-1'>
+            <Button onPress={() => eliminarTodos()} color='danger'>Eliminar datos</Button>
+        </div>
         <div>
             <div>
             <Table aria-label="Tabla historial" color={"primary"} loa

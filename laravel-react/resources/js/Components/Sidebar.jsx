@@ -62,46 +62,46 @@ export const Sidebar = ({user}) => {
                     {
                         hasPermission('Gestion-Ver documentos')? 
                         <>
-                        <NavLink href={route('gestion-documento.index')} tooltip={"Gestion de documentos"}
+                        <NavLink href={route('gestion-documento.index')} tooltip={"Gestión de documentos"}
                         active={route().current('gestion-documento.index')} className="py-2 px-2 my-1" >
                              <div className="me-3">
                                 <Icon path={mdiFileMultiple} size={1} />
                             </div>
-                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestion de documentos</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestión de documentos</span>
                         </NavLink>
                         </>:<></>
                     }
                     {
                         hasPermission('Ver todos usuarios')? 
                         <>
-                        <NavLink href={route('gestion-usuarios.index')} tooltip={"Gestion de usuarios"}
+                        <NavLink href={route('gestion-usuarios.index')} tooltip={"Gestión de usuarios"}
                         active={route().current('gestion-usuarios.index')} className="py-2 px-2 my-1" >
                              <div className="me-3">
                                 <Icon path={mdiAccountGroup} size={1} />
                             </div>
-                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestion de usuarios</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestión de usuarios</span>
                         </NavLink>
                         </>:<></>
                     }{
                         hasPermission('Gestion-Funcionarios')? 
                         <>
-                        <NavLink href={route('funcionario.index')} tooltip={"Gestion de funcionarios"}
+                        <NavLink href={route('funcionario.index')} tooltip={"Gestión de funcionarios"}
                         active={route().current('funcionario.index')} className="py-2 px-2 my-1" >
                              <div className="me-3">
                                 <Icon path={mdiBadgeAccount} size={1} />
                             </div>
-                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestion de funcionarios</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestión de funcionarios</span>
                         </NavLink>
                         </>:<></>
                     }{
                         hasPermission('Gestion-Direcciones')? 
                         <>
-                        <NavLink href={route('direccion.index')} tooltip={"Gestion de direcciones"}
+                        <NavLink href={route('direccion.index')} tooltip={"Gestión de direcciones"}
                         active={route().current('direccion.index')} className="py-2 px-2 my-1" >
                              <div className="me-3">
                                 <Icon path={mdiOfficeBuildingOutline} size={1} />
                             </div>
-                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestion de direcciones</span>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestión de direcciones</span>
                         </NavLink>
                         </>:<></>
                     }
@@ -216,12 +216,12 @@ export const Sidebar = ({user}) => {
                                     {
                                         hasPermission('Ver historial accion formulario')? 
                                         <>
-                                        <NavLink href={route('historial-accion-formulario.index')} tooltip={"Acción sobre formulario"}
+                                        <NavLink href={route('historial-accion-formulario.index')} tooltip={"General"}
                                         active={route().current('historial-accion-formulario.index')} className="py-2 px-0  mb-3">
                                             <div className="me-2">
                                             <Icon path={mdiFileDocument} size={1} />
                                             </div>
-                                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>Acción sobre formulario</span>
+                                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-medium`}>General</span>
                                         </NavLink>
                                         </>:<></>
                                     } 
