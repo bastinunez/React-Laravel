@@ -108,6 +108,10 @@ Route::middleware(['auth','user_state'])->group(function () {
     
     
         //HISTORIAL
+        Route::delete('/historial-documentos/delete-all', [HistorialDocumentosController::class, 'destroyAll'])->name('historial-documentos.delete-all');
+        Route::delete('/historial-documentos-anexos/delete-all', [HistorialDocumentosAnexosController::class, 'destroyAll'])->name('historial-documentos-anexos.delete-all');
+        Route::delete('/historial-accion-usuario/delete-all', [HistorialAccionUsuarioController::class, 'destroyAll'])->name('historial-accion-usuario.delete-all');
+        Route::delete('/historial-accion-formulario/delete-all', [HistorialAccionFormularioController::class, 'destroyAll'])->name('historial-accion-formulario.delete-all');
         Route::resource('historial-documentos', HistorialDocumentosController::class)->names('historial-documentos');
         Route::resource('historial-documentos-anexos', HistorialDocumentosAnexosController::class)->names('historial-documentos-anexos');
         Route::resource('historial-accion-usuario', HistorialAccionUsuarioController::class)->names('historial-accion-usuario');

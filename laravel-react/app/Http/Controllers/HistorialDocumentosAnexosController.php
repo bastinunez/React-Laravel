@@ -6,6 +6,7 @@ use App\Http\Resources\HistorialDocumentosAnexosResource;
 use App\Models\Accion;
 use App\Models\Funcionario;
 use App\Models\HistorialDocumentoAnexo;
+use App\Models\HistorialFormulario;
 use App\Models\TipoDocumento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -73,8 +74,14 @@ class HistorialDocumentosAnexosController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroyAll()
     {
-        //
+        HistorialDocumentoAnexo::truncate();
+        $current_user=Auth::user();
+        HistorialFormulario::create([
+            'responsable'=>$current_user->id,
+            'accion'=>4,
+            'detalles'=>"Elimina todos los datos de la tabla de documentos anexos"
+        ]);
     }
 }

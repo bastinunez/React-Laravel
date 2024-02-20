@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\HistorialAccionUsuarioResource;
 use App\Models\Accion;
+use App\Models\HistorialFormulario;
 use App\Models\HistorialUsuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -72,8 +73,14 @@ class HistorialAccionUsuarioController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroyAll()
     {
-        //
+        HistorialUsuario::truncate();
+        $current_user=Auth::user();
+        HistorialFormulario::create([
+            'responsable'=>$current_user->id,
+            'accion'=>4,
+            'detalles'=>"Elimina todos los datos de la tabla de acción usuario"
+        ]);
     }
 }

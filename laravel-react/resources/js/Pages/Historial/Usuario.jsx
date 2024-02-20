@@ -1,7 +1,7 @@
 import ContentTemplate from '@/Components/ContentTemplate'
 import TitleTemplate from '@/Components/TitleTemplate'
 import Authenticated from '@/Layouts/AuthenticatedLayout'
-import { Head,usePage } from '@inertiajs/react'
+import { Head,useForm,usePage } from '@inertiajs/react'
 import { Toast } from 'primereact/toast'
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
   Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
@@ -162,6 +162,11 @@ const Usuario = ({auth}) => {
     setFilterDetalles('')
   }
 
+  const {delete:deleteHistorial} = useForm()
+  const eliminarTodos = () => {
+    deleteHistorial(route('historial-accion-usuario.delete-all'))
+  }
+
   return (
     <Authenticated user={auth.user}>
       <Head title="Historial acciones sobre usuario" />
@@ -238,6 +243,9 @@ const Usuario = ({auth}) => {
           </div>
         </FilterTemplate>
       <ContentTemplate>
+        <div className='flex justify-end mb-1'>
+            <Button onPress={() => eliminarTodos()} color='danger'>Eliminar datos</Button>
+        </div>
         <div>
             <div>
             <Table aria-label="Tabla historial" color={"primary"}

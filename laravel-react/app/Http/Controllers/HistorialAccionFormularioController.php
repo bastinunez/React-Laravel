@@ -75,8 +75,14 @@ class HistorialAccionFormularioController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroyAll()
     {
-        //
+        HistorialFormulario::truncate();
+        $current_user=Auth::user();
+        HistorialFormulario::create([
+            'responsable'=>$current_user->id,
+            'accion'=>4,
+            'detalles'=>"Elimina todos los datos de la tabla de historial general"
+        ]);
     }
 }

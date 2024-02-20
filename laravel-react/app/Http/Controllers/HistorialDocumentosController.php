@@ -11,6 +11,7 @@ use App\Models\Funcionario;
 use App\Models\TipoDocumento;
 use App\Models\Estado;
 use App\Models\HistorialDocumento;
+use App\Models\HistorialFormulario;
 use App\Models\Rol;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -87,8 +88,14 @@ class HistorialDocumentosController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroyAll()
     {
-        //
+        HistorialDocumento::truncate();
+        $current_user=Auth::user();
+        HistorialFormulario::create([
+            'responsable'=>$current_user->id,
+            'accion'=>4,
+            'detalles'=>"Elimina todos los datos de la tabla de documentos"
+        ]);
     }
 }
