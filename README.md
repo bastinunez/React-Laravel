@@ -21,10 +21,10 @@
 - En el archivo .env editar las credenciales de la base de datos que tendrá.
 - En la terminal de Laragon ubicarse en la carpeta laravel-react y utilizar lo siguientes comandos:
     ```
-    php artisan key:generate
     npm install
     npm run build
     composer install
+    php artisan key:generate
     ```
 - Iniciar el servicio de apache
 - Reemplazar el archivo auto.build.test.conf en sites-enabled de Laragon por el **contenido** (de la línea 3 en adelante) que se encuentra en la carpeta raíz de este proyecto también llamado auto.build.test.conf. **En la primera línea mantener la ruta donde tienes tu proyecto, esta ruta debe terminar en .../public**
