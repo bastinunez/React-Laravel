@@ -52,6 +52,18 @@ class UsuarioSeeder extends Seeder
             'change_pwd' => false
         ])->assignRole("Administrador");
 
+        $admin_tres = User::create([
+            'nombres' => 'Francisco Javier',
+            'apellidos' => 'Benavente Bustos',
+            'iniciales' => 'RERN',
+            'correo' => 'fbenavente@gdoc.cl',
+            'password' => Hash::make('administrador'),
+            'rut' => '15.194.090-0',
+            'rol' => 3,
+            'estado' => 1,
+            'change_pwd' => false
+        ])->assignRole("Administrador");
+
 
         $usuario_uno = User::create([
             'nombres' => 'Usuario Usuario',
