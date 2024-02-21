@@ -10,6 +10,8 @@ use App\Models\Documento;
 use App\Models\Funcionario;
 use App\Models\TipoDocumento;
 use App\Models\Estado;
+use App\Models\OtroDocumento;
+use App\Models\OtroDocumentoAnexo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -219,6 +221,27 @@ class DocumentoController extends Controller
                 'name_file'=>$doc->name_file,
                 'mime_file'=>$doc->mime_file,
                 'file' => $doc->file,
+            ];
+        }
+
+        return response()->json(["datos"=>$array]);
+    }
+
+    public function get_otros_anexos($id){
+        $documento = Documento::find($id);  
+        if (!$documento) {
+            return response()->json(['error' => 'Documento no encontrado'], 404);
+        }
+        $array=[];
+        $filas = OtroDocumentoAnexo::where('documento_id',$id)->get();
+        foreach($filas as $fila){
+            $doc = OtroDocumento::find($fila->otro_doc_id_anexo);
+            $array[]=[
+                'otro_doc_id_anexo'=>$doc->id,
+                'datos_anexo'=>[
+                    'descripcion' => $doc->descripcion,
+                    'mime_file'=>$doc->mime_file,
+                    'file' => $doc->file]
             ];
         }
 

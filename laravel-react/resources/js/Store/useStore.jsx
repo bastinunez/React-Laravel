@@ -14,9 +14,9 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 export const useSidebarStore = create( 
     persist(
         (set,get)=>({
-            sidebar: true,
+            sidebar: false,
             changeState: () => set((state) => ({ sidebar: !state.sidebar  })),
-            resetSidebar: () => set({ sidebar: true }),
+            resetSidebar: () => set({ sidebar: false }),
         }),
         {
             name: 'sidebar-storage', // name of the item in the storage (must be unique)

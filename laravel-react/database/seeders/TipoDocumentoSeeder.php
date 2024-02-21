@@ -25,7 +25,8 @@ class TipoDocumentoSeeder extends Seeder
             ['nombre' => 'Minuta de Distribución'],
             ['nombre' => 'Oficio'],
             ['nombre' => 'Solicitudes de pedido'],
-            ['nombre' => 'Contrato'],
+            // ['nombre' => 'Contrato'],
+            //['nombre' => 'Otro'],
         ]);
     }
 }

@@ -586,7 +586,7 @@ const GestionDocumentos = ({auth}) => {
                             <Dropdown  type='listbox'> 
                               <DropdownTrigger>
                                   <Button variant="bordered" size='sm'>
-                                      Ver Anexos
+                                      Documentos
                                   </Button>
                               </DropdownTrigger>
                               <DropdownMenu closeOnSelect={false} className='h-64 overflow-auto' aria-label="Static Actions"  emptyContent={'No posee'}>

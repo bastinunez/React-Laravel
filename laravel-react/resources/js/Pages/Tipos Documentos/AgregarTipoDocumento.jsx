@@ -9,7 +9,7 @@ import { Button,useDisclosure,Progress,Modal,ModalContent } from '@nextui-org/re
 import { Toast } from 'primereact/toast';        
 import React,{useRef} from 'react'
 
-const AgregarTipoDocumento = ({auth}) => {
+const AgregarDireccion = ({auth}) => {
     //toast
     const toast_global = useRef(null);
     
@@ -80,4 +80,4 @@ const AgregarTipoDocumento = ({auth}) => {
     )
 }
 
-export default AgregarTipoDocumento
+export default AgregarDireccion

@@ -81,6 +81,12 @@ class RolSeeder extends Seeder
         Permission::create(['name'=>'Gestion-Editar direccion'])->syncRoles([$roleAdministrador]);
 
 
+        //GESTION TIPOS DE DOCUMENTO
+        Permission::create(['name'=>'Gestion-Tipos de documentos'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Crear tipo de documento'])->syncRoles([$roleAdministrador]);
+        Permission::create(['name'=>'Gestion-Editar tipo de documento'])->syncRoles([$roleAdministrador]);
+
+
         //GESTION FUNCIONARIO
         Permission::create(['name'=>'Gestion-Funcionarios'])->syncRoles([$roleAdministrador]);
         Permission::create(['name'=>'Gestion-Crear funcionario'])->syncRoles([$roleAdministrador]);

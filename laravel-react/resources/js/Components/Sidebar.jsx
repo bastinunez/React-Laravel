@@ -6,7 +6,7 @@ import { usePermission } from '@/Composables/Permission';
 import { useSidebarStore,useAccordionStore } from '@/Store/useStore';
 import {User} from "@nextui-org/react";
 import Icon from '@mdi/react';
-import { mdiFileMultiple,mdiAccountCircleOutline, mdiMenu,mdiFileDocument,mdiShieldAccountVariantOutline,mdiAccountSettingsOutline,mdiHistory,mdiWrenchCogOutline,mdiAccountGroup,mdiBadgeAccount,mdiOfficeBuildingOutline} from '@mdi/js';
+import { mdiFileMultiple,mdiAccountCircleOutline, mdiTextBoxSearchOutline,mdiFileDocument,mdiShieldAccountVariantOutline,mdiAccountSettingsOutline,mdiHistory,mdiWrenchCogOutline,mdiAccountGroup,mdiBadgeAccount,mdiOfficeBuildingOutline} from '@mdi/js';
 
 
 export const Sidebar = ({user}) => {
@@ -102,6 +102,17 @@ export const Sidebar = ({user}) => {
                                 <Icon path={mdiOfficeBuildingOutline} size={1} />
                             </div>
                             <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestión de direcciones</span>
+                        </NavLink>
+                        </>:<></>
+                    }{
+                        hasPermission('Gestion-Tipos de documentos')? 
+                        <>
+                        <NavLink href={route('tipo-documento.index')} tooltip={"Gestión tipos de documento"}
+                        active={route().current('tipo-documento.index')} className="py-2 px-2 my-1" >
+                             <div className="me-3">
+                                <Icon path={mdiTextBoxSearchOutline} size={1} />
+                            </div>
+                            <span className={`overflow-hidden whitespace-nowrap text-ellipsis text-small`}>Gestión tipos de documento</span>
                         </NavLink>
                         </>:<></>
                     }
