@@ -48,6 +48,10 @@ class Documento extends Model
     {
         return $this->hasMany(DocumentoAnexo::class,'documento_id');
     }
+    public function docOtrosAnexos(): HasMany
+    {
+        return $this->hasMany(OtroDocumentoAnexo::class,'documento_id');
+    }
 
     public function historialAccionDocumentoAnexoRelacion()
     {

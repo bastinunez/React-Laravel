@@ -10,10 +10,13 @@ use App\Http\Controllers\HistorialAccionFormularioController;
 use App\Http\Controllers\HistorialAccionUsuarioController;
 use App\Http\Controllers\HistorialDocumentosAnexosController;
 use App\Http\Controllers\HistorialDocumentosController;
+use App\Http\Controllers\OtroDocumentoAnexoController;
+use App\Http\Controllers\OtroDocumentoController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RolesController;
+use App\Http\Controllers\TipoDocumentoController;
 use App\Models\Funcionario;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -73,6 +76,7 @@ Route::middleware(['auth','user_state'])->group(function () {
         Route::get('/api/all-documents', [DocumentoController::class, 'get_all']);
         Route::get('/api/all-documents/{id}', [DocumentoController::class, 'get_all_less_one']);
         Route::get('/api/documentos-anexos/{id}', [DocumentoController::class, 'get_doc_anexos']);
+        Route::get('/api/otros-anexos/{id}', [DocumentoController::class, 'get_otros_anexos']);
         Route::get('/documento/visualizar/{mensaje}', [DocumentoController::class, 'visualizar'])->name('documento.visualizar');
         Route::post('documento-anular', [DocumentoController::class, 'anular'])->name('documento.anular');
         Route::post('documento-habilitar', [DocumentoController::class, 'habilitar'])->name('documento.habilitar');
@@ -84,6 +88,13 @@ Route::middleware(['auth','user_state'])->group(function () {
         Route::resource('gestion-documento', GestionDocumentoController::class)->names('gestion-documento');
         Route::post('/documento-anexo/agregar-existente', [DocumentoAnexoController::class, 'store_existent'])->name('documento-anexo.agregar-existente');
         Route::resource('/documento-anexo', DocumentoAnexoController::class)->names('documento-anexo');
+
+        Route::resource('/otro-anexo', OtroDocumentoController::class)->names('otro-anexo');
+        Route::resource('/otro-anexo-anexos', OtroDocumentoAnexoController::class)->names('otro-anexo-anexos');
+
+        
+        //TIPOS DE DOCUMENTOS
+        Route::resource('/tipo-documento', TipoDocumentoController::class)->names('tipo-documento');
     
     
         //FUNCIONARIOS

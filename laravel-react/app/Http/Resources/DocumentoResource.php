@@ -29,25 +29,11 @@ class DocumentoResource extends JsonResource
             'name_file'=>$this->name_file,
             'mime_file'=>$this->mime_file,
             'file' => $this->file,
-            'anexos' =>  $this->obtenerDatosAnexos($this->docAnexos)
+            'anexos' =>  $this->obtenerDatosAnexos($this->docAnexos),
+            'otros_anexos' =>  $this->obtenerDatosAnexosOtros($this->docOtrosAnexos),
         ];
     }
-//     protected function obtenerDatosAnexos($anexos)
-// {
-//     // Filtrar solo los documentos anexos de primer nivel
-//     $primerNivelAnexos = $anexos->filter(function ($anexo) {
-//         // Condición para determinar si es de primer nivel
-//         return $anexo->documentoAnexoIdRelacion->documentoAnexoIdRelacion === null;
-//     });
 
-//     return $primerNivelAnexos->map(function ($anexo) {
-//         return [
-//             'documento_id' => $anexo->documento_id,
-//             'documento_id_anexo' => $anexo->documento_id_anexo,
-//             'datos_anexo' => (new DocumentoResource($anexo->documentoAnexoIdRelacion))
-//         ];
-//     });
-// }
     protected function obtenerDatosAnexos($anexos)
     {
         return $anexos->map(function ($anexo) {
@@ -55,6 +41,16 @@ class DocumentoResource extends JsonResource
                 'documento_id' => $anexo->documento_id,
                 'documento_id_anexo' => $anexo->documento_id_anexo,
                 'datos_anexo' => (new DocumentoAnexoResource($anexo->documentoAnexoIdRelacion))
+            ];
+        });
+    }
+    protected function obtenerDatosAnexosOtros($anexos)
+    {
+        return $anexos->map(function ($anexo) {
+            return [
+                'documento_id' => $anexo->documento_id,
+                'otro_doc_id_anexo' => $anexo->otro_doc_id_anexo,
+                'datos_anexo' => (new OtroDocumentoAnexoResource($anexo->documentoAnexoIdRelacion))
             ];
         });
     }

@@ -11,9 +11,9 @@ import { Toast } from 'primereact/toast';
 import { usePage ,Link,useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import { Button, Tooltip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Select as NextSelect, SelectItem as NextSelectItem,
-        Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Checkbox,Progress, Popover, PopoverTrigger, PopoverContent} from '@nextui-org/react';
+        Table, TableBody, TableColumn, TableHeader, TableCell,TableRow,Pagination, Divider, Checkbox,Progress, Tabs, Tab, Card, CardBody} from '@nextui-org/react';
 import Icon from '@mdi/react';
-import { mdiDownloadOutline, mdiTrashCanOutline,mdiHelpCircle,mdiHelpBoxMultipleOutline, mdiPlus, mdiTagEditOutline, mdiTagEdit} from '@mdi/js';
+import { mdiDownloadOutline, mdiTrashCanOutline,mdiHelpCircle,mdiHelpBoxMultipleOutline, mdiPlus, mdiTagEditOutline, mdiFileEyeOutline} from '@mdi/js';
 import { locale, addLocale, updateLocaleOption, updateLocaleOptions, localeOption, localeOptions } from 'primereact/api';
 import { Head } from '@inertiajs/react';
 import { DescargarDocumento } from '@/Composables/DownloadPDF'
@@ -46,6 +46,7 @@ const EditarDocumento = ({auth}) => {
 
     //VARIABLES QUE ENTREGA EL CONTROLADOR
     const { documento,all_docs,direcciones, tipos,autores,flash} = usePage().props;
+    const [otrosAnexos,setOtrosAnexos] = useState(documento.otros_anexos)
     const [btnMetadato,setBtnMetadato] = useState(true)
     const [btnAnexos,setBtnAnexos] = useState(false)
     const [btnAgregarNuevo,setBtnAgregarNuevo] = useState(true)
@@ -103,6 +104,15 @@ const EditarDocumento = ({auth}) => {
         materia_documento: ' ',
         estado:false
     });
+    const {data:dataOtroAnexo, setData:setDataOtroAnexo, post:postOtroAnexo,errors:errorsOtroAnexo}=useForm({
+        documento_id:documento.id,
+        descripcion:'',
+        archivo:''
+    });
+    const {data:dataDeleteOtroAnexo, setData:setDataDeleteOtroAnexo, delete:deleteOtroAnexo,errors:errorsDeleteOtroAnexo}=useForm({
+        documento_id:documento.id,
+        anexos:[]
+    });
     const {data:dataDelete, setData:setDataDelete, delete:deleteAnexo}=useForm({
         documento_id:documento.id,
         anexos:[]
@@ -129,6 +139,39 @@ const EditarDocumento = ({auth}) => {
 
         return docAnexos.slice(start, end);
     }, [page, docAnexos, rowsPerPage]);
+    
+    const pagesAnexos = Math.ceil(otrosAnexos.length / rowsPerPage);
+    const itemsOtrosAnexos = React.useMemo(() => {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        return otrosAnexos.slice(start, end);
+    }, [page, otrosAnexos]);
+
+    const mostrar = (documento) => {
+        const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+        const byteCharacters = atob(b64Data);
+        const byteArrays = [];
+        
+        for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            const slice = byteCharacters.slice(offset, offset + sliceSize);
+        
+            const byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+            }
+        
+            const byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+            
+        const blob = new Blob(byteArrays, {type: contentType});
+        return blob;
+        }
+        const blob = b64toBlob(documento.datos_anexo.file,documento.datos_anexo.mime_file);
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl);
+    }
 
     //mensaje formulario
     const severity = { success:'success',error:'error'}
@@ -146,6 +189,14 @@ const EditarDocumento = ({auth}) => {
     useEffect(()=>{
         setStateBtnModal(false)
     },[data,data_mini,seleccion,btnMetadato,btnAnexos,btnAgregarNuevo,btnAgregarExistente])
+    const getOtrosAnexos = async () => {
+        try {
+          const response = await axios.get(`/api/otros-anexos/${documento.id}`);
+          setOtrosAnexos(response.data.datos)
+        } catch (error) {
+          console.error('Error al obtener documentos:', error);
+        }
+      }
 
     //post
     const submit = async (e) => {
@@ -171,6 +222,21 @@ const EditarDocumento = ({auth}) => {
             onSuccess: (msg) => {
                 getDocuments(documento.id);setStateBtnModal(true);
                 reset_mini('numero_documento','autor_documento','tipo_documento','fecha_documento')
+                showMsg(msg.create,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)
+            },
+            onError: (errors) => {
+                showMsg(errors.create,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)
+            }
+        })
+
+    }
+    const submitOtroAnexo = (e) => {
+        e.preventDefault()
+        setStateBtnMiniForm(true)
+        onOpenProgress()
+        postOtroAnexo(route('otro-anexo.store'),{
+            onSuccess: (msg) => {
+                getDocuments(documento.id);setStateBtnModal(true);
                 showMsg(msg.create,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)
             },
             onError: (errors) => {
@@ -232,6 +298,16 @@ const EditarDocumento = ({auth}) => {
         onOpenProgress()
         deleteAnexo(route('documento-anexo.destroy',id_anexo),{
             onSuccess: (msg) => {setSeleccion([]);getDocuments();showMsg(msg.destroy,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
+            onError: (msg) => { showMsg(msg.destroy,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
+        })
+
+    }
+    const quitarOtroAnexoButton = (id_anexo) => {
+        dataDeleteOtroAnexo.anexos=[id_anexo]
+        setStateBtnModal(true)
+        onOpenProgress()
+        deleteOtroAnexo(route('otro-anexo-anexos.destroy',id_anexo),{
+            onSuccess: (msg) => {getOtrosAnexos();showMsg(msg.destroy,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)},
             onError: (msg) => { showMsg(msg.destroy,severity.error,summary.error);onCloseProgress();setStateBtnModal(false)}
         })
 
@@ -346,7 +422,7 @@ const EditarDocumento = ({auth}) => {
                 </Modal>
                 
                 <ContentTemplate>
-                    <div className='md:p-5'>
+                    <div className=''>
                         {/* Seleccionar accion (Editar metadatos/editar doc. anexos) */}
                         <div className='flex w-full gap-4'>
                                 <div className='w-full'>
@@ -376,7 +452,7 @@ const EditarDocumento = ({auth}) => {
                                 btnMetadato?
                                 // se muestra formulario de editar metadatos
                                 <>
-                                    <form className='md:p-8'>
+                                    <form className=''>
                                         <div className='md:flex w-full justify-between md:mb-5 md:gap-3 '>
                                             <div className="w-full">
                                                 <InputLabel value={"Selecciona tipo de documento"}></InputLabel>
@@ -433,7 +509,7 @@ const EditarDocumento = ({auth}) => {
                                                 {/* <input onChange ={(e) => setData('archivo',e.target.files[0])} className='text-tiny md:text-small'  */}
                                                 {/* type='file' accept='.pdf' formEncType="multipart/form-data"/> */}
                                                 <InputError message={errors.archivo} className="mt-2" />
-                                                <Button onPress={()=>setData('archivo','')} color='danger' className='md:ms-1 w-full'>Quitar archivo</Button>
+                                                <Button onPress={()=>setData('archivo','')} color='danger' className='md:ms-1' startContent={<Icon path={mdiTrashCanOutline} size={1}></Icon>} isIconOnly variant='flat' ></Button>
                                             </div>
                                             <div className='w-full'>
                                                 <InputLabel value={"¿Se encuentra anulado?"}></InputLabel>
@@ -464,11 +540,11 @@ const EditarDocumento = ({auth}) => {
                                                 <div className='w-full'>
                                                     <Button color='secondary' className='w-full text-medium' variant={btnAgregarNuevo?'solid':'ghost'} startContent={<Icon path={mdiPlus} size={1} />}  
                                                     onClick={() => { if(!btnAgregarNuevo){setBtnAgregarExistente(!btnAgregarExistente);setBtnAgregarNuevo(!btnAgregarNuevo)}}} >
-                                                        <p className='flex sm:hidden'>Nuevo</p>
-                                                        <p className='hidden sm:flex'>Agregar nuevo documento anexo</p>
+                                                        <p className='flex lg:hidden'>Nuevo</p>
+                                                        <p className='hidden lg:flex'>Agregar nuevo documento anexo</p>
                                                     </Button>
                                                 </div>
-                                                <div className='hideen sm:flex justify-center'>
+                                                <div className='hidden sm:flex justify-center'>
                                                     <Tooltip content={"Ver datos de documento padre"}>
                                                         <Button startContent={<Icon path={mdiHelpBoxMultipleOutline} size={1}></Icon>} onPress={onOpenVerDoc}>
                                                             <p className=''>Ver documento padre</p>
@@ -483,8 +559,8 @@ const EditarDocumento = ({auth}) => {
                                                             setBtnAgregarNuevo(!btnAgregarNuevo)
                                                         }
                                                         }} >
-                                                        <p className='flex sm:hidden'>Existente</p>
-                                                        <p className='hidden sm:flex'>Agregar documento existente anexo</p>
+                                                        <p className='flex lg:hidden'>Existente</p>
+                                                        <p className='hidden lg:flex'>Agregar documento existente anexo</p>
                                                         
                                                     </Button>
                                                 </div>
@@ -502,63 +578,95 @@ const EditarDocumento = ({auth}) => {
                                     {
                                         btnAgregarNuevo?
                                         <>
-                                            {/* formulario para agregar nuevo documento anexo*/}
-                                            <div className='mt-3'>
-                                                <form onSubmit={submitMiniForm}>
-                                                <div className=''>
-                                                    <div className='lg:flex w-full justify-between mb-2 md:gap-4'>
-                                                        <div className="w-80 lg:me-4">
-                                                            <InputLabel value={"Tipo de documento"}></InputLabel>
-                                                            <Select opciones={tipos} value={data_mini.tipo_documento} onChange={(value) => setData_mini('tipo_documento', value)} required>
-                                                            </Select>
-                                                            <InputError message={errors_mini.tipo_documento} className="mt-2" />
+                                            <div className="mt-3 flex w-full flex-col">
+                                                <Tabs aria-label="Options" fullWidth color="secondary">
+                                                    <Tab key="documentos" className='w-full' title="Documentos">
+                                                         {/* formulario para agregar nuevo documento anexo*/}
+                                                        <div className=''>
+                                                            <form onSubmit={submitMiniForm}>
+                                                                <div className=''>
+                                                                    <div className='lg:flex w-full justify-between mb-2 md:gap-4'>
+                                                                        <div className="w-full lg:me-4">
+                                                                            <InputLabel value={"Tipo de documento"}></InputLabel>
+                                                                            <Select opciones={tipos} value={data_mini.tipo_documento} onChange={(value) => setData_mini('tipo_documento', value)} required>
+                                                                            </Select>
+                                                                            <InputError message={errors_mini.tipo_documento} className="mt-2" />
+                                                                        </div>
+                                                                        <div className="w-full lg:me-4">
+                                                                            <InputLabel value={"Selecciona autor de documento (*)"}></InputLabel>
+                                                                            <div className='flex w-full'>
+                                                                                <Select opciones={autores} value={data_mini.autor_documento} onChange={(value) => setData_mini('autor_documento', value)} required>
+                                                                                </Select>
+                                                                                <Tooltip content={"¿No encuentra el autor?"}>
+                                                                                    <Button className='' isIconOnly startContent={<Icon path={mdiHelpCircle} size={1} />} onPress={onOpen} color='primary'></Button>
+                                                                                </Tooltip>
+                                                                            </div>
+                                                                            <InputError message={errors_mini.autor_documento} className="mt-2" />
+                                                                        </div>
+                                                                        <div className="w-full lg:me-4">
+                                                                            <InputLabel value={"Número de documento"}></InputLabel>
+                                                                            <TextInput className={"w-full"} type={'number'} placeholder={"Ingrese número"} value={data_mini.numero_documento} onChange={(e) => setData_mini('numero_documento',e.target.value)}required ></TextInput>
+                                                                            <InputError message={errors_mini.numero_documento} className="mt-2" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className='lg:flex w-full justify-between mb-2 md:gap-4'>
+                                                                        <div className="w-full lg:me-4">
+                                                                            <InputLabel value={"Fecha"}></InputLabel>
+                                                                            <div className="card flex justify-content-center">
+                                                                                <Calendar value={data_mini.fecha_documento} placeholder='Ingrese fecha' locale="es"  dateFormat="dd/mm/yy" 
+                                                                                inputStyle={{"padding":"0.5rem "}} required onChange={(e) => setData_mini('fecha_documento',e.target.value)} readOnlyInput />
+                                                                            </div>
+                                                                            <InputError message={errors_mini.fecha_documento} className="mt-2" />
+                                                                        </div>
+                                                                        <div className='w-full lg:me-4'>
+                                                                            <InputLabel value={"¿Se encuentra anulado?"}></InputLabel>
+                                                                            <Checkbox value={data_mini.estado} onChange={(e) => setData_mini('estado',e.target.checked)} className='sm:mt-1' color="danger">Anulado</Checkbox>
+                                                                        </div>
+                                                                        <div className="w-full mb-1">
+                                                                            <InputLabel value={"Agregar archivo (*)"}></InputLabel>
+                                                                            <input onChange ={(e) => setData_mini('archivo',e.target.files[0])} className='text-tiny md:text-small' type='file' accept='.pdf' />
+                                                                            <InputError message={errors_mini.archivo} className="mt-2" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className='w-full sm:flex gap-4 mt-3'>
+                                                                    <Link href={route('gestion-documento.index')} className='w-full'>
+                                                                        <Button className='w-full text-large' color='warning' size='md' variant='ghost' >Volver atrás</Button>
+                                                                    </Link>
+                                                                    <Button id='submit_miniform' disabled={stateBtnMiniForm} color='primary' type='submit'
+                                                                    variant='ghost'  className='w-full text-large' size='md'>Agregar documento anexo</Button>
+                                                                </div>
+                                                            </form>
                                                         </div>
-                                                        <div className="w-80 lg:me-4">
-                                                            <InputLabel value={"Selecciona autor de documento (*)"}></InputLabel>
-                                                            <div className='flex'>
-                                                            <Select opciones={autores} value={data_mini.autor_documento} onChange={(value) => setData_mini('autor_documento', value)} required>
-                                                            </Select>
-                                                            <Tooltip content={"¿No encuentra el autor?"}>
-                                                            <Button className='' isIconOnly startContent={<Icon path={mdiHelpCircle} size={1} />} onPress={onOpen} color='primary'></Button>
-                                                            </Tooltip>
-                                                            </div>
-                                                            <InputError message={errors_mini.autor_documento} className="mt-2" />
+                                                    </Tab>
+                                                    <Tab key="otro" title="Otro">
+                                                        <div className=''>
+                                                            <form onSubmit={submitOtroAnexo}>
+                                                                <div className=''>
+                                                                    <div className='lg:flex w-full justify-between mb-2 md:gap-4'>
+                                                                        <div className='w-full'>
+                                                                            <InputLabel value={"Ingrese descripcion"}></InputLabel>
+                                                                            <TextInput type={'text'} className='w-full' value={dataOtroAnexo.descripcion} onChange={(e) => setDataOtroAnexo('descripcion',e.target.value)} ></TextInput>
+                                                                        </div>
+                                                                        <div className="w-full mb-1">
+                                                                            <InputLabel value={"Agregar archivo (*)"}></InputLabel>
+                                                                            <input onChange ={(e) => setDataOtroAnexo('archivo',e.target.files[0])} className='text-tiny md:text-small' type='file' accept='.pdf' />
+                                                                            <InputError message={errorsOtroAnexo.archivo} className="mt-2" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className='w-full md:flex gap-4 mt-3'>
+                                                                    <Link href={route('gestion-documento.index')} className='w-full'>
+                                                                        <Button className='w-full text-large' color='warning' size='md' variant='ghost' >Volver atrás</Button>
+                                                                    </Link>
+                                                                    <Button id='submit_miniform' disabled={stateBtnMiniForm} color='primary' type='submit'
+                                                                    variant='ghost'  className='w-full text-large' size='md'>Agregar documento anexo</Button>
+                                                                </div>
+                                                            </form>
                                                         </div>
-                                                        <div className="w-80 lg:me-4">
-                                                            <InputLabel value={"Número de documento"}></InputLabel>
-                                                            <TextInput className={"w-full"} type={'number'} placeholder={"Ingrese número"} value={data_mini.numero_documento} onChange={(e) => setData_mini('numero_documento',e.target.value)}required ></TextInput>
-                                                            <InputError message={errors_mini.numero_documento} className="mt-2" />
-                                                        </div>
-                                                        </div>
-                                                    <div className='lg:flex w-full justify-between mb-2 md:gap-4'>
-                                                        <div className="w-80 lg:me-4">
-                                                            <InputLabel value={"Fecha"}></InputLabel>
-                                                            <div className="card flex justify-content-center">
-                                                                <Calendar value={data_mini.fecha_documento} placeholder='Ingrese fecha' locale="es"  dateFormat="dd/mm/yy" 
-                                                                inputStyle={{"padding":"0.5rem "}} required onChange={(e) => setData_mini('fecha_documento',e.target.value)} readOnlyInput />
-                                                            </div>
-                                                            <InputError message={errors_mini.fecha_documento} className="mt-2" />
-                                                        </div>
-                                                        <div className='w-80 lg:me-4'>
-                                                            <InputLabel value={"¿Se encuentra anulado?"}></InputLabel>
-                                                            <Checkbox value={data_mini.estado} onChange={(e) => setData_mini('estado',e.target.checked)} className='sm:mt-1' color="danger">Anulado</Checkbox>
-                                                        </div>
-                                                        <div className="w-80 mb-1">
-                                                            <InputLabel value={"Agregar archivo (*)"}></InputLabel>
-                                                            <input onChange ={(e) => setData_mini('archivo',e.target.files[0])} className='text-tiny md:text-small' type='file' accept='.pdf' />
-                                                            <InputError message={errors_mini.archivo} className="mt-2" />
-                                                        </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className='w-full md:flex gap-4 mt-3'>
-                                                        <Link href={route('gestion-documento.index')} className='w-full'>
-                                                            <Button className='w-full text-large' color='warning' size='md' variant='ghost' >Volver atrás</Button>
-                                                        </Link>
-                                                        <Button id='submit_miniform' disabled={stateBtnMiniForm} color='primary' type='submit'
-                                                        variant='ghost'  className='w-full text-large' size='md'>Agregar documento anexo</Button>
-                                                    </div>
-                                                </form>
-                                            </div>
+                                                    </Tab>
+                                                </Tabs>
+                                            </div>  
                                         </>
                                         :
                                         <>
@@ -600,71 +708,126 @@ const EditarDocumento = ({auth}) => {
                                     <Divider className='mt-3'></Divider>
                                     {/* Tabla con los documentos actuales */}
                                     <div className='mt-3'>
-                                        <div>
-                                            <div className='flex justify-between mb-3'>
-                                                <div className=''>
-                                                    <h1 className='text-xl'></h1>
-                                                </div>
-                                                <div className='gap-4 flex'>
-                                                    <Button color='danger' variant='solid' onPress={()=>{
-                                                                            setFunctionName(() => () => quitarDocAnexoSeleccion());setTitleModal('Eliminar documentos anexos');
-                                                                            setContentModal('¿Está seguro de eliminar los documentos?');onOpen();}} 
-                                                    //onPress={quitarDocAnexoSeleccion} 
-                                                    startContent={<Icon path={mdiTrashCanOutline} size={1} />}>
-                                                        <p className='md:flex hidden'>Quitar seleccionados</p> </Button>
-                                                    <Button color='primary' variant='solid' onPress={()=>{
-                                                                            setFunctionName(() => () => descargarDocAnexoSeleccion());setTitleModal('Descargar documentos anexos');
-                                                                            setContentModal('¿Está seguro de descargar los documentos?');onOpen();}} 
-                                                    startContent={<Icon path={mdiDownloadOutline} size={1} />}>
-                                                        <p className='md:flex hidden'>Descargar seleccionados</p></Button>
-                                                </div>
-                                            </div>
-                                            <div className=''>
-                                                <Table  aria-label="Tabla documentos anexos" selectionMode="multiple"
-                                                selectedKeys={seleccion} onSelectionChange={setSeleccion}
-                                                bottomContent={
-                                                    <div className="flex w-full justify-center">
-                                                        <Pagination isCompact showControls showShadow color="secondary" page={page}
-                                                         total={pages} onChange={(page) => setPage(page)} />
+                                        <Tabs aria-label="documentos" fullWidth color="Documentos">
+                                            <Tab key="documentos-anexos" title="Documentos anexos">
+                                                <div>
+                                                    <div className='flex justify-between mb-3'>
+                                                        <div className=''>
+                                                            <h1 className='text-xl'></h1>
+                                                        </div>
+                                                        <div className='gap-4 flex'>
+                                                            <Button color='danger' variant='solid' onPress={()=>{
+                                                                                    setFunctionName(() => () => quitarDocAnexoSeleccion());setTitleModal('Eliminar documentos anexos');
+                                                                                    setContentModal('¿Está seguro de eliminar los documentos?');onOpen();}} 
+                                                            //onPress={quitarDocAnexoSeleccion} 
+                                                            startContent={<Icon path={mdiTrashCanOutline} size={1} />}>
+                                                                <p className='md:flex hidden'>Quitar seleccionados</p> </Button>
+                                                            <Button color='primary' variant='solid' onPress={()=>{
+                                                                                    setFunctionName(() => () => descargarDocAnexoSeleccion());setTitleModal('Descargar documentos anexos');
+                                                                                    setContentModal('¿Está seguro de descargar los documentos?');onOpen();}} 
+                                                            startContent={<Icon path={mdiDownloadOutline} size={1} />}>
+                                                                <p className='md:flex hidden'>Descargar seleccionados</p></Button>
+                                                        </div>
                                                     </div>
-                                                    }
-                                                    classNames={{ wrapper: "min-h-[222px]", }}>
-                                                        <TableHeader>
-                                                            <TableColumn className='text-medium'>ID</TableColumn>
-                                                            <TableColumn className='text-medium'>Numero de documento</TableColumn>
-                                                            <TableColumn className='text-medium'>Tipo de documento</TableColumn>
-                                                            <TableColumn className='text-medium'>Autor de documento</TableColumn>
-                                                            <TableColumn className='text-medium'>Fecha de documento</TableColumn>
-                                                            <TableColumn className='text-medium'>Acciones</TableColumn>
-                                                        </TableHeader>
-                                                        <TableBody emptyContent={"Aún no hay documentos anexos"}>
+                                                    <div className=''>
+                                                        <Table  aria-label="Tabla documentos anexos" selectionMode="multiple"
+                                                        selectedKeys={seleccion} onSelectionChange={setSeleccion}
+                                                        bottomContent={
+                                                            <div className="flex w-full justify-center">
+                                                                <Pagination isCompact showControls showShadow color="secondary" page={page}
+                                                                total={pages} onChange={(page) => setPage(page)} />
+                                                            </div>
+                                                            }
+                                                            classNames={{ wrapper: "min-h-[222px]", }}>
+                                                                <TableHeader>
+                                                                    <TableColumn className='text-medium'>ID</TableColumn>
+                                                                    <TableColumn className='text-medium'>Numero de documento</TableColumn>
+                                                                    <TableColumn className='text-medium'>Tipo de documento</TableColumn>
+                                                                    <TableColumn className='text-medium'>Autor de documento</TableColumn>
+                                                                    <TableColumn className='text-medium'>Fecha de documento</TableColumn>
+                                                                    <TableColumn className='text-medium'>Acciones</TableColumn>
+                                                                </TableHeader>
+                                                                <TableBody emptyContent={"Aún no hay documentos anexos"}>
+                                                                {
+                                                                    items.map( (doc_anexo) => (
+                                                                    <TableRow key={doc_anexo.id}>
+                                                                        <TableCell>{doc_anexo.id}</TableCell>
+                                                                        <TableCell>{doc_anexo.numero}</TableCell>
+                                                                        <TableCell>{doc_anexo.tipo}</TableCell>
+                                                                        <TableCell> {doc_anexo.autor?doc_anexo.autor:doc_anexo.autor_nombre +" "+doc_anexo.autor_apellido} </TableCell>
+                                                                        <TableCell>{doc_anexo.fecha}</TableCell>
+                                                                        <TableCell>
+                                                                            <Tooltip content={"Quitar"} color='danger'>
+                                                                                <Button onPress={()=>{
+                                                                                    setFunctionName(() => () => quitarDocAnexoButton(doc_anexo.id));setTitleModal('Eliminar documentos anexos');
+                                                                                    setContentModal('¿Está seguro de eliminar los documentos?');onOpen();}} 
+                                                                                    // onPress={() => quitarDocAnexoButton(doc_anexo.id)} 
+                                                                                    className="" size='sm' color='danger' variant='flat'> 
+                                                                                    <Icon path={mdiTrashCanOutline} size={1}/>
+                                                                                </Button>
+                                                                            </Tooltip>
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                    ) )
+                                                                }
+                                                                
+                                                                </TableBody>
+                                                        </Table>
+                                                    </div>
+                                                </div>
+                                            </Tab>
+                                            <Tab key="otros-anexos" title="Otros anexos">
+                                                <Table  aria-label="Tabla otros anexos" bottomContent={
+                                                    <div className="flex w-full justify-center">
+                                                    <Pagination
+                                                        isCompact
+                                                        showControls
+                                                        showShadow
+                                                        color="secondary"
+                                                        page={page}
+                                                        total={pagesAnexos}
+                                                        onChange={(page) => setPage(page)}
+                                                    />
+                                                    </div>
+                                                }
+                                                classNames={{
+                                                    wrapper: "min-h-[222px]",
+                                                }}>
+                                                    <TableHeader>
+                                                        <TableColumn className='text-medium'>ID anexo</TableColumn>
+                                                        <TableColumn className='text-medium'>Descripción</TableColumn>
+                                                        <TableColumn className='text-medium'>Acción</TableColumn>
+                                                    </TableHeader>
+                                                    <TableBody emptyContent={"Aún no hay anexos"}>
                                                         {
-                                                            items.map( (doc_anexo) => (
-                                                            <TableRow key={doc_anexo.id}>
-                                                                <TableCell>{doc_anexo.id}</TableCell>
-                                                                <TableCell>{doc_anexo.numero}</TableCell>
-                                                                <TableCell>{doc_anexo.tipo}</TableCell>
-                                                                <TableCell> {doc_anexo.autor?doc_anexo.autor:doc_anexo.autor_nombre +" "+doc_anexo.autor_apellido} </TableCell>
-                                                                <TableCell>{doc_anexo.fecha}</TableCell>
+                                                        itemsOtrosAnexos.map( (documento,index) => (
+                                                            <TableRow key={index}>
+                                                                <TableCell>{documento.otro_doc_id_anexo}</TableCell>
+                                                                <TableCell>{documento.datos_anexo.descripcion}</TableCell>
                                                                 <TableCell>
+                                                                    <Tooltip content={"Ver"} color='secondary'>
+                                                                        <Button className="me-1" size='sm'  color='secondary' variant='flat' onPress={()=>mostrar(documento)}> 
+                                                                            {/* active={route().current('documento.visualizar')} */}
+                                                                            <Icon path={mdiFileEyeOutline} size={1} />
+                                                                        </Button>
+                                                                    </Tooltip>
                                                                     <Tooltip content={"Quitar"} color='danger'>
                                                                         <Button onPress={()=>{
-                                                                            setFunctionName(() => () => quitarDocAnexoButton(doc_anexo.id));setTitleModal('Eliminar documentos anexos');
-                                                                            setContentModal('¿Está seguro de eliminar los documentos?');onOpen();}} 
-                                                                            // onPress={() => quitarDocAnexoButton(doc_anexo.id)} 
+                                                                                    setFunctionName(() => () => quitarOtroAnexoButton(documento.otro_doc_id_anexo));setTitleModal('Eliminar anexos');
+                                                                                    setContentModal('¿Está seguro de eliminar los anexos?');onOpen();}} 
                                                                             className="" size='sm' color='danger' variant='flat'> 
                                                                             <Icon path={mdiTrashCanOutline} size={1}/>
                                                                         </Button>
                                                                     </Tooltip>
                                                                 </TableCell>
                                                             </TableRow>
-                                                            ) )
+                                                        ) )
                                                         }
                                                         
-                                                        </TableBody>
+                                                    </TableBody>
                                                 </Table>
-                                            </div>
-                                        </div>
+                                            </Tab>
+                                        </Tabs>
                                     </div>
                                 </>
                             }

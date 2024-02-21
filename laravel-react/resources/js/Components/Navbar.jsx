@@ -19,7 +19,7 @@ export default function NavbarComponent() {
     const { sidebar,changeState} = useSidebarStore();
     return (
         <Navbar maxWidth="full" position="sticky" className="bg-slate-700 h-12">
-            <NavbarBrand className={`${sidebar?'ml-44 sm:ml-0':''}`}>
+            <NavbarBrand className={`md:hidden flex ${sidebar?'ml-44 sm:ml-0':''}`}>
                 <Button onClick={() => changeState()}  isIconOnly className={`align-middle border-indigo-900  bg-transparent text-white`}>
                     <Icon path={mdiMenu} size={1}></Icon>
                 </Button>
