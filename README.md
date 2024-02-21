@@ -4,6 +4,13 @@
 - `Funcionalidad 1`: Visualizar, descargar y gestionar documentos PDF.
 - `Funcionalidad 2`: Gestión de roles y permisos.
 
+
+## Cambiar seeders (Sólo antes de iniciar la aplicación):
+- Para cambiar los datos por defecto de la aplicación de las distintas tablas dirigirse a la carpeta /database/seeders y modificar los archivos según requiera.
+- Esto es necesario para crear las credenciales de los administradores desde un principio.
+- Después de modificar los archivos, en una terminal ubicada en la carpeta raíz laravel-react:
+    php artisan migrate:refresh --seed
+
 ## Instalación sin Docker
 ### Windows
 #### Requisitos:
@@ -26,7 +33,7 @@
     composer install
     php artisan key:generate
     ```
-- Iniciar el servicio de apache
+- Iniciar el servicio de apache para que genere el auto.build.test.conf
 - Reemplazar el archivo auto.build.test.conf en sites-enabled de Laragon por el **contenido** (de la línea 3 en adelante) que se encuentra en la carpeta raíz de este proyecto también llamado auto.build.test.conf. **En la primera línea mantener la ruta donde tienes tu proyecto, esta ruta debe terminar en .../public**
 - Reiniciar el servicio y entrar a la página build.test
 
@@ -82,10 +89,3 @@
     ```
 - En el navegador ingresar el localhost:80 (Esto hay que modificar para dar nombre dominio y SSL certificado)
 
-
-
-## Cambiar seeders (Sólo antes de iniciar la aplicación):
-- Para cambiar los datos por defecto de la aplicación de las distintas tablas dirigirse a la carpeta /database/seeders y modificar los archivos según requiera.
-- Esto es necesario para crear las credenciales de los administradores desde un principio.
-- Después de modificar los archivos, en una terminal ubicada en la carpeta raíz laravel-react:
-    php artisan migrate:refresh --seed
