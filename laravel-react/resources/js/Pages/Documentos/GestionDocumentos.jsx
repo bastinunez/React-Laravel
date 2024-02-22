@@ -239,7 +239,6 @@ const GestionDocumentos = ({auth}) => {
   useEffect(()=>{
     setStateBtnModal(false)
   },[])
-
   const descargarSeleccionados = () => {
     if (seleccion.length!=0){
       setStateBtnModal(true)
@@ -252,6 +251,15 @@ const GestionDocumentos = ({auth}) => {
     }else{
       showMsg("No seleccionaste datos",severity.error,summary.error)
     }
+  }
+  const descargarUno = (doc) => {
+    setStateBtnModal(true)
+    const respSinArchivos = DescargarDocumento(new Set([doc.id]),documentos);
+    if (respSinArchivos.length!==0){
+      setSinArchivos(respSinArchivos)
+      onOpen()
+    }
+    setStateBtnModal(false)
   }
 
   //progress
@@ -653,13 +661,12 @@ const GestionDocumentos = ({auth}) => {
                           hasPermission('Descargar documento') && documento.file && documento.estado=="Habilitado"?
                           <>
                             <Tooltip content={"Descargar"} color='primary'>
-                              <a download={documento.name_file+".pdf"} href={`data:${documento.mime_file};base64,${documento.file}`}>
-                                  <Button className="me-1" size='sm' color='primary' variant='flat'> 
+                              {/* <a download={documento.name_file+".pdf"} href={`data:${documento.mime_file};base64,${documento.file}`}> */}
+                                  <Button className="me-1" size='sm' color='primary' variant='flat' onPress={()=>descargarUno(documento)}> 
                                     {/* active={route().current('documento.visualizar')} */}
                                     <Icon path={mdiFileDownloadOutline} size={1} />
-                                    
                                   </Button>
-                                </a>
+                               {/* </a> */}
                             </Tooltip>
                           </>:
                           <></>

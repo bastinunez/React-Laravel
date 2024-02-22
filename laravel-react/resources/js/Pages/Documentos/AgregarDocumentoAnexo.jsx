@@ -69,7 +69,7 @@ const AgregarDocumentoAnexo = ({auth}) => {
     documento_id:"",
     anexos:[]
   });
-  const {data:dataOtroAnexo, setData:setDataOtroAnexo, post:postOtroAnexo,errors:errorsOtroAnexo}=useForm({
+  const {data:dataOtroAnexo, setData:setDataOtroAnexo, post:postOtroAnexo,errors:errorsOtroAnexo,reset:resetOtroAnexo}=useForm({
     documento_id:doc.id,
     descripcion:'',
     archivo:''
@@ -164,7 +164,7 @@ const AgregarDocumentoAnexo = ({auth}) => {
     onOpenProgress()
     postOtroAnexo(route('otro-anexo.store'),{
         onSuccess: (msg) => {
-          getOtrosAnexos();showMsg(msg.create,severity.success,summary.success);onCloseProgress();setStateBtnOtroAnexo(false)
+          getOtrosAnexos();resetOtroAnexo('descripcion','archivo');showMsg(msg.create,severity.success,summary.success);onCloseProgress();setStateBtnOtroAnexo(false)
         },
         onError: (errors) => {
             showMsg(errors.create,severity.error,summary.error);onCloseProgress();setStateBtnOtroAnexo(false)
