@@ -10,12 +10,12 @@ import '@react-pdf-viewer/core/lib/styles/index.css';
 import TitleTemplate from '@/Components/TitleTemplate';
 import ContentTemplate from '@/Components/ContentTemplate';
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure,Pagination,
-  Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, Chip} from '@nextui-org/react';
+  Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, Chip,Tab,Tabs,Tooltip} from '@nextui-org/react';
 import { Transform } from '@/Composables/Base64toBlob';
 // Import styles
 import '@react-pdf-viewer/zoom/lib/styles/index.css';
 import Icon from '@mdi/react';
-import { mdiTrayArrowDown,mdiMagnifyPlusOutline,mdiMagnifyMinusOutline } from '@mdi/js';
+import { mdiTrayArrowDown,mdiMagnifyPlusOutline,mdiMagnifyMinusOutline, mdiFileEyeOutline,} from '@mdi/js';
 
 
 const VisualizadorDocumento = ({auth}) => {
@@ -25,7 +25,8 @@ const VisualizadorDocumento = ({auth}) => {
   const {hasRoles,hasPermission} = usePermission()
 
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
-  const [docAnexos,setDocAnexos]=useState([])
+  const [docAnexos,setDocAnexos]=useState(documento.anexos)
+  const [otrosAnexos,setOtrosAnexos] = useState(documento.otros_anexos)
 
   const getDocuments = async () => {
     if (documento.id!==0){
@@ -60,10 +61,38 @@ const VisualizadorDocumento = ({auth}) => {
 
     return docAnexos.slice(start, end);
   }, [page, docAnexos]);
+  const pagesAnexos = Math.ceil(otrosAnexos.length / rowsPerPage);
+  const itemsOtrosAnexos = React.useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
 
-  useEffect(()=>{
-    getDocuments()
-  },[])
+    return otrosAnexos.slice(start, end);
+  }, [page, otrosAnexos]);
+
+  const mostrar = (documento) => {
+    const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+      const byteCharacters = atob(b64Data);
+      const byteArrays = [];
+    
+      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+    
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+    
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
+        
+      const blob = new Blob(byteArrays, {type: contentType});
+      return blob;
+    }
+    const blob = b64toBlob(documento.datos_anexo.file,documento.datos_anexo.mime_file);
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl);
+  }
 
   const renderError = (error) => {
     let message = '';
@@ -116,7 +145,6 @@ const VisualizadorDocumento = ({auth}) => {
           {
             hasPermission('Ver documentos anexos')?
             <>
-              
               <div className='items-center flex gap-1'>
                 <Link href={usePage().props.ziggy.previous} className='w-full items-center flex'>
                   <Button className='w-full' color='warning' variant='ghost' >Volver atrás</Button>
@@ -135,80 +163,125 @@ const VisualizadorDocumento = ({auth}) => {
             <>
               <ModalHeader className="flex flex-col gap-1">Documentos anexos</ModalHeader>
               <ModalBody>
-                <Table  aria-label="Tabla documentos anexos" bottomContent={
-                      <div className="flex w-full justify-center">
-                        <Pagination isCompact showControls showShadow color="secondary"
-                          page={page} total={pages} onChange={(page) => setPage(page)} />
-                      </div>
-                    }
-                    classNames={{
-                      wrapper: "min-h-[222px]",
-                    }}>
-                        <TableHeader>
-                          <TableColumn>Numero de documento</TableColumn>
-                          <TableColumn>Tipo de documento</TableColumn>
-                          <TableColumn>Autor de documento</TableColumn>
-                          <TableColumn>Fecha de documento</TableColumn>
-                          <TableColumn>Acción</TableColumn>
-                        </TableHeader>
-                        <TableBody emptyContent={"Aún no hay documentos anexos"}>
-                          {
-                            docAnexos.map( (documento) => (
-                              <TableRow key={documento.id}>
-                                <TableCell>{documento.numero}</TableCell>
-                                <TableCell>{documento.tipo}</TableCell>
-                                <TableCell>{documento.autor_nombre} {documento.autor_apellido}</TableCell>
-                                <TableCell>{documento.fecha}</TableCell>
-                                <TableCell>
-                                {
-                                  !documento.file?
-                                  <>
-                                    <Chip>No hay archivo</Chip>
-                                  </>
-                                  :<></>
-                                }
-                                {
-                                  !documento.estado=="Habilitado"?
-                                  <>
-                                    <Chip>Documento anulado</Chip>
-                                  </>
-                                  :<></>
-                                }
-                                {
-                                    hasPermission('Visualizar documento') && documento.file && documento.estado=="Habilitado"?
-                                    <>
-                                      <Tooltip content={"Visualizar"} color='secondary'>
-                                        <Link href={route('documento.visualizar',documento.id)} >
-                                          <Button className="me-1" size='sm'  color='secondary' variant='flat'> 
-                                            {/* active={route().current('documento.visualizar')} */}
-                                            <Icon path={mdiFileEyeOutline} size={1} />
-                                          </Button>
-                                        </Link>
-                                      </Tooltip>
-                                      
-                                    </>:<></>
-                                  }{
-                                    hasPermission('Descargar documento') && documento.file && documento.estado=="Habilitado"?
-                                    <>
-                                      <Tooltip content={"Descargar"} color='primary'>
-                                        <a download={documento.name_file+".pdf"} href={`data:${documento.mime_file};base64,${documento.file}`}>
-                                            <Button className="me-1" size='sm' color='primary' variant='flat'> 
-                                              {/* active={route().current('documento.visualizar')} */}
-                                              <Icon path={mdiFileDownloadOutline} size={1} />
-                                              
-                                            </Button>
-                                          </a>
-                                      </Tooltip>
-                                    </>:
-                                    <></>
-                                  }
-                                </TableCell>
-                              </TableRow>
-                            ) )
-                          }
-                         
-                        </TableBody>
-                </Table>
+                <Tabs aria-label="documentos" fullWidth color="Documentos">
+                  <Tab key="documentos-anexos" title="Documentos anexos">
+                    <Table  aria-label="Tabla documentos anexos" bottomContent={
+                          <div className="flex w-full justify-center">
+                            <Pagination isCompact showControls showShadow color="secondary"
+                              page={page} total={pages} onChange={(page) => setPage(page)} />
+                          </div>
+                        }
+                        classNames={{
+                          wrapper: "min-h-[222px]",
+                        }}>
+                            <TableHeader>
+                              <TableColumn>Numero de documento</TableColumn>
+                              <TableColumn>Tipo de documento</TableColumn>
+                              <TableColumn>Autor de documento</TableColumn>
+                              <TableColumn>Fecha de documento</TableColumn>
+                              <TableColumn>Acción</TableColumn>
+                            </TableHeader>
+                            <TableBody emptyContent={"Aún no hay documentos anexos"}>
+                              {
+                                  docAnexos.map( (documento) => (
+                                    <TableRow key={documento.datos_anexo.id}>
+                                      <TableCell>{documento.datos_anexo.numero}</TableCell>
+                                      <TableCell>{documento.datos_anexo.tipo}</TableCell>
+                                      <TableCell>{documento.datos_anexo.autor_nombre} {documento.datos_anexo.autor_apellido}</TableCell>
+                                      <TableCell>{documento.datos_anexo.fecha}</TableCell>
+                                      <TableCell>
+                                      {
+                                        !documento.datos_anexo.file?
+                                        <>
+                                          <Chip>No hay archivo</Chip>
+                                        </>
+                                        :<></>
+                                      }
+                                      {
+                                        !documento.datos_anexo.estado=="Habilitado"?
+                                        <>
+                                          <Chip>Documento anulado</Chip>
+                                        </>
+                                        :<></>
+                                      }
+                                      {
+                                          hasPermission('Visualizar documento') && documento.datos_anexo.file && documento.datos_anexo.estado=="Habilitado"?
+                                          <>
+                                            <Tooltip content={"Visualizar"} color='secondary'>
+                                              <Link href={route('documento.visualizar',documento.datos_anexo.id)} >
+                                                <Button className="me-1" size='sm'  color='secondary' variant='flat'> 
+                                                  <Icon path={mdiFileEyeOutline} size={1} />
+                                                </Button>
+                                              </Link>
+                                            </Tooltip>
+                                            
+                                          </>:<></>
+                                        }{
+                                          hasPermission('Descargar documento') && documento.datos_anexo.file && documento.datos_anexo.estado=="Habilitado"?
+                                          <>
+                                            <Tooltip content={"Descargar"} color='primary'>
+                                              <a download={documento.datos_anexo.name_file+".pdf"} href={`data:${documento.datos_anexo.mime_file};base64,${documento.datos_anexo.file}`}>
+                                                  <Button className="me-1" size='sm' color='primary' variant='flat'> 
+                                                    <Icon path={mdiFileDownloadOutline} size={1} />
+                                                    
+                                                  </Button>
+                                                </a>
+                                            </Tooltip>
+                                          </>:
+                                          <></>
+                                        }
+                                      </TableCell>
+                                    </TableRow>
+                                  ) )
+                              }
+                              
+                            
+                            </TableBody>
+                    </Table>
+                  </Tab>
+                  <Tab key="otros-anexos" title="Otros anexos">
+                      <Table  aria-label="Tabla otros anexos" bottomContent={
+                          <div className="flex w-full justify-center">
+                          <Pagination
+                              isCompact
+                              showControls
+                              showShadow
+                              color="secondary"
+                              page={page}
+                              total={pagesAnexos}
+                              onChange={(page) => setPage(page)}
+                          />
+                          </div>
+                      }
+                      classNames={{
+                          wrapper: "min-h-[222px]",
+                      }}>
+                          <TableHeader>
+                              <TableColumn>ID anexo</TableColumn>
+                              <TableColumn>Descripción</TableColumn>
+                              <TableColumn>Acción</TableColumn>
+                          </TableHeader>
+                          <TableBody emptyContent={"Aún no hay anexos"}>
+                              {
+                              itemsOtrosAnexos.map( (documento,index) => (
+                                  <TableRow key={index}>
+                                    <TableCell>{documento.otro_doc_id_anexo}</TableCell>
+                                    <TableCell>{documento.datos_anexo.descripcion}</TableCell>
+                                    <TableCell>
+                                      <Button className="me-1" size='sm'  color='secondary' variant='flat' onPress={()=>mostrar(documento)}> 
+                                        {/* active={route().current('documento.visualizar')} */}
+                                        <Icon path={mdiFileEyeOutline} size={1} />
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                              ) )
+                              }
+                              
+                          </TableBody>
+                      </Table>
+                    </Tab>
+                </Tabs>
+                
               </ModalBody>
               <ModalFooter>
                 

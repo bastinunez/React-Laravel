@@ -51,7 +51,8 @@ class DocumentoController extends Controller
                 return Inertia::render('Documentos/NoFileView');
             }
             return Inertia::render('Documentos/VisualizadorDocumento',[
-                "documento"=>$documento,
+                // "documento"=>$documento,
+                "documento"=>new DocumentoResource($documento),
                 'direcciones'=>Direccion::all(),
                 'autores'=>Funcionario::all(),
                 'tipos'=>TipoDocumento::all()
