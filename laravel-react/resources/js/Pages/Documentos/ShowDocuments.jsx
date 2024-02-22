@@ -6,7 +6,7 @@ import ContentTemplate from '@/Components/ContentTemplate';
 import { usePage ,Link, useForm} from '@inertiajs/react';
 import { usePermission } from '@/Composables/Permission';
 import {Button, Pagination, Table, TableHeader, TableBody, TableColumn, TableRow, TableCell,
-  Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip,
+  Input,Dropdown,DropdownItem,DropdownTrigger,DropdownMenu, Chip, Tab,Tabs,
   Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Tooltip,}  from "@nextui-org/react";
 import Icon from '@mdi/react';
 import { mdiFileEyeOutline, mdiFileDownloadOutline, mdiVacuumOutline,mdiMagnify,mdiChevronDown,mdiPlus, mdiCancel, mdiCheckUnderline} from '@mdi/js';
@@ -45,6 +45,8 @@ const GestionDocumentos = ({auth}) => {
 
   //VARIABLES QUE ENTREGA EL CONTROLADOR
   const { all_documents,direcciones, tipos,autores,estados } = usePage().props;
+  const [anexosDoc,setAnexosDoc] = useState([])
+  const [anexosOtros,setAnexosOtros] = useState([])
   const [documentos,setDocumentos] = useState(all_documents)
   const getDocumentos = async () => {
     try {
@@ -59,6 +61,7 @@ const GestionDocumentos = ({auth}) => {
 
   //MODAL
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const {isOpen:isOpenAnexosVer, onOpen:onOpenAnexosVer, onClose:onCloseAnexosVer} = useDisclosure();
   const [modalPlacement, setModalPlacement] = useState("auto");
   const [sinArchivos,setSinArchivos] = useState([])
 
@@ -155,6 +158,23 @@ const GestionDocumentos = ({auth}) => {
 
     return filteredItems.slice(start, end);
   }, [page, filteredItems, rowsPerPage]);
+
+  const pagesAnexosDoc = Math.ceil(anexosDoc.length / rowsPerPage);
+  const itemsAnexosDoc = React.useMemo(() => {
+      const start = (page - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+
+      return anexosDoc.slice(start, end);
+  }, [page, anexosDoc]);
+
+  const pagesAnexosOtros = Math.ceil(anexosOtros.length / rowsPerPage);
+  const itemsAnexosOtros = React.useMemo(() => {
+      const start = (page - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+
+      return anexosOtros.slice(start, end);
+  }, [page, anexosOtros]);
+
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
       const first = a[sortDescriptor.column];
@@ -248,6 +268,55 @@ const GestionDocumentos = ({auth}) => {
       onOpen()
     }
   }
+  const mostrarDoc = (documento) => {
+    const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+    const byteCharacters = atob(b64Data);
+    const byteArrays = [];
+    
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+    
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+        }
+    
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+    }
+        
+    const blob = new Blob(byteArrays, {type: contentType});
+    return blob;
+    }
+    const blob = b64toBlob(documento.file,documento.mime_file);
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl);
+  }
+
+  const mostrarAnexo = (documento) => {
+    const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+    const byteCharacters = atob(b64Data);
+    const byteArrays = [];
+    
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+    
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+        }
+    
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+    }
+        
+    const blob = new Blob(byteArrays, {type: contentType});
+    return blob;
+    }
+    const blob = b64toBlob(documento.datos_anexo.file,documento.datos_anexo.mime_file);
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl);
+  }
   
 
   return (
@@ -258,6 +327,117 @@ const GestionDocumentos = ({auth}) => {
         <Head title="Documentos" />
         <TitleTemplate>Documentos</TitleTemplate>
         <Toast ref={toast_global}></Toast>
+
+        <Modal isOpen={isOpenAnexosVer} onClose={onCloseAnexosVer} size='5xl'>
+          <ModalContent>
+            {
+              (onCloseAnexosVer) => (
+                <>
+                    <ModalHeader>
+                    Anexos
+                    </ModalHeader>
+                    <ModalBody>
+                      <Tabs aria-label="documentos" fullWidth color="Documentos">
+                          <Tab key="documentos-anexos" title="Documentos anexos">
+                              <div>
+                                  <div className=''>
+                                      <Table  aria-label="Tabla documentos anexos"
+                                      bottomContent={
+                                          <div className="flex w-full justify-center">
+                                              <Pagination isCompact showControls showShadow color="secondary" page={page}
+                                              total={pagesAnexosDoc} onChange={(page) => setPage(page)} />
+                                          </div>
+                                          }
+                                          classNames={{ wrapper: "min-h-[222px]", }}>
+                                              <TableHeader>
+                                                  <TableColumn className='text-medium'>ID</TableColumn>
+                                                  <TableColumn className='text-medium'>Numero de documento</TableColumn>
+                                                  <TableColumn className='text-medium'>Tipo de documento</TableColumn>
+                                                  <TableColumn className='text-medium'>Autor de documento</TableColumn>
+                                                  <TableColumn className='text-medium'>Fecha de documento</TableColumn>
+                                                  <TableColumn className='text-medium'>Acciones</TableColumn>
+                                              </TableHeader>
+                                              <TableBody emptyContent={"Aún no hay documentos anexos"}>
+                                              {
+                                                  itemsAnexosDoc.map( (doc_anexo) => (
+                                                  <TableRow key={doc_anexo.datos_anexo.id}>
+                                                      <TableCell>{doc_anexo.datos_anexo.id}</TableCell>
+                                                      <TableCell>{doc_anexo.datos_anexo.numero}</TableCell>
+                                                      <TableCell>{doc_anexo.datos_anexo.tipo}</TableCell>
+                                                      <TableCell> {doc_anexo.datos_anexo.autor?doc_anexo.datos_anexo.autor:doc_anexo.datos_anexo.autor_nombre +" "+doc_anexo.datos_anexo.autor_apellido} </TableCell>
+                                                      <TableCell>{doc_anexo.datos_anexo.fecha}</TableCell>
+                                                      <TableCell>
+                                                        <Tooltip content={"Ver"} color='secondary'>
+                                                          <Button className="me-1" size='sm'  color='secondary' variant='flat' onPress={()=>mostrarAnexo(doc_anexo)}>
+                                                              <Icon path={mdiFileEyeOutline} size={1} />
+                                                          </Button>
+                                                        </Tooltip>
+                                                      </TableCell>
+                                                  </TableRow>
+                                                  ) )
+                                              }
+                                              
+                                              </TableBody>
+                                      </Table>
+                                  </div>
+                              </div>
+                          </Tab>
+                          <Tab key="otros-anexos" title="Otros anexos">
+                              <Table  aria-label="Tabla otros anexos" bottomContent={
+                                  <div className="flex w-full justify-center">
+                                  <Pagination
+                                      isCompact
+                                      showControls
+                                      showShadow
+                                      color="secondary"
+                                      page={page}
+                                      total={pagesAnexosOtros}
+                                      onChange={(page) => setPage(page)}
+                                  />
+                                  </div>
+                              }
+                              classNames={{
+                                  wrapper: "min-h-[222px]",
+                              }}>
+                                  <TableHeader>
+                                      <TableColumn className='text-medium'>ID anexo</TableColumn>
+                                      <TableColumn className='text-medium'>Descripción</TableColumn>
+                                      <TableColumn className='text-medium'>Acción</TableColumn>
+                                  </TableHeader>
+                                  <TableBody emptyContent={"Aún no hay anexos"}>
+                                      {
+                                      itemsAnexosOtros.map( (documento,index) => (
+                                          <TableRow key={index}>
+                                              <TableCell>{documento.otro_doc_id_anexo}</TableCell>
+                                              <TableCell>{documento.datos_anexo.descripcion}</TableCell>
+                                              <TableCell>
+                                                  <Tooltip content={"Ver"} color='secondary'>
+                                                      <Button className="me-1" size='sm'  color='secondary' variant='flat' onPress={()=>mostrarAnexo(documento)}> 
+                                                          {/* active={route().current('documento.visualizar')} */}
+                                                          <Icon path={mdiFileEyeOutline} size={1} />
+                                                      </Button>
+                                                  </Tooltip>
+                                              </TableCell>
+                                          </TableRow>
+                                      ) )
+                                      }
+                                      
+                                  </TableBody>
+                              </Table>
+                          </Tab>
+                      </Tabs>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" variant="light" onPress={onCloseAnexosVer}>
+                          Cerrar
+                        </Button>
+                    </ModalFooter>
+                </>
+              )
+            }
+          </ModalContent>
+        </Modal>
+
         <FilterTemplate>
           <div className="lg:flex lg:flex-col gap-4">
             <div className="lg:flex mb-2">
@@ -448,36 +628,9 @@ const GestionDocumentos = ({auth}) => {
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.rut}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.direccion}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
-                        {
-                          documento.anexos.length !== 0 || documento.otros_anexos.length !== 0?
-                          <>
-                            <Dropdown type='listbox'> 
-                              <DropdownTrigger>
-                                <Button variant="bordered" size='sm'>
-                                  Anexos
-                                </Button>
-                              </DropdownTrigger>
-                              <DropdownMenu closeOnSelect={false} className='h-64 overflow-auto' aria-label="Static Actions" emptyContent={'No posee'}>
-                                {
-                                  documento.anexos.map((doc_anexo) => (
-                                    <DropdownItem key={doc_anexo.documento_id_anexo} textValue={`Número: ${doc_anexo.datos_anexo.numero}`}>Número: {doc_anexo.datos_anexo.numero}</DropdownItem>
-                                  ))
-                                }
-                                {
-                                  documento.otros_anexos.length !== 0 &&
-                                  (
-                                      <DropdownItem key={documento.otros_anexos.length} textValue={documento.otros_anexos.length}>Otros anexos: {documento.otros_anexos.length}</DropdownItem>
-                                  )
-                                }
-                              </DropdownMenu>
-                            </Dropdown>
-                          </>
-                          :
-                          <>
-                          <Chip>No posee</Chip>
-                          </>
-                        }
-                     
+                        <Button className="me-1" size='sm'  color='secondary' variant='flat' onPress={()=>{setAnexosDoc(documento.anexos);setAnexosOtros(documento.otros_anexos);onOpenAnexosVer()}}> 
+                          Ver
+                        </Button>
                       </TableCell>
                       <TableCell>
                       {
@@ -501,12 +654,12 @@ const GestionDocumentos = ({auth}) => {
                           hasPermission('Visualizar documento') && documento.file && documento.estado=="Habilitado"?
                           <>
                             <Tooltip content={"Visualizar"} color='secondary'>
-                              <Link href={route('documento.show',documento.id)} >
-                                <Button className="me-1" size='sm'  color='secondary' variant='flat'> 
+                              {/* <Link href={route('documento.visualizar',documento.id)} > */}
+                              <Button className="me-1" size='sm'  color='secondary' variant='flat' onPress={()=> mostrarDoc(documento)}> 
                                   {/* active={route().current('documento.visualizar')} */}
                                   <Icon path={mdiFileEyeOutline} size={1} />
                                 </Button>
-                              </Link>
+                              {/* </Link> */}
                             </Tooltip>
                             
                           </>:
