@@ -241,7 +241,14 @@ const GestionDocumentos = ({auth}) => {
       showMsg("No seleccionaste datos",severity.error,summary.error)
     }
   }
-
+  const descargarUno = (doc) => {
+    const respSinArchivos = DescargarDocumento(new Set([doc.id]),documentos);
+    if (respSinArchivos.length!==0){
+      setSinArchivos(respSinArchivos)
+      onOpen()
+    }
+  }
+  
 
   return (
     <AuthenticatedLayout 
@@ -442,26 +449,35 @@ const GestionDocumentos = ({auth}) => {
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>{documento.direccion}</TableCell>
                       <TableCell className='overflow-hidden whitespace-nowrap text-ellipsis'>
                         {
-                          documento.anexos.length!==0?
+                          documento.anexos.length !== 0 || documento.otros_anexos.length !== 0?
                           <>
-                            <Dropdown  type='listbox'> 
+                            <Dropdown type='listbox'> 
                               <DropdownTrigger>
-                                  <Button variant="bordered" size='sm'>
-                                      Documentos
-                                  </Button>
+                                <Button variant="bordered" size='sm'>
+                                  Anexos
+                                </Button>
                               </DropdownTrigger>
                               <DropdownMenu closeOnSelect={false} className='h-64 overflow-auto' aria-label="Static Actions" emptyContent={'No posee'}>
-                                  {
-                                      documento.anexos.map((doc_anexo) => (
-                                          <DropdownItem key={doc_anexo.documento_id_anexo} textValue={`Número: ${doc_anexo.datos_anexo.numero}`}>Número: {doc_anexo.datos_anexo.numero}</DropdownItem>
-                                      ))
-                                  }
+                                {
+                                  documento.anexos.map((doc_anexo) => (
+                                    <DropdownItem key={doc_anexo.documento_id_anexo} textValue={`Número: ${doc_anexo.datos_anexo.numero}`}>Número: {doc_anexo.datos_anexo.numero}</DropdownItem>
+                                  ))
+                                }
+                                {
+                                  documento.otros_anexos.length !== 0 &&
+                                  (
+                                      <DropdownItem key={documento.otros_anexos.length} textValue={documento.otros_anexos.length}>Otros anexos: {documento.otros_anexos.length}</DropdownItem>
+                                  )
+                                }
                               </DropdownMenu>
-                          </Dropdown>
-                          </>:
-                          <><Chip>No posee</Chip></>
+                            </Dropdown>
+                          </>
+                          :
+                          <>
+                          <Chip>No posee</Chip>
+                          </>
                         }
-                        
+                     
                       </TableCell>
                       <TableCell>
                       {
@@ -499,13 +515,12 @@ const GestionDocumentos = ({auth}) => {
                           hasPermission('Descargar documento') && documento.file && documento.estado=="Habilitado"?
                           <>
                             <Tooltip content={"Descargar"} color='primary'>
-                              <a download={documento.name_file+".pdf"} href={`data:${documento.mime_file};base64,${documento.file}`}>
-                                  <Button className="me-1" size='sm' color='primary' variant='flat'> 
+                              {/* <a download={documento.name_file+".pdf"} href={`data:${documento.mime_file};base64,${documento.file}`}> */}
+                                  <Button className="me-1" size='sm' color='primary' variant='flat' onPress={()=>descargarUno(documento)}> 
                                     {/* active={route().current('documento.visualizar')} */}
                                     <Icon path={mdiFileDownloadOutline} size={1} />
-                                    
                                   </Button>
-                                </a>
+                                {/* </a> */}
                             </Tooltip>
                           </>:
                           <></>
