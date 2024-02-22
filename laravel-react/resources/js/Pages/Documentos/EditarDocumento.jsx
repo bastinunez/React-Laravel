@@ -104,7 +104,7 @@ const EditarDocumento = ({auth}) => {
         materia_documento: ' ',
         estado:false
     });
-    const {data:dataOtroAnexo, setData:setDataOtroAnexo, post:postOtroAnexo,errors:errorsOtroAnexo}=useForm({
+    const {data:dataOtroAnexo, setData:setDataOtroAnexo, post:postOtroAnexo,errors:errorsOtroAnexo,reset:resetOtroAnexo}=useForm({
         documento_id:documento.id,
         descripcion:'',
         archivo:''
@@ -236,7 +236,7 @@ const EditarDocumento = ({auth}) => {
         onOpenProgress()
         postOtroAnexo(route('otro-anexo.store'),{
             onSuccess: (msg) => {
-                getDocuments(documento.id);setStateBtnModal(true);
+                getDocuments(documento.id);setStateBtnModal(true);resetOtroAnexo('descripcion','archivo');
                 showMsg(msg.create,severity.success,summary.success);onCloseProgress();setStateBtnModal(false)
             },
             onError: (errors) => {
