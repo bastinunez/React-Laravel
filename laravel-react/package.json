@@ -34,7 +34,7 @@
         "jszip": "^3.10.1",
         "mime": "^4.0.1",
         "nprogress": "^0.2.0",
-        "pdfjs-dist": "^3.4.120",
+        "pdfjs-dist": "^4.2.0",
         "primeicons": "^6.0.1",
         "primereact": "^10.3.2",
         "save-as": "^0.1.8",
