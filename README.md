@@ -83,6 +83,7 @@
 - ```sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin```
 - (Para verificar la instalación) sudo docker run hello-world
 ### Manual de uso:
+- En laravel-react existe un .emv.example en el cual se debe copiar ese archivo y crear otro llamado .env, en este .env se debe colocar las credenciales de la base de datos 
 - Ubicarse en la carpeta raiz (donde se encuentra el archivo docker-compose.yml) y abrir terminal: 
     ```
     docker-compose up -d --build
