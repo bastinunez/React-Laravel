@@ -1,9 +1,21 @@
 # Etapa 1: Construcción de la aplicación Laravel
-FROM php:8.1-fpm as build
+FROM composer:2 as build
 
-# Instala las extensiones necesarias y otras dependencias
+# Establecer el directorio de trabajo
+WORKDIR /app
+
+# Copiar los archivos de la aplicación
+COPY . .
+
+# Instalar las dependencias de Composer
+RUN composer install --no-dev --optimize-autoloader
+
+# Etapa 2: Imagen final con Nginx y PHP-FPM
+FROM php:8.1-fpm
+
+# Instalar las extensiones necesarias y otras dependencias según tus necesidades
 RUN apt-get update && apt-get install -y \
-    build-essential \
+    nginx \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
@@ -13,67 +25,34 @@ RUN apt-get update && apt-get install -y \
     vim \
     unzip \
     git \
-    curl \
-    && apt-get install -y procps \
-    && apt-get clean
+    curl
 
-# Configura el idioma
-RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
+# Instalar Node.js y npm
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get install -y nodejs
 
-# Añade un usuario y un grupo para evitar problemas de permisos
-ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN groupadd -g 1000 www \
-    && useradd -u 1000 -ms /bin/bash -g www www
-
-# Instala y habilita las extensiones de PHP
+# Agregar y habilitar las extensiones de PHP-PDO
 RUN docker-php-ext-install pdo pdo_mysql
+RUN docker-php-ext-enable pdo_mysql
 
-# Instala Node.js y npm
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs
+# Crear usuario y grupo
+RUN groupadd -g 1000 www
+RUN useradd -u 1000 -ms /bin/bash -g www www
 
-# Configura el usuario y el directorio de trabajo
+# Configurar el usuario y el directorio de trabajo
 WORKDIR /var/www/html
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copia los archivos de la aplicación
-COPY --chown=www:www . /var/www/html
+# Copiar archivos de la aplicación desde la etapa de construcción
+COPY --from=build /app /var/www/html
 
-# Instala las dependencias de Composer
-USER root
-RUN composer install --no-interaction --no-scripts --no-suggest --prefer-dist
-USER www
+# Copiar configuración de Nginx
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 
-# Instala y compila las dependencias de Node.js
-# RUN npm install
-# RUN npm run build
+# Asignar permisos a los directorios de almacenamiento y cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Expone el puerto 9000 para la comunicación entre Nginx y PHP-FPM
-EXPOSE 9000
+# Exponer el puerto 8080 para Cloud Run
+EXPOSE 8080
 
-USER www
-
-# Comando de inicio para PHP-FPM
-CMD ["php-fpm"]
-
-# Etapa 2: Configuración de Nginx
-FROM nginx:1.24
-
-# Configura Nginx
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-
-# Copia la configuración de Nginx
-COPY default.conf /etc/nginx/conf.d/default.conf
-
-# Configura los logs para que se redirijan a stdout y stderr
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-    && ln -sf /dev/stderr /var/log/nginx/error.log
-
-# Copia los archivos del build de Laravel a la imagen de Nginx
-COPY --from=build /var/www/html /var/www/html
-
-# Expone el puerto 80
-EXPOSE 80
-
-# Comando de inicio para Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Comando de inicio para PHP-FPM y Nginx
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
